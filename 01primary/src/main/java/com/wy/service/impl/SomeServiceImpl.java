@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 public class SomeServiceImpl implements SomeService {
     @Override
     public String hello() {
+//        int i=3/0;
         return "hello service";
     }
 }

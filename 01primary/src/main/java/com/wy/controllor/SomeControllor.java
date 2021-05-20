@@ -1,5 +1,7 @@
 package com.wy.controllor;
 
+import com.wy.service.SomeService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -10,8 +12,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class SomeControllor {
 
+    @Autowired
+    private SomeService someService;
     @GetMapping("some")
     public String someHandle(){
-        return "hello SpringBoot";
+        return someService.hello();
     }
 }
