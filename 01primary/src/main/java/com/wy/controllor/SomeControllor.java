@@ -1,5 +1,6 @@
 package com.wy.controllor;
 
+import com.wy.bean.Student;
 import com.wy.service.SomeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,7 +17,7 @@ public class SomeControllor {
     @Autowired
     private SomeService someService;
 
-    @GetMapping("some")
+    @GetMapping("/some")
     public String someHandle() {
         return someService.hello();
     }
@@ -24,8 +25,22 @@ public class SomeControllor {
     @Value("${server.port}")
     private int port;
 
-    @GetMapping("port")
-    public String port() {
+    @GetMapping("/port")
+    public String portHandle() {
         return "port=" + port;
+    }
+
+    @Value("${Compte.adasfa}")
+    private String custome;
+    @GetMapping("/custome")
+    public String customeHandle() {
+        return "custome=" + custome;
+    }
+
+    @Autowired
+    private Student student;
+    @GetMapping("/student")
+    public String studentHandle() {
+        return "student=" + student;
     }
 }
