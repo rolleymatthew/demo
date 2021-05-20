@@ -2,6 +2,7 @@ package com.wy.controllor;
 
 import com.wy.service.SomeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -14,8 +15,17 @@ public class SomeControllor {
 
     @Autowired
     private SomeService someService;
+
     @GetMapping("some")
-    public String someHandle(){
+    public String someHandle() {
         return someService.hello();
+    }
+
+    @Value("${server.port}")
+    private int port;
+
+    @GetMapping("port")
+    public String port() {
+        return "port=" + port;
     }
 }
