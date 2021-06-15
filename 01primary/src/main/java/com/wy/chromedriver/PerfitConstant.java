@@ -208,7 +208,7 @@ public class PerfitConstant {
     /**
      * 浏览器数量
      */
-    public static int DriverPoolSize = 8;
+    public static int DriverPoolSize = 1;
 
     /**
      * 远程浏览器地址

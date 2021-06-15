@@ -97,10 +97,12 @@ public class PerfitMultiChromeDriver {
 //        perfitPoolChromeDriver.getWebDriverContent(stringStringEntry.getValue(),driver);
         driver.get(stringStringEntry.getValue());
         //1.按照xPath点击第一页driver
-        getFirstPage(driver, "//*[@id=\"lrb_ul\"]/li[3]/span");
+//        getFirstPage(driver, "//*[@id=\"lrb_ul\"]/li[3]/span");
+        getFirstPage(driver, "//*[@id=\"lrb_a\"]");
 
         //2.得到第一页的页面元素
-        List<WebElement> element = getElementsByTr(driver, "//*[@id=\"report_lrb\"]/tbody/tr");
+        List<WebElement> element = getElementsByTr(driver, "//*[@id=\"report_lrb_table\"]/tbody/tr");
+//        List<WebElement> element = getElementsByTr(driver, "//*[@id=\"report_lrb\"]/tbody/tr");
 
         //3.获取详细数据到bean数组
         PerfitDataEnter perfitDataEnter = setPerfitList(element, stringStringEntry.getKey(), 0);
