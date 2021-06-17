@@ -8,4 +8,6 @@ import org.springframework.stereotype.Service;
 
 public interface SomeService {
     String hello();
+
+    String getCode();
 }
