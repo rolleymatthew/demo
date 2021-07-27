@@ -21,7 +21,7 @@ public class ETFUtils {
     public static List<String> dateList = new ArrayList<>();
 
     private static List<ResultClass> totalResult = new ArrayList<>();
-    private static String[] columnNames = {"日期", "名称", "代码", "总份额(万份)"};
+    private static String[] columnNames = {"日期", "名称", "代码", "总份额(万份)","第一天","第二天","第三天"};
     private static String[] columnNamesScope = {"日期", "名称", "代码", "总份额(万份)","比对日期","比对前总份额(万份)", "变动份额(万份)"};
 
     public static void main(String[] args) throws IOException, InterruptedException {
@@ -131,6 +131,9 @@ public class ETFUtils {
                         && thirdETF > yesterdayETF
                         && yesterdayETF > nowETF) {
                     resultClassListAll.add(resultClass);
+                    resultClass.setDEFF1(yesterdayETF-nowETF);
+                    resultClass.setDEFF2(thirdETF-yesterdayETF);
+                    resultClass.setDEFF3(fourETF-thirdETF);
                     stringBuilder.append(getString(resultClass));
                     yesterdayETF = 0.0;
                     nowETF = 0.0;
@@ -173,6 +176,9 @@ public class ETFUtils {
                         && thirdETF < yesterdayETF
                         && yesterdayETF < nowETF) {
                     stringBuilder.append(getString(resultClass));
+                    resultClass.setDEFF1(nowETF-yesterdayETF);
+                    resultClass.setDEFF2(yesterdayETF-thirdETF);
+                    resultClass.setDEFF3(thirdETF-fourETF);
                     resultClassListAll.add(resultClass);
                     yesterdayETF = 0.0;
                     nowETF = 0.0;
@@ -209,6 +215,8 @@ public class ETFUtils {
                         && thirdETF > yesterdayETF
                         && yesterdayETF > nowETF) {
                     stringBuilder.append(getString(resultClass));
+                    resultClass.setDEFF1(yesterdayETF-nowETF);
+                    resultClass.setDEFF2(thirdETF-yesterdayETF);
                     resultClassListAll.add(resultClass);
                     yesterdayETF = 0.0;
                     nowETF = 0.0;
@@ -238,6 +246,7 @@ public class ETFUtils {
                 }
                 if (yesterdayETF > 0 && nowETF > 0 && yesterdayETF > nowETF) {
                     stringBuilder.append(getString(resultClass));
+                    resultClass.setDEFF1(yesterdayETF-nowETF);
                     resultClassListAll.add(resultClass);
                     yesterdayETF = 0.0;
                     nowETF = 0.0;
@@ -272,6 +281,8 @@ public class ETFUtils {
                         && thirdETF < yesterdayETF
                         && yesterdayETF < nowETF) {
                     stringBuilder.append(getString(resultClass));
+                    resultClass.setDEFF1(nowETF-yesterdayETF);
+                    resultClass.setDEFF2(yesterdayETF-thirdETF);
                     resultClassListAll.add(resultClass);
                     yesterdayETF = 0.0;
                     nowETF = 0.0;
@@ -301,6 +312,7 @@ public class ETFUtils {
                 }
                 if (yesterdayETF > 0 && nowETF > 0 && yesterdayETF < nowETF) {
                     stringBuilder.append(getString(resultClass));
+                    resultClass.setDEFF1(nowETF-yesterdayETF);
                     resultClassListAll.add(resultClass);
                     yesterdayETF = 0.0;
                     nowETF = 0.0;
@@ -493,6 +505,33 @@ public class ETFUtils {
         private String SEC_NAME;
         private String SEC_CODE;
         private Double TOT_VOL;
+        private Double DEFF1;
+        private Double DEFF2;
+        private Double DEFF3;
+
+        public Double getDEFF1() {
+            return DEFF1;
+        }
+
+        public void setDEFF1(Double DEFF1) {
+            this.DEFF1 = DEFF1;
+        }
+
+        public Double getDEFF2() {
+            return DEFF2;
+        }
+
+        public void setDEFF2(Double DEFF2) {
+            this.DEFF2 = DEFF2;
+        }
+
+        public Double getDEFF3() {
+            return DEFF3;
+        }
+
+        public void setDEFF3(Double DEFF3) {
+            this.DEFF3 = DEFF3;
+        }
 
         public String getSEC_NAME() {
             return SEC_NAME;
