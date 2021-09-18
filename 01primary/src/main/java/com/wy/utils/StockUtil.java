@@ -1,12 +1,18 @@
 package com.wy.utils;
 
+import com.wy.chromedriver.PerfitConstant;
+import com.wy.chromedriver.PerfitDataEnter;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by yunwang on 2021/9/18 14:08
@@ -20,12 +26,14 @@ public class StockUtil {
     //文件名称
     private static String FILE_NAME_YLNL = "%sylnl.csv";
 
+    static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(PerfitConstant.threadNum, PerfitConstant.threadNum, 5, TimeUnit.SECONDS
+            , new LinkedBlockingDeque<>(), new BasicThreadFactory.Builder().namingPattern("StockUtil-pool-%d").daemon(true).build());
+
     public static void main(String[] args) {
         String stockCode = "600519";
-        String[] codes = AllStock.SH_MAIN.split(",");
-
         List<String> codeList = new ArrayList<>();
 
+        String[] codes = AllStock.SH_MAIN.split(",");
         for (String code : codes) {
             codeList.add(StringUtils.trim(code));
         }
@@ -41,14 +49,32 @@ public class StockUtil {
         }
 
         System.out.println("total:" + codeList.size());
-        for (String code : codes) {
-            getStockContent(StringUtils.trim(code), String.format(FILE_NAME_YLNL, StringUtils.trim(code)));
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+
+        threadPoolExecutor.prestartAllCoreThreads();
+        for (String code : codeList) {
+            threadPoolExecutor.execute(() -> {
+                System.out.println(Thread.currentThread().getName() + ":" + code);
+                //爬取数据
+                try {
+                    getStockContent(StringUtils.trim(code), String.format(FILE_NAME_YLNL, StringUtils.trim(code)));
+//                    Thread.sleep(500);
+                } catch (Exception e) {
+                    System.out.println(code);
+                }
+            });
         }
+
+        try {
+            System.in.read(); //阻塞主线程
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+//        try {
+//            Thread.sleep(600000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
     }
 
     //获取单个票CVS文件

@@ -204,7 +204,7 @@ public class PerfitConstant {
     /**
      * 线程数
      */
-    public static int threadNum = 4;
+    public static int threadNum = 16;
     /**
      * 浏览器数量
      */
