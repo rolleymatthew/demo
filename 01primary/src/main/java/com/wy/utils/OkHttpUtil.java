@@ -10,6 +10,7 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -48,10 +49,10 @@ public class OkHttpUtil {
     }
 
     public static String doGet(String url) {
-        return doGet(url,null);
+        return doGet(url,null,null);
     }
 
-    public static String doGet(String url, Map<String,String> header) {
+    public static String doGet(String url, Map<String,String> header,String charset) {
         Request.Builder builder = new Request.Builder();
         if(header != null && header.size() != 0){
             for(Map.Entry<String,String> e:header.entrySet()) {
@@ -62,7 +63,11 @@ public class OkHttpUtil {
         Response response = null;
         try {
             response = okHttpClient.newCall(request).execute();
-            return response.body().string();
+            if (charset.equals("GBK")){
+                return new String(response.body().bytes(),"GB2312");
+            }else {
+                return response.body().string();
+            }
         } catch (IOException e) {
             logger.error("error get with url[{}]",url,e);
         }

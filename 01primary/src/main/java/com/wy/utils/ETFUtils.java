@@ -30,7 +30,7 @@ public class ETFUtils {
         //导出20天和长天期的数据文件
 //        getETFcsv(20, true,true,true);
         ExportExcelUtil exportExcelUtil = new ExportExcelUtil();
-        getETFcsv(31, false, true, false, exportExcelUtil);
+        getETFcsv(91, false, true, false, exportExcelUtil);
 
         //计算数据
         HashMap<Integer, List<ResultClass>> totalMap = new HashMap<>();
@@ -60,7 +60,7 @@ public class ETFUtils {
         getFourDayDelComp(totalMap, exportExcelUtil);
 
         //4.三天变化最大的前十
-        int[] days = {1,2,3,5,10,20,30};
+        int[] days = {1,2,3,5,10,20,30,60,90};
         for (int day : days) {
             getScopesByDays(exportExcelUtil, totalMap, day);
         }
@@ -449,7 +449,7 @@ public class ETFUtils {
         headerMap.put("Host", "query.sse.com.cn");
         headerMap.put("Referer", "http://www.sse.com.cn/market/funddata/volumn/etfvolumn/");
         headerMap.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36 SE 2.X MetaSr 1.0");
-        String ss = OkHttpUtil.doGet(url, headerMap);
+        String ss = OkHttpUtil.doGet(url, headerMap,null);
         JSONObject jsonObject = JSON.parseObject(ss);
         JSONArray result = jsonObject.getJSONArray("result");
         List<ResultClass> resultClassList = new ArrayList<>();
