@@ -1,5 +1,6 @@
 package com.wy.utils;
 
+import ch.qos.logback.core.helpers.CyclicBuffer;
 import com.wy.chromedriver.PerfitConstant;
 import com.wy.chromedriver.PerfitDataEnter;
 import org.apache.commons.lang3.StringUtils;
@@ -30,27 +31,11 @@ public class StockUtil {
             , new LinkedBlockingDeque<>(), new BasicThreadFactory.Builder().namingPattern("StockUtil-pool-%d").daemon(true).build());
 
     public static void main(String[] args) {
-        String stockCode = "600519";
-        List<String> codeList = new ArrayList<>();
-
-        String[] codes = AllStock.SH_MAIN.split(",");
-        for (String code : codes) {
-            codeList.add(StringUtils.trim(code));
-        }
-
-        codes = AllStock.SH_KC.split(",");
-        for (String code : codes) {
-            codeList.add(StringUtils.trim(code));
-        }
-
-        codes = AllStock.SZ.split(",");
-        for (String code : codes) {
-            codeList.add(StringUtils.trim(code));
-        }
-
+        List<String> codeList = getAllCodes();
         System.out.println("total:" + codeList.size());
 
         threadPoolExecutor.prestartAllCoreThreads();
+        long l = System.currentTimeMillis();
         for (String code : codeList) {
             threadPoolExecutor.execute(() -> {
                 System.out.println(Thread.currentThread().getName() + ":" + code);
@@ -67,16 +52,10 @@ public class StockUtil {
             while (!threadPoolExecutor.awaitTermination(6, TimeUnit.SECONDS)) {
 
                 int activeCount = threadPoolExecutor.getActiveCount();
-                try {
-                    if (activeCount == 0) {
-                        System.out.println("Enter any words and press enter to exit...");
-                        System.in.read(); //阻塞主线程
-                        System.out.println("system terminated...");
-                        threadPoolExecutor.shutdownNow();
-                        System.exit(0);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
+                if (activeCount == 0) {
+                    System.out.println("system terminated times.." + (System.currentTimeMillis() - l) / 1000 + "s");
+                    threadPoolExecutor.shutdownNow();
+                    System.exit(0);
                 }
 
             }
@@ -84,6 +63,25 @@ public class StockUtil {
             e.printStackTrace();
         }
 
+    }
+
+    private static List<String> getAllCodes() {
+        List<String> codeList=new ArrayList<>();
+        String[] codes = AllStock.SH_MAIN.split(",");
+        for (String code : codes) {
+            codeList.add(StringUtils.trim(code));
+        }
+
+        codes = AllStock.SH_KC.split(",");
+        for (String code : codes) {
+            codeList.add(StringUtils.trim(code));
+        }
+
+        codes = AllStock.SZ.split(",");
+        for (String code : codes) {
+            codeList.add(StringUtils.trim(code));
+        }
+        return codeList;
     }
 
     //获取单个票CVS文件
