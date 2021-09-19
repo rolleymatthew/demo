@@ -64,13 +64,17 @@ public class StockUtil {
         }
 
         try {
-            while (!threadPoolExecutor.awaitTermination(20, TimeUnit.SECONDS)) {
+            while (!threadPoolExecutor.awaitTermination(6, TimeUnit.SECONDS)) {
+
+                int activeCount = threadPoolExecutor.getActiveCount();
                 try {
-                    System.out.println("Enter any words and press enter to exit...");
-                    System.in.read(); //阻塞主线程
-                    System.out.println("system terminated...");
-                    threadPoolExecutor.shutdownNow();
-                    System.exit(0);
+                    if (activeCount == 0) {
+                        System.out.println("Enter any words and press enter to exit...");
+                        System.in.read(); //阻塞主线程
+                        System.out.println("system terminated...");
+                        threadPoolExecutor.shutdownNow();
+                        System.exit(0);
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
