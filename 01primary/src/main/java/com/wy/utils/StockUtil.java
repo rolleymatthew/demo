@@ -57,7 +57,6 @@ public class StockUtil {
                 //爬取数据
                 try {
                     getStockContent(StringUtils.trim(code), String.format(FILE_NAME_YLNL, StringUtils.trim(code)));
-//                    Thread.sleep(500);
                 } catch (Exception e) {
                     System.out.println(code);
                 }
@@ -65,16 +64,22 @@ public class StockUtil {
         }
 
         try {
-            System.in.read(); //阻塞主线程
-        } catch (IOException e) {
+            while (!threadPoolExecutor.awaitTermination(20, TimeUnit.SECONDS)) {
+                try {
+                    System.out.println("Enter any words and press enter to exit...");
+                    System.in.read(); //阻塞主线程
+                    System.out.println("system terminated...");
+                    threadPoolExecutor.shutdownNow();
+                    System.exit(0);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-//        try {
-//            Thread.sleep(600000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
     }
 
     //获取单个票CVS文件
