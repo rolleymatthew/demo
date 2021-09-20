@@ -21,11 +21,15 @@ import java.util.concurrent.TimeUnit;
 public class StockUtil {
 
     //盈利能力抓取路径
-    private static String URL_YLNL = "http://quotes.money.163.com/service/zycwzb_%s.html?type=season&part=ylnl";
+    private static String URL_DOMAIN = "http://quotes.money.163.com/";
+    private static String URL_YLNL = "service/zycwzb_%s.html?type=season&part=ylnl";
+    private static String URL_ZYCWZB_REPORT = "service/zycwzb_%s.html?type=report";
     //磁盘路径
-    private static String PATH = "d:\\stockDetail\\";
+    private static String PATH_MAIN = "d:\\stockDetail\\";
+    private static String PATH_YLNL = "ylnl\\";
+    private static String PATH_ZYCWZB = "zycwzb\\";
     //文件名称
-    private static String FILE_NAME_YLNL = "%sylnl.csv";
+    private static String FILE_NAME_YLNL = "%s.csv";
 
     static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(PerfitConstant.threadNum, PerfitConstant.threadNum, 5, TimeUnit.SECONDS
             , new LinkedBlockingDeque<>(), new BasicThreadFactory.Builder().namingPattern("StockUtil-pool-%d").daemon(true).build());
@@ -41,7 +45,8 @@ public class StockUtil {
                 System.out.println(Thread.currentThread().getName() + ":" + code);
                 //爬取数据
                 try {
-                    getStockContent(StringUtils.trim(code), String.format(FILE_NAME_YLNL, StringUtils.trim(code)));
+                    getYLNLContent(StringUtils.trim(code), String.format(FILE_NAME_YLNL, StringUtils.trim(code)));
+                    getZYCWZBContent(StringUtils.trim(code), String.format(FILE_NAME_YLNL, StringUtils.trim(code)));
                 } catch (Exception e) {
                     System.out.println(code);
                 }
@@ -85,9 +90,9 @@ public class StockUtil {
     }
 
     //获取单个票CVS文件
-    private static void getStockContent(String stockCode, String fileName) {
+    private static void getYLNLContent(String stockCode, String fileName) {
         //1.生成URL
-        String urlformat = String.format(URL_YLNL, stockCode);
+        String urlformat = String.format(URL_DOMAIN+URL_YLNL, stockCode);
         //2.获取数据
         String temp = getResultClasses(urlformat);
         //3.保存文件
@@ -96,7 +101,23 @@ public class StockUtil {
             return;
         }
         try {
-            FilesUtil.writeFile(PATH, fileName, temp);
+            FilesUtil.writeFile(PATH_MAIN+PATH_YLNL, fileName, temp);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    private static void getZYCWZBContent(String stockCode, String fileName) {
+        //1.生成URL
+        String urlformat = String.format(URL_DOMAIN+URL_YLNL, stockCode);
+        //2.获取数据
+        String temp = getResultClasses(urlformat);
+        //3.保存文件
+        if (temp.isEmpty()) {
+            System.out.println(stockCode + "数据库空");
+            return;
+        }
+        try {
+            FilesUtil.writeFile(PATH_MAIN+PATH_ZYCWZB, fileName, temp);
         } catch (IOException e) {
             e.printStackTrace();
         }
