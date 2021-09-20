@@ -7,13 +7,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * Created by yunwang on 2021/9/18 14:08
@@ -35,6 +33,32 @@ public class StockUtil {
             , new LinkedBlockingDeque<>(), new BasicThreadFactory.Builder().namingPattern("StockUtil-pool-%d").daemon(true).build());
 
     public static void main(String[] args) {
+        //获取数据到文件
+//        spiderContent();
+
+        //读文件计算数据
+        String path = PATH_MAIN + PATH_ZYCWZB;
+        List<String> filesOfDictory = FilesUtil.getFilesOfDictory(path);
+//        filesOfDictory.stream().forEach(System.out::println);
+        filesOfDictory.stream().forEach(file -> {
+//            System.out.println(file);
+            try {
+                List<String> fileContent = FilesUtil.readFileAsListOfStrings(path + file, "GBK");
+                //过滤不合格的行
+                List<String> collect = fileContent.stream().filter(c ->c.split(",").length >= 2).collect(Collectors.toList());
+//                Optional<String> first = collect.stream().findFirst();
+//                if (first.isPresent()){
+//                    String date = first.get();
+//                    System.out.println(date);
+//                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    private static void spiderContent() {
         List<String> codeList = getAllCodes();
         System.out.println("total:" + codeList.size());
 
@@ -67,11 +91,10 @@ public class StockUtil {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
     }
 
     private static List<String> getAllCodes() {
-        List<String> codeList=new ArrayList<>();
+        List<String> codeList = new ArrayList<>();
         String[] codes = AllStock.SH_MAIN.split(",");
         for (String code : codes) {
             codeList.add(StringUtils.trim(code));
@@ -92,7 +115,7 @@ public class StockUtil {
     //获取单个票CVS文件
     private static void getYLNLContent(String stockCode, String fileName) {
         //1.生成URL
-        String urlformat = String.format(URL_DOMAIN+URL_YLNL, stockCode);
+        String urlformat = String.format(URL_DOMAIN + URL_YLNL, stockCode);
         //2.获取数据
         String temp = getResultClasses(urlformat);
         //3.保存文件
@@ -101,14 +124,15 @@ public class StockUtil {
             return;
         }
         try {
-            FilesUtil.writeFile(PATH_MAIN+PATH_YLNL, fileName, temp);
+            FilesUtil.writeFile(PATH_MAIN + PATH_YLNL, fileName, temp);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
     private static void getZYCWZBContent(String stockCode, String fileName) {
         //1.生成URL
-        String urlformat = String.format(URL_DOMAIN+URL_ZYCWZB_REPORT, stockCode);
+        String urlformat = String.format(URL_DOMAIN + URL_ZYCWZB_REPORT, stockCode);
         //2.获取数据
         String temp = getResultClasses(urlformat);
         //3.保存文件
@@ -117,7 +141,7 @@ public class StockUtil {
             return;
         }
         try {
-            FilesUtil.writeFile(PATH_MAIN+PATH_ZYCWZB, fileName, temp);
+            FilesUtil.writeFile(PATH_MAIN + PATH_ZYCWZB, fileName, temp);
         } catch (IOException e) {
             e.printStackTrace();
         }
