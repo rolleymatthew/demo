@@ -29,7 +29,7 @@ public class StockUtil {
     private static String PATH_YLNL = "ylnl\\";
     private static String PATH_ZYCWZB = "zycwzb\\";
     //文件名称
-    private static String FILE_NAME_YLNL = "%s.csv";
+    private static String FILE_NAME = "%s.csv";
 
     static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(PerfitConstant.threadNum, PerfitConstant.threadNum, 5, TimeUnit.SECONDS
             , new LinkedBlockingDeque<>(), new BasicThreadFactory.Builder().namingPattern("StockUtil-pool-%d").daemon(true).build());
@@ -45,8 +45,8 @@ public class StockUtil {
                 System.out.println(Thread.currentThread().getName() + ":" + code);
                 //爬取数据
                 try {
-                    getYLNLContent(StringUtils.trim(code), String.format(FILE_NAME_YLNL, StringUtils.trim(code)));
-                    getZYCWZBContent(StringUtils.trim(code), String.format(FILE_NAME_YLNL, StringUtils.trim(code)));
+                    getZYCWZBContent(StringUtils.trim(code), String.format(FILE_NAME, StringUtils.trim(code)));
+//                    getYLNLContent(StringUtils.trim(code), String.format(FILE_NAME, StringUtils.trim(code)));
                 } catch (Exception e) {
                     System.out.println(code);
                 }
@@ -108,7 +108,7 @@ public class StockUtil {
     }
     private static void getZYCWZBContent(String stockCode, String fileName) {
         //1.生成URL
-        String urlformat = String.format(URL_DOMAIN+URL_YLNL, stockCode);
+        String urlformat = String.format(URL_DOMAIN+URL_ZYCWZB_REPORT, stockCode);
         //2.获取数据
         String temp = getResultClasses(urlformat);
         //3.保存文件
