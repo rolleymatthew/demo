@@ -14,7 +14,7 @@ public class FilesUtil {
         mkdirs(filepath);
         FileOutputStream fos = new FileOutputStream(filepath + "\\" + filename);
 
-        OutputStreamWriter osw = new OutputStreamWriter(fos, "gbk");
+        OutputStreamWriter osw = new OutputStreamWriter(fos, "GBK");
 
         BufferedWriter out = new BufferedWriter(osw);
         out.write(text);
@@ -23,9 +23,36 @@ public class FilesUtil {
         osw.flush();
 
         fos.flush();
+        out.close();
+        osw.close();
+        fos.close();
 
     }
 
+    /**
+     *
+     * @Title: writeFile
+     * @Description: 写文件
+     * @param @param filePath 文件路径
+     * @param @param fileContent    文件内容
+     * @return void    返回类型
+     * @throws
+     */
+    public static void writeFile(String filePath, String fileContent) {
+        try {
+            File f = new File(filePath);
+            if (!f.exists()) {
+                f.createNewFile();
+            }
+            OutputStreamWriter write = new OutputStreamWriter(new FileOutputStream(f), "UTF-8");
+            BufferedWriter writer = new BufferedWriter(write);
+            writer.write(fileContent);
+            writer.close();
+        } catch (Exception e) {
+            System.out.println("写文件内容操作出错");
+            e.printStackTrace();
+        }
+    }
     public static boolean existsAndIsFile(String filename) {
         File file = new File(filename);
         return file.exists() && file.isFile();

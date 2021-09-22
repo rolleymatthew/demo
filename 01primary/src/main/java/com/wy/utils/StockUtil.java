@@ -34,7 +34,7 @@ public class StockUtil {
 
     public static void main(String[] args) {
         //获取数据到文件
-//        spiderContent();
+        spiderContent();
 
         //读文件计算数据
         String path = PATH_MAIN + PATH_ZYCWZB;
@@ -59,6 +59,7 @@ public class StockUtil {
     }
 
     private static void spiderContent() {
+//        List<String> codeList = getSomeCodes();
         List<String> codeList = getAllCodes();
         System.out.println("total:" + codeList.size());
 
@@ -112,6 +113,16 @@ public class StockUtil {
         return codeList;
     }
 
+    private static List<String> getSomeCodes() {
+        List<String> codeList = new ArrayList<>();
+        String[] codes = AllStock.SH_MAIN_.split(",");
+        for (String code : codes) {
+            codeList.add(StringUtils.trim(code));
+        }
+
+        return codeList;
+    }
+
     //获取单个票CVS文件
     private static void getYLNLContent(String stockCode, String fileName) {
         //1.生成URL
@@ -141,6 +152,7 @@ public class StockUtil {
             return;
         }
         try {
+            System.out.println(temp);
             FilesUtil.writeFile(PATH_MAIN + PATH_ZYCWZB, fileName, temp);
         } catch (IOException e) {
             e.printStackTrace();
