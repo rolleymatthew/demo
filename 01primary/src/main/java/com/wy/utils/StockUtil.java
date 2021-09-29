@@ -61,21 +61,27 @@ public class StockUtil {
     private static void spiderContent() {
 //        List<String> codeList = getSomeCodes();
         List<String> codeList = getAllCodes();
+        List<String> errorList = new ArrayList<>();
         System.out.println("total:" + codeList.size());
 
         threadPoolExecutor.prestartAllCoreThreads();
         long l = System.currentTimeMillis();
         for (String code : codeList) {
             threadPoolExecutor.execute(() -> {
-                System.out.println(Thread.currentThread().getName() + ":" + code);
+//                System.out.println(Thread.currentThread().getName() + ":" + code);
                 //爬取数据
                 try {
-                    getZYCWZBContent(StringUtils.trim(code), String.format(FILE_NAME, StringUtils.trim(code)));
-//                    getYLNLContent(StringUtils.trim(code), String.format(FILE_NAME, StringUtils.trim(code)));
+                    getContent(code);
                 } catch (Exception e) {
-                    System.out.println(code);
+                    errorList.add(code);
+//                    System.out.println(code);
                 }
             });
+        }
+
+        System.out.println("超时:"+errorList.size());
+        for (String s : errorList) {
+            getContent(s);
         }
 
         try {
@@ -92,6 +98,11 @@ public class StockUtil {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    private static void getContent(String code) {
+        getZYCWZBContent(StringUtils.trim(code), String.format(FILE_NAME, StringUtils.trim(code)));
+        getYLNLContent(StringUtils.trim(code), String.format(FILE_NAME, StringUtils.trim(code)));
     }
 
     private static List<String> getAllCodes() {
@@ -152,7 +163,6 @@ public class StockUtil {
             return;
         }
         try {
-            System.out.println(temp);
             FilesUtil.writeFile(PATH_MAIN + PATH_ZYCWZB, fileName, temp);
         } catch (IOException e) {
             e.printStackTrace();
