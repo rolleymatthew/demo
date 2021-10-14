@@ -2,6 +2,7 @@ package com.wy.utils;
 
 import com.alibaba.fastjson.JSON;
 import okhttp3.*;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +64,7 @@ public class OkHttpUtil {
         Response response = null;
         try {
             response = okHttpClient.newCall(request).execute();
-            if (charset.equals("GBK")){
+            if (StringUtils.isNotEmpty(charset)&&StringUtils.equals(charset,"GBK")){
                 return new String(response.body().bytes(),"GB2312");
             }else {
                 return response.body().string();

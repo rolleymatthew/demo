@@ -10,10 +10,15 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class ETFUtils {
-    private static String url = "http://query.sse.com.cn/commonQuery" +
-            ".do?isPagination=true&pageHelp.pageSize=%s&pageHelp" +
-            ".pageNo=1&pageHelp.cacheSize=1&sqlId=COMMON_SSE_ZQPZ_ETFZL_XXPL_ETFGM_SEARCH_L&STAT_DATE=%s" +
+    private static String url = "http://query.sse.com.cn/commonQuery.do?" +
+            "isPagination=true&pageHelp.pageSize=%s" +
+            "&pageHelp.pageNo=1&pageHelp.cacheSize=1" +
+            "&sqlId=COMMON_SSE_ZQPZ_ETFZL_XXPL_ETFGM_SEARCH_L&STAT_DATE=%s" +
             "&_=1606103195911";
+//    private static String url = "http://query.sse.com.cn/commonQuery" +
+//            ".do?isPagination=true&pageHelp.pageSize=%s&pageHelp" +
+//            ".pageNo=1&pageHelp.cacheSize=1&sqlId=COMMON_SSE_ZQPZ_ETFZL_XXPL_ETFGM_SEARCH_L&STAT_DATE=%s" +
+//            "&_=1606103195911";
     public static String FORMAT_SHORT = "yyyy-MM-dd";
 
     public static String pat = "d:\\etf";
@@ -443,12 +448,11 @@ public class ETFUtils {
         Map<String, String> headerMap = new HashMap<>();
         headerMap.put("Accept", "*/*");
         headerMap.put("Accept-Encoding", "gzip, deflate");
-        headerMap.put("Accept-Language", "zh-CN,zh;q=0.9");
-        headerMap.put("Connection", "keep-alive");
-        headerMap.put("Cookie", "yfx_c_g_u_id_10000042=_ck20101910131015232213315247973; yfx_f_l_v_t_10000042=f_t_1603073590511__r_t_1606103186634__v_t_1606103186634__r_c_1; VISITED_MENU=%5B%2210948%22%2C%2210025%22%2C%228716%22%2C%228717%22%2C%2211852%22%2C%2211853%22%2C%228491%22%5D");
+        headerMap.put("Proxy-Connection", "keep-alive");
+        headerMap.put("Cookie", "yfx_c_g_u_id_10000042=_ck21101414504517997211586335557; VISITED_MENU=%5B%228491%22%5D; JSESSIONID=34BC087D3D7D634FB2AEB302A405762C; yfx_f_l_v_t_10000042=f_t_1634194245788__r_t_1634194245788__v_t_1634194438289__r_c_0");
         headerMap.put("Host", "query.sse.com.cn");
-        headerMap.put("Referer", "http://www.sse.com.cn/market/funddata/volumn/etfvolumn/");
-        headerMap.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36 SE 2.X MetaSr 1.0");
+        headerMap.put("Referer", "http://www.sse.com.cn/");
+        headerMap.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36");
         String ss = OkHttpUtil.doGet(url, headerMap,null);
         JSONObject jsonObject = JSON.parseObject(ss);
         JSONArray result = jsonObject.getJSONArray("result");
