@@ -19,12 +19,11 @@ public class SHSZHKStock {
 
     public static void main(String[] args) {
         //先取30个工作日的日期
-        getDate(30);
+        getDate(60);
 
     }
 
     private static void getDate(int dayTotal) {
-        List<String> dateList = new ArrayList<>();
         int dayCount = 1;
         Date date = new Date();
         SimpleDateFormat df = new SimpleDateFormat(FORMAT_SHORT);
@@ -32,7 +31,7 @@ public class SHSZHKStock {
         do {
             date = DateUtil.getPreviousWorkingDay(date, -1);
             String ss = df.format(date);
-            dateList.add(ss);
+            System.out.println(ss);
             hshStockDate = getHSHStockDate(ss);
             if (hshStockDate != null) {
                 outExcle(hshStockDate,ss);
