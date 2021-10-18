@@ -45,12 +45,29 @@ public class StockUtil {
             try {
                 List<String> fileContent = FilesUtil.readFileAsListOfStrings(path + file, "GBK");
                 //过滤不合格的行
-                List<String> collect = fileContent.stream().filter(c ->c.split(",").length >= 2).collect(Collectors.toList());
+                List<String> collect = fileContent.stream().filter(c -> c.split(",").length >= 2).collect(Collectors.toList());
 //                Optional<String> first = collect.stream().findFirst();
 //                if (first.isPresent()){
 //                    String date = first.get();
 //                    System.out.println(date);
 //                }
+                //日期
+                List<String> dateList = new ArrayList<>();
+                for (int i = 0; i < collect.size(); i++) {
+                    if (i == 0) {
+                        //提取日期
+                        String s = collect.get(0);
+                        if (StringUtils.isEmpty(s)) continue;
+                        if (StringUtils.indexOf(s, "报告日期") > -1) {
+                            String[] stemp = s.split(",");
+                            if (stemp.length >= 2) {
+                                dateList = Arrays.stream(stemp).collect(Collectors.toList());
+                            }
+                        }
+                    }
+                }
+
+                dateList.stream().forEach(x-> System.out.println(x));
 
             } catch (Exception e) {
                 e.printStackTrace();
