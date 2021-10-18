@@ -30,14 +30,14 @@ public class SZHStockConnect {
         Date date = new Date();
         date = DateUtil.getPreviousWorkingDay(date, -1);
         String ss = df.format(date);
-        List<EastMoneyBeab.ResultDTO.DataDTO> data = getDataDTOS();
+        List<EastMoneyBeab.ResultDTO.DataDTO> data = getDataDTOS(ss);
         System.out.println(data.size());
     }
 
-    public static List<EastMoneyBeab.ResultDTO.DataDTO> getDataDTOS() {
-        String urlString = String.format(url1, pageSize, 1) + url2 + "2021-10-11" + url3;
+    public static List<EastMoneyBeab.ResultDTO.DataDTO> getDataDTOS(String ss) {
+        String urlString = String.format(url1, pageSize, 1) + url2 + ss + url3;
 //        System.out.println(urlString);
-        List<EastMoneyBeab.ResultDTO.DataDTO> data = getResultDTO(urlString, "2021-10-11");
+        List<EastMoneyBeab.ResultDTO.DataDTO> data = getResultDTO(urlString, ss);
 //        for (EastMoneyBeab.ResultDTO.DataDTO datum : data) {
 //            System.out.println(datum.getSecurityName());
 //        }
