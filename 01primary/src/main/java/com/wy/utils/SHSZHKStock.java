@@ -18,8 +18,15 @@ public class SHSZHKStock {
     public static String FORMAT_SHORT = "yyyy-MM-dd";
 
     public static void main(String[] args) {
-        //先取30个工作日的日期
-        getDate(60);
+        //当天的
+        SimpleDateFormat df = new SimpleDateFormat(FORMAT_SHORT);
+        String ss = df.format(new Date());
+        List<EastMoneyBeab.ResultDTO.DataDTO> hshStockDate = getHSHStockDate(ss);
+        if (hshStockDate != null) {
+            outExcle(hshStockDate,ss);
+        }
+        //60天的
+//        getDate(60);
 
     }
 
