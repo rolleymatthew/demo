@@ -336,13 +336,13 @@ public class ETFUtils {
         Date date = new Date();
         //当前时间前20天的日期
         for (int i = 0; i < days; i++) {
-            date = getPreviousWorkingDay(date, -1);
+            date = DateUtil.getPreviousWorkingDay(date, -1);
             String ss = df.format(date);
             List<ResultClass> resultClasses = getResultClassesByDay(ss);
             int dayCount = 1;
             while (CollectionUtils.isEmpty(resultClasses) && dayCount <= 10) {
                 dayCount++;
-                date = getPreviousWorkingDay(date, -1);
+                date = DateUtil.getPreviousWorkingDay(date, -1);
                 ss = df.format(date);
                 resultClasses = getResultClassesByDay(ss);
             }
@@ -351,11 +351,11 @@ public class ETFUtils {
 
         //当前日期的第30、60、90、120、
         if (longDuration) {
-            dateList.add(df.format(getPreviousWorkingDay(new Date(), -30)));
-            dateList.add(df.format(getPreviousWorkingDay(new Date(), -60)));
-            dateList.add(df.format(getPreviousWorkingDay(new Date(), -90)));
-            dateList.add(df.format(getPreviousWorkingDay(new Date(), -120)));
-            dateList.add(df.format(getPreviousWorkingDay(new Date(), -250)));
+            dateList.add(df.format(DateUtil.getPreviousWorkingDay(new Date(), -30)));
+            dateList.add(df.format(DateUtil.getPreviousWorkingDay(new Date(), -60)));
+            dateList.add(df.format(DateUtil.getPreviousWorkingDay(new Date(), -90)));
+            dateList.add(df.format(DateUtil.getPreviousWorkingDay(new Date(), -120)));
+            dateList.add(df.format(DateUtil.getPreviousWorkingDay(new Date(), -250)));
         }
         //获取数据，生成文件
         for (String s : dateList) {
@@ -381,19 +381,6 @@ public class ETFUtils {
         }
     }
 
-    //计算周末，得到上一个指定间隔的工作日
-    public static Date getPreviousWorkingDay(Date date, int interval) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-
-        int dayOfWeek;
-        do {
-            cal.add(Calendar.DAY_OF_MONTH, interval);
-            dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
-        } while (dayOfWeek == Calendar.SATURDAY || dayOfWeek == Calendar.SUNDAY);
-
-        return cal.getTime();
-    }
 
     private static List<ResultClass> getETF(String data) throws IOException {
         //1.得到返回数组，加入总体数据组
