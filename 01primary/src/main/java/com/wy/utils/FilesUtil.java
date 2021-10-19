@@ -1,7 +1,10 @@
 package com.wy.utils;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -85,6 +88,40 @@ public class FilesUtil {
         for (String fileName : fileNames) {
             fileNameList.add(fileName);
         }
+
+        fileNameList.sort(new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+                return StringUtils.compare(o2, o1);
+            }
+        });
+        return fileNameList;
+    }
+
+    public static List<String> getFilesOfDicByExt(String dir,String ext){
+        List<String> fileNameList = new ArrayList<String>();
+        File file = new File(dir);
+        if (!file.isDirectory()) {
+            file.mkdirs();
+        }
+        if (file.isFile()) {
+            return fileNameList;
+        }
+        String[] fileNames=file.list();
+        for (String fileName : fileNames) {
+            if (StringUtils.isNotEmpty(ext)&&StringUtils.contains(fileName,ext)){
+                fileNameList.add(fileName);
+            }else if(StringUtils.isEmpty(ext)){
+                fileNameList.add(fileName);
+            }
+        }
+
+        fileNameList.sort(new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+                return StringUtils.compare(o2, o1);
+            }
+        });
         return fileNameList;
     }
 
