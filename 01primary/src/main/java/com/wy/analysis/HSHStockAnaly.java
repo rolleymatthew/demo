@@ -18,6 +18,9 @@ public class HSHStockAnaly {
     public static void main(String[] args) {
         //读出所有文件路径
         List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOList= ReadMutilFile.getDataDTOS(null);
+        for (EastMoneyBeab.ResultDTO.DataDTO dataDTO : dataDTOList) {
+            System.out.println(dataDTO.getSecurityName());
+        }
         System.out.println(dataDTOList.size());
     }
 
