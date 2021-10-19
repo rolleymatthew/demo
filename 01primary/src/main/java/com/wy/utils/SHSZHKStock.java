@@ -8,10 +8,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by yunwang on 2021/10/18 15:44
@@ -22,7 +19,7 @@ public class SHSZHKStock {
     public static void main(String[] args) {
         //60天的
 //        getDate(60);
-        getDate(2);
+        getDate(60);
 
     }
 
@@ -44,7 +41,7 @@ public class SHSZHKStock {
 //                outExcle(hshStockDate,ss);
                 dayCount++;
             }
-        } while (hshStockDate == null || dayCount <= dayTotal);
+        } while (hshStockDate == null || dayCount <= dayTotal || (dayCount + dayTotal) > 30);
     }
 
     private static List<EastMoneyBeab.ResultDTO.DataDTO> getDate(List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOList) {
@@ -63,6 +60,18 @@ public class SHSZHKStock {
         }
         AllStock.addAll(dataSHDTOS);
         AllStock.addAll(dataSZDTOS);
+        AllStock.sort(new Comparator<EastMoneyBeab.ResultDTO.DataDTO>() {
+            @Override
+            public int compare(EastMoneyBeab.ResultDTO.DataDTO o1, EastMoneyBeab.ResultDTO.DataDTO o2) {
+                if (o1.getAddMarketCap().doubleValue() > o2.getAddMarketCap().doubleValue()) {
+                    return -1;
+                } else if (o1.getAddMarketCap().doubleValue() < o2.getAddMarketCap().doubleValue()) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            }
+        });
         return AllStock;
     }
 
