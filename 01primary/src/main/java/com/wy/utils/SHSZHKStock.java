@@ -25,6 +25,7 @@ public class SHSZHKStock {
 
     private static void getDate(int dayTotal) {
         int dayCount = 1;
+        int count = dayTotal + 30;
         Date date = new Date();
         SimpleDateFormat df = new SimpleDateFormat(FORMAT_SHORT);
         List<EastMoneyBeab.ResultDTO.DataDTO> hshStockDate = null;
@@ -41,7 +42,11 @@ public class SHSZHKStock {
 //                outExcle(hshStockDate,ss);
                 dayCount++;
             }
-        } while (hshStockDate == null || dayCount <= dayTotal || (dayCount + dayTotal) > 30);
+            count--;
+            if (count <= 0) {
+                break;
+            }
+        } while (hshStockDate == null || dayCount <= dayTotal);
     }
 
     private static List<EastMoneyBeab.ResultDTO.DataDTO> getDate(List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOList) {
@@ -63,6 +68,9 @@ public class SHSZHKStock {
         AllStock.sort(new Comparator<EastMoneyBeab.ResultDTO.DataDTO>() {
             @Override
             public int compare(EastMoneyBeab.ResultDTO.DataDTO o1, EastMoneyBeab.ResultDTO.DataDTO o2) {
+                if (o1.getAddMarketCap() == null || o2.getAddMarketCap() == null) {
+                    return 0;
+                }
                 if (o1.getAddMarketCap().doubleValue() > o2.getAddMarketCap().doubleValue()) {
                     return -1;
                 } else if (o1.getAddMarketCap().doubleValue() < o2.getAddMarketCap().doubleValue()) {
