@@ -1,8 +1,10 @@
 package com.wy.utils;
 
+import com.alibaba.excel.EasyExcel;
 import com.wy.bean.EastMoneyBeab;
 import org.apache.commons.collections.CollectionUtils;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
@@ -18,15 +20,9 @@ public class SHSZHKStock {
     public static String FORMAT_SHORT = "yyyy-MM-dd";
 
     public static void main(String[] args) {
-        //当天的
-        SimpleDateFormat df = new SimpleDateFormat(FORMAT_SHORT);
-        String ss = df.format(new Date());
-        List<EastMoneyBeab.ResultDTO.DataDTO> hshStockDate = getHSHStockDate(ss);
-        if (hshStockDate != null) {
-            outExcle(hshStockDate,ss);
-        }
         //60天的
 //        getDate(60);
+        getDate(2);
 
     }
 
@@ -39,12 +35,23 @@ public class SHSZHKStock {
             date = DateUtil.getPreviousWorkingDay(date, -1);
             String ss = df.format(date);
             System.out.println(ss);
+
             hshStockDate = getHSHStockDate(ss);
             if (hshStockDate != null) {
-                outExcle(hshStockDate,ss);
+                EasyExcel.write("d://HSHSTOCK" + File.separator + "HSHStock" + ss + ".xlsx", EastMoneyBeab.ResultDTO.DataDTO.class)
+                        .sheet("HSHSTOCK")
+                        .doWrite(hshStockDate);
+//                outExcle(hshStockDate,ss);
                 dayCount++;
             }
         } while (hshStockDate == null || dayCount <= dayTotal);
+    }
+
+    private static List<EastMoneyBeab.ResultDTO.DataDTO> getDate(List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOList) {
+        if (dataDTOList == null) {
+            return null;
+        }
+        return dataDTOList;
     }
 
     private static List<EastMoneyBeab.ResultDTO.DataDTO> getHSHStockDate(String ss) {
@@ -63,7 +70,7 @@ public class SHSZHKStock {
         String[] columnNames = {"名称", "日期"};
         ExportExcelUtil exportExcelUtil = new ExportExcelUtil();
         try {
-            exportExcelUtil.exportExcel("HSHStock", columnNames, AllStock, new FileOutputStream("d://HSHSTOCK" + "//" + "HSHStock" + ss + ".xlsx"),
+            exportExcelUtil.exportExcel("HSHStock", columnNames, AllStock, new FileOutputStream("d://HSHSTOCK" + File.separator + "HSHStock" + ss + ".xlsx"),
                     ExportExcelUtil.EXCEl_FILE_2007);
         } catch (FileNotFoundException e) {
             e.printStackTrace();

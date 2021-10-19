@@ -1,5 +1,7 @@
 package com.wy.bean;
 
+import com.alibaba.excel.annotation.ExcelIgnore;
+import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -37,22 +39,30 @@ public class EastMoneyBeab {
         @NoArgsConstructor
         @Data
         public static class DataDTO {
-            @JSONField(name = "SECUCODE")
-            private String secucode;
-            @JSONField(name = "MUTUAL_TYPE")
-            private String mutualType;
-            @JSONField(name = "TRADE_DATE")
-            private String tradeDate;
-            @JSONField(name = "INTERVAL_TYPE")
-            private String intervalType;
-            @JSONField(name = "SECURITY_NAME")
-            private String securityName;
-            @JSONField(name = "SECURITY_INNER_CODE")
-            private String securityInnerCode;
-            @JSONField(name = "ORG_CODE")
-            private String orgCode;
+            @ExcelProperty("代码")
             @JSONField(name = "SECURITY_CODE")
             private String securityCode;
+            @ExcelIgnore
+            @JSONField(name = "SECUCODE")
+            private String secucode;
+            @ExcelIgnore
+            @JSONField(name = "MUTUAL_TYPE")
+            private String mutualType;
+            @ExcelProperty("日期")
+            @JSONField(name = "TRADE_DATE")
+            private String tradeDate;
+            @ExcelIgnore
+            @JSONField(name = "INTERVAL_TYPE")
+            private String intervalType;
+            @ExcelProperty("名称")
+            @JSONField(name = "SECURITY_NAME")
+            private String securityName;
+            @ExcelIgnore
+            @JSONField(name = "SECURITY_INNER_CODE")
+            private String securityInnerCode;
+            @ExcelIgnore
+            @JSONField(name = "ORG_CODE")
+            private String orgCode;
             @JSONField(name = "PARTICIPANT_NUM")
             private Integer participantNum;
             @JSONField(name = "EFFECTIVE_DATE")

@@ -12,7 +12,7 @@ public class FilesUtil {
     public static void writeFile(String filepath, String filename, String text) throws IOException {
 
         mkdirs(filepath);
-        FileOutputStream fos = new FileOutputStream(filepath + "\\" + filename);
+        FileOutputStream fos = new FileOutputStream(filepath + File.separator + filename);
 
         OutputStreamWriter osw = new OutputStreamWriter(fos, "GBK");
 
