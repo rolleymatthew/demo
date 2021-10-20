@@ -33,13 +33,12 @@ public class FilesUtil {
     }
 
     /**
-     *
-     * @Title: writeFile
-     * @Description: 写文件
      * @param @param filePath 文件路径
      * @param @param fileContent    文件内容
      * @return void    返回类型
      * @throws
+     * @Title: writeFile
+     * @Description: 写文件
      */
     public static void writeFile(String filePath, String fileContent) {
         try {
@@ -56,6 +55,7 @@ public class FilesUtil {
             e.printStackTrace();
         }
     }
+
     public static boolean existsAndIsFile(String filename) {
         File file = new File(filename);
         return file.exists() && file.isFile();
@@ -75,7 +75,7 @@ public class FilesUtil {
         }
     }
 
-    public static List<String> getFilesOfDictory(String dir){
+    public static List<String> getFilesOfDictory(String dir) {
         List<String> fileNameList = new ArrayList<String>();
         File file = new File(dir);
         if (!file.isDirectory()) {
@@ -84,7 +84,7 @@ public class FilesUtil {
         if (file.isFile()) {
             return fileNameList;
         }
-        String[] fileNames=file.list();
+        String[] fileNames = file.list();
         for (String fileName : fileNames) {
             fileNameList.add(fileName);
         }
@@ -98,7 +98,7 @@ public class FilesUtil {
         return fileNameList;
     }
 
-    public static List<String> getFilesOfDicByExt(String dir,String ext){
+    public static List<String> getFilesOfDicByExt(String dir, String prefix, String ext) {
         List<String> fileNameList = new ArrayList<String>();
         File file = new File(dir);
         if (!file.isDirectory()) {
@@ -107,11 +107,18 @@ public class FilesUtil {
         if (file.isFile()) {
             return fileNameList;
         }
-        String[] fileNames=file.list();
+        String[] fileNames = file.list();
         for (String fileName : fileNames) {
-            if (StringUtils.isNotEmpty(ext)&&StringUtils.contains(fileName,ext)){
+            if (StringUtils.isNotEmpty(prefix) && StringUtils.isNotEmpty(ext)
+                    && StringUtils.startsWithIgnoreCase(fileName, prefix) && StringUtils.endsWithIgnoreCase(fileName, ext)) {
                 fileNameList.add(fileName);
-            }else if(StringUtils.isEmpty(ext)){
+            } else if (StringUtils.isNotEmpty(prefix) && StringUtils.isEmpty(ext)
+                    && StringUtils.startsWithIgnoreCase(fileName, prefix)) {
+                fileNameList.add(fileName);
+            } else if (StringUtils.isNotEmpty(ext) && StringUtils.isEmpty(prefix)
+                    && StringUtils.endsWithIgnoreCase(fileName, ext)) {
+                fileNameList.add(fileName);
+            } else if (StringUtils.isEmpty(prefix) && StringUtils.isEmpty(ext)) {
                 fileNameList.add(fileName);
             }
         }
@@ -127,7 +134,7 @@ public class FilesUtil {
 
     public static List<String> readFileAsListOfStrings(String filename, String charset) throws Exception {
         List<String> records = new ArrayList<String>();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(filename),charset));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(filename), charset));
         String line;
         while ((line = reader.readLine()) != null) {
             records.add(line);

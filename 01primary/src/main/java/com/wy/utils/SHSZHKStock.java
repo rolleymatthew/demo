@@ -15,10 +15,10 @@ import java.util.*;
  * Created by yunwang on 2021/10/18 15:44
  */
 public class SHSZHKStock {
-    private static String PATH = "d://HSHSTOCK";
-    private static String FILE_PRE = "HSHStock";
-    private static String FILE_EXT = ".xlsx";
-    private static String SHEET_NAME = "HSHSTOCK";
+    public static String PATH = "d://HSHSTOCK";
+    public static String FILE_PRE = "HSHStock";
+    public static String FILE_EXT = ".xlsx";
+    public static String SHEET_NAME = "HSHSTOCK";
     private static SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
     public static void main(String[] args) {

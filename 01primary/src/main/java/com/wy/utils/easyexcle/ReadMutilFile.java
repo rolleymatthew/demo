@@ -4,9 +4,11 @@ import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.read.listener.PageReadListener;
 import com.wy.bean.EastMoneyBeab;
 import com.wy.utils.FilesUtil;
+import com.wy.utils.SHSZHKStock;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -23,28 +25,28 @@ public class ReadMutilFile {
     }
 
     public static List<EastMoneyBeab.ResultDTO.DataDTO> getDataDTOS(String code) {
-        List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOList=new ArrayList<>();
-        String dir="D:\\HSHSTOCK";
-        List<String> filesOfDictory = FilesUtil.getFilesOfDicByExt(dir,".xlsx");
+        List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOList = new ArrayList<>();
+        String dir = SHSZHKStock.PATH;
+        List<String> filesOfDictory = FilesUtil.getFilesOfDicByExt(dir, SHSZHKStock.FILE_PRE, SHSZHKStock.FILE_EXT);
         for (String s : filesOfDictory) {
-            String dirFile=dir+"\\"+s.trim();
-            dataDTOList.addAll(printDate(dirFile, code));
+            String dirFile = dir + File.separator + s.trim();
+            dataDTOList.addAll(printDate(dirFile, code, 0));
         }
         return dataDTOList;
     }
 
-    private static List<EastMoneyBeab.ResultDTO.DataDTO> printDate(String fileName,String code) {
-        List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOList=new ArrayList<>();
+    private static List<EastMoneyBeab.ResultDTO.DataDTO> printDate(String fileName, String code, int sheetNum) {
+        List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOList = new ArrayList<>();
         EasyExcel.read(fileName, EastMoneyBeab.ResultDTO.DataDTO.class, new PageReadListener<EastMoneyBeab.ResultDTO.DataDTO>(dataList -> {
             for (EastMoneyBeab.ResultDTO.DataDTO dataDTO : dataList) {
-                if (StringUtils.isNotEmpty(code)&&StringUtils.equals(dataDTO.getSecurityCode(), code)) {
+                if (StringUtils.isNotEmpty(code) && StringUtils.equals(dataDTO.getSecurityCode(), code)) {
                     dataDTOList.add(dataDTO);
                 }
                 if (StringUtils.isEmpty(code)) {
                     dataDTOList.add(dataDTO);
                 }
             }
-        })).sheet().doRead();
+        })).sheet(sheetNum).doRead();
         return dataDTOList;
     }
 }
