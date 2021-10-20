@@ -23,6 +23,7 @@ public class HSHStockAnaly {
         //2.整理出所有数据按照时间顺序排列
         LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap = getAllStockMap(dataDTOList);
 //        dataMap.entrySet().stream().forEach(System.out::println);
+        //3.在每一个代码里计算买入的天数
         for (Map.Entry<String, List<EastMoneyBeab.ResultDTO.DataDTO>> stringListEntry : dataMap.entrySet()) {
             String codeTemp = stringListEntry.getKey();
             List<EastMoneyBeab.ResultDTO.DataDTO> dtoList = stringListEntry.getValue();
