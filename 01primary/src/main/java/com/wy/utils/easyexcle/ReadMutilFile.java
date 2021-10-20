@@ -19,18 +19,22 @@ import java.util.List;
 public class ReadMutilFile {
     public static void main(String[] args) {
         //读出所有文件路径
-        List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOList = getDataDTOS(null);
+        List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOList = getDataDTOS(null,3,0);
 //        List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOList = getDataDTOS("300750");
         System.out.println(dataDTOList.size());
     }
 
-    public static List<EastMoneyBeab.ResultDTO.DataDTO> getDataDTOS(String code) {
+    public static List<EastMoneyBeab.ResultDTO.DataDTO> getDataDTOS(String code,int daySize,int sheetNum) {
         List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOList = new ArrayList<>();
         String dir = SHSZHKStock.PATH;
         List<String> filesOfDictory = FilesUtil.getFilesOfDicByExt(dir, SHSZHKStock.FILE_PRE, SHSZHKStock.FILE_EXT);
         for (String s : filesOfDictory) {
+            if (daySize<=0){
+                break;
+            }
             String dirFile = dir + File.separator + s.trim();
-            dataDTOList.addAll(printDate(dirFile, code, 0));
+            dataDTOList.addAll(printDate(dirFile, code, sheetNum));
+            daySize--;
         }
         return dataDTOList;
     }
