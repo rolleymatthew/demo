@@ -19,17 +19,24 @@ import java.util.List;
 public class ReadMutilFile {
     public static void main(String[] args) {
         //读出所有文件路径
-        List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOList = getDataDTOS(null,3,0);
-//        List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOList = getDataDTOS("300750");
+//        List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOList = getDataDTOS(null,5,0);
+        List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOList = getDataDTOS("300750",-1,0);
         System.out.println(dataDTOList.size());
     }
 
+    /**
+     * 获取原始数据
+     * @param code  单个代码
+     * @param daySize   -1所有数据，大于等于0获取的天数
+     * @param sheetNum  读取的数据来源sheet，一共有三个sheet
+     * @return  所有需要的原始数据列表
+     */
     public static List<EastMoneyBeab.ResultDTO.DataDTO> getDataDTOS(String code,int daySize,int sheetNum) {
         List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOList = new ArrayList<>();
         String dir = SHSZHKStock.PATH;
         List<String> filesOfDictory = FilesUtil.getFilesOfDicByExt(dir, SHSZHKStock.FILE_PRE, SHSZHKStock.FILE_EXT);
         for (String s : filesOfDictory) {
-            if (daySize<=0){
+            if (daySize==0){
                 break;
             }
             String dirFile = dir + File.separator + s.trim();

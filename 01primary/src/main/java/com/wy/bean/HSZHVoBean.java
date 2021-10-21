@@ -28,6 +28,9 @@ public class HSZHVoBean {
     @ExcelProperty("持有市值(万元)")
     private Double holdMarketCap;
 
+    @ExcelProperty("所属板块")
+    private String industryName;
+
     @ExcelProperty("买入天数")
     private Double BuyDayCount;
 

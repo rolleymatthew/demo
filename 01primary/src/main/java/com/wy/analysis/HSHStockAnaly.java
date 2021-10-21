@@ -17,35 +17,37 @@ import java.util.stream.Collectors;
  * 沪深港通持股分析
  */
 public class HSHStockAnaly {
+    private static String path = "d:";
+    private static String sheetTitle = "%s天";
+    private static String fileTitle = "沪港通买卖天数.xlsx";
+
     public static void main(String[] args) {
-        LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap = getDataMap(null, 30, 0);
-        int sheetNo = 0;
-        String sheetTitle = "%s天买卖天数";
+        //获取所有数据
+        LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap = getDataMap(null, -1, 0);
         ExcelWriter excelWriter = null;
+        //计算天数
+        int[] days = {2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 30, 50};
         try {
-            //计算30天内买入卖出的天数
-            int day = 30;
-            List<HSZHVoBean> hszhVoBeans = countUpZero(dataMap, day);
-            excelWriter = EasyExcel.write("d:" + File.separator + "hszh.xlsx", HSZHVoBean.class).build();
-            WriteSheet writeSheet = EasyExcel.writerSheet(sheetNo, String.format(sheetTitle, day)).build();
-            excelWriter.write(hszhVoBeans, writeSheet);
-            //当前时间连续买入和卖出的天数
-            //5天之内买入卖出前50大市值
-            day = 5;
-            hszhVoBeans = countUpZero(dataMap, day);
-            sheetNo++;
-            writeSheet = EasyExcel.writerSheet(sheetNo, String.format(sheetTitle, day)).build();
-            excelWriter.write(hszhVoBeans, writeSheet);
-            //10天之内买入卖出前50大市值
-            //20天之内买入卖出前50大市值
-            //30天之内买入卖出前50大市值
-            //50天之内买入卖出前50大市值
+            excelWriter = EasyExcel.write(path + File.separator + fileTitle, HSZHVoBean.class).build();
+            //计算N天内买入卖出的天数
+            for (int i = 0; i < days.length; i++) {
+                int day = days[i];
+                List<HSZHVoBean> hszhVoBeans = countUpZero(dataMap, day);
+                WriteSheet writeSheet = EasyExcel.writerSheet(day, String.format(sheetTitle, day)).build();
+                excelWriter.write(hszhVoBeans, writeSheet);
+            }
+
         } finally {
-            // 千万别忘记finish 会帮忙关闭流
             if (excelWriter != null) {
                 excelWriter.finish();
             }
         }
+        //当前时间连续买入和卖出的天数
+        //5天之内买入卖出前50大市值
+        //10天之内买入卖出前50大市值
+        //20天之内买入卖出前50大市值
+        //30天之内买入卖出前50大市值
+        //50天之内买入卖出前50大市值
     }
 
 
@@ -79,6 +81,7 @@ public class HSHStockAnaly {
         hszhVoBean.setTotalSharesRatio(oneDTO.getTotalSharesRatio());
         hszhVoBean.setHoldMarketCap(oneDTO.getHoldMarketCap());
         hszhVoBean.setHoldShares(oneDTO.getHoldShares());
+        hszhVoBean.setIndustryName(oneDTO.getIndustryName());
         if (buyDayCount.isEmpty()) {
             hszhVoBean.setBuyDayCount(0.0);
         } else {

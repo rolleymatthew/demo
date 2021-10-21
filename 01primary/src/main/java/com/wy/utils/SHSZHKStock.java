@@ -22,10 +22,11 @@ public class SHSZHKStock {
     private static SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
     public static void main(String[] args) {
-        //60天的
-//        getDate(60);
-//        getSingleSheet(1);
-        getMutilSheet(60);
+        //当天
+        getMutilSheet(1);
+
+        //历史数据
+//        getMutilSheet(60);
     }
 
     private static void getSingleSheet(int dayTotal) {
