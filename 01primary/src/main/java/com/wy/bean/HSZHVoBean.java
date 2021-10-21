@@ -22,6 +22,12 @@ public class HSZHVoBean {
     @ExcelProperty("占总股比")
     private Double totalSharesRatio;
 
+    @ExcelProperty("持股数(万股)")
+    private Double holdShares;
+
+    @ExcelProperty("持有市值(万元)")
+    private Double holdMarketCap;
+
     @ExcelProperty("买入天数")
     private Double BuyDayCount;
 

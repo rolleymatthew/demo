@@ -19,19 +19,27 @@ import java.util.stream.Collectors;
 public class HSHStockAnaly {
     public static void main(String[] args) {
         LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap = getDataMap(null, 30, 0);
-        //计算30天内买入卖出的天数
-        List<HSZHVoBean> hszhVoBeans = countUpZero(dataMap, null, 30, 0);
-        //当前时间连续买入和卖出的天数
-        //5天之内买入卖出前50大市值
-        //10天之内买入卖出前50大市值
-        //20天之内买入卖出前50大市值
-        //30天之内买入卖出前50大市值
-        //50天之内买入卖出前50大市值
+        int sheetNo = 0;
+        String sheetTitle = "%s天买卖天数";
         ExcelWriter excelWriter = null;
         try {
-            excelWriter = EasyExcel.write("d:" + File.separator + "asfsafsda.xlsx", HSZHVoBean.class).build();
-            WriteSheet writeSheet = EasyExcel.writerSheet(0,  "买入卖出的天数").build();
+            //计算30天内买入卖出的天数
+            int day = 30;
+            List<HSZHVoBean> hszhVoBeans = countUpZero(dataMap, day);
+            excelWriter = EasyExcel.write("d:" + File.separator + "hszh.xlsx", HSZHVoBean.class).build();
+            WriteSheet writeSheet = EasyExcel.writerSheet(sheetNo, String.format(sheetTitle, day)).build();
             excelWriter.write(hszhVoBeans, writeSheet);
+            //当前时间连续买入和卖出的天数
+            //5天之内买入卖出前50大市值
+            day = 5;
+            hszhVoBeans = countUpZero(dataMap, day);
+            sheetNo++;
+            writeSheet = EasyExcel.writerSheet(sheetNo, String.format(sheetTitle, day)).build();
+            excelWriter.write(hszhVoBeans, writeSheet);
+            //10天之内买入卖出前50大市值
+            //20天之内买入卖出前50大市值
+            //30天之内买入卖出前50大市值
+            //50天之内买入卖出前50大市值
         } finally {
             // 千万别忘记finish 会帮忙关闭流
             if (excelWriter != null) {
@@ -40,39 +48,52 @@ public class HSHStockAnaly {
         }
     }
 
-    private static List<HSZHVoBean> countUpZero(LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap,String code, int daySize, int sheetNum) {
-        List<HSZHVoBean> ret=new ArrayList<>();
+
+    private static List<HSZHVoBean> countUpZero(LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap, int daySize) {
+        List<HSZHVoBean> hszhVoBeanList = new ArrayList<>();
         for (Map.Entry<String, List<EastMoneyBeab.ResultDTO.DataDTO>> stringListEntry : dataMap.entrySet()) {
-            List<EastMoneyBeab.ResultDTO.DataDTO> dtoList = stringListEntry.getValue();
+            //1.取出要计算的天数数据
+            List<EastMoneyBeab.ResultDTO.DataDTO> dtoList = stringListEntry.getValue().stream().limit(daySize).collect(Collectors.toList());
+
+            //2计算单个买入金额为正和负的
             Map<String, Long> buyDayCount = dtoList.stream().filter(p ->
                     Double.parseDouble(String.valueOf(p.getAddMarketCap())) > 0.0
             ).collect(Collectors.groupingBy(p -> p.getSecurityCode(), Collectors.counting()));
             Map<String, Long> sellDayCount = dtoList.stream().filter(p ->
                     Double.parseDouble(String.valueOf(p.getAddMarketCap())) < 0.0
             ).collect(Collectors.groupingBy(p -> p.getSecurityCode(), Collectors.counting()));
-            EastMoneyBeab.ResultDTO.DataDTO oneDTO=dtoList.get(0);
-            HSZHVoBean hszhVoBean=new HSZHVoBean();
-            hszhVoBean.setSecurityCode(stringListEntry.getKey());
-            hszhVoBean.setSecurityName(oneDTO.getSecurityName());
-            hszhVoBean.setFreeSharesRatio(oneDTO.getFreeSharesRatio());
-            hszhVoBean.setTotalSharesRatio(oneDTO.getTotalSharesRatio());
-            if (buyDayCount.isEmpty()) {
-                hszhVoBean.setBuyDayCount(0.0);
-            }else{
-                if (buyDayCount.containsKey(oneDTO.getSecurityCode())) {
-                    hszhVoBean.setBuyDayCount(Double.parseDouble(buyDayCount.get(oneDTO.getSecurityCode()).toString()));
-                }
-            }
-            if (sellDayCount.isEmpty()) {
-                hszhVoBean.setSellDayCount(0.0);
-            }else{
-                if (sellDayCount.containsKey(oneDTO.getSecurityCode())) {
-                    hszhVoBean.setSellDayCount(Double.parseDouble(sellDayCount.get(oneDTO.getSecurityCode()).toString()));
-                }
-            }
-            ret.add(hszhVoBean);
+
+            //3加入返回
+            hszhVoBeanList.add(getHszhVoBean(stringListEntry, dtoList, buyDayCount, sellDayCount));
+
         }
-        return ret;
+        return hszhVoBeanList.stream().sorted(Comparator.comparing(HSZHVoBean::getBuyDayCount).reversed()).collect(Collectors.toList());
+    }
+
+    private static HSZHVoBean getHszhVoBean(Map.Entry<String, List<EastMoneyBeab.ResultDTO.DataDTO>> stringListEntry, List<EastMoneyBeab.ResultDTO.DataDTO> dtoList, Map<String, Long> buyDayCount, Map<String, Long> sellDayCount) {
+        EastMoneyBeab.ResultDTO.DataDTO oneDTO = dtoList.get(0);
+        HSZHVoBean hszhVoBean = new HSZHVoBean();
+        hszhVoBean.setSecurityCode(stringListEntry.getKey());
+        hszhVoBean.setSecurityName(oneDTO.getSecurityName());
+        hszhVoBean.setFreeSharesRatio(oneDTO.getFreeSharesRatio());
+        hszhVoBean.setTotalSharesRatio(oneDTO.getTotalSharesRatio());
+        hszhVoBean.setHoldMarketCap(oneDTO.getHoldMarketCap());
+        hszhVoBean.setHoldShares(oneDTO.getHoldShares());
+        if (buyDayCount.isEmpty()) {
+            hszhVoBean.setBuyDayCount(0.0);
+        } else {
+            if (buyDayCount.containsKey(oneDTO.getSecurityCode())) {
+                hszhVoBean.setBuyDayCount(Double.parseDouble(buyDayCount.get(oneDTO.getSecurityCode()).toString()));
+            }
+        }
+        if (sellDayCount.isEmpty()) {
+            hszhVoBean.setSellDayCount(0.0);
+        } else {
+            if (sellDayCount.containsKey(oneDTO.getSecurityCode())) {
+                hszhVoBean.setSellDayCount(Double.parseDouble(sellDayCount.get(oneDTO.getSecurityCode()).toString()));
+            }
+        }
+        return hszhVoBean;
     }
 
     private static LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> getDataMap(String code, int daySize, int sheetNum) {
