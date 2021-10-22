@@ -1,4 +1,4 @@
-package com.wy.analysis;
+package com.wy.stock.hszh;
 
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
@@ -64,6 +64,9 @@ public class HSHStockAnaly {
             Map<String, Long> sellDayCount = dtoList.stream().filter(p ->
                     Double.parseDouble(String.valueOf(p.getAddMarketCap())) < 0.0
             ).collect(Collectors.groupingBy(p -> p.getSecurityCode(), Collectors.counting()));
+            Map<String, Double> collect = dtoList.stream()
+                    .collect(Collectors.groupingBy(p -> p.getSecurityCode()
+                    , Collectors.summingDouble(p -> Double.parseDouble(String.valueOf(p.getAddMarketCap())))));
 
             //3加入返回
             hszhVoBeanList.add(getHszhVoBean(stringListEntry, dtoList, buyDayCount, sellDayCount));

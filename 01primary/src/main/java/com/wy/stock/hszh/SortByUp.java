@@ -1,4 +1,4 @@
-package com.wy.analysis;
+package com.wy.stock.hszh;
 
 import java.util.ArrayList;
 import java.util.List;

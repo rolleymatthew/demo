@@ -1,7 +1,9 @@
-package com.wy.utils;
+package com.wy.stock.hszh;
 
 import com.alibaba.fastjson.JSON;
 import com.wy.bean.EastMoneyBeab;
+import com.wy.utils.DateUtil;
+import com.wy.utils.OkHttpUtil;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -16,12 +18,12 @@ import java.util.Map;
  */
 @NoArgsConstructor
 @Data
-public class SHHStockConnect {
+public class SZHStockConnect {
     private static String url1 = "http://datacenter-web.eastmoney.com/api/data/v1/get?" +
-            "sortColumns=ADD_MARKET_CAP&sortTypes=-1&pageSize=%s"
-            + "&pageNumber=%s&reportName=RPT_MUTUAL_STOCK_NORTHSTA&columns=ALL&source=WEB";
+            "sortColumns=ADD_MARKET_CAP&sortTypes=-1&pageSize=%s" +
+            "&pageNumber=%s&reportName=RPT_MUTUAL_STOCK_NORTHSTA&columns=ALL&source=WEB";
     private static String url2 = "&client=WEB&filter=(TRADE_DATE%3D%27";
-    private static String url3 = "%27)(INTERVAL_TYPE%3D%221%22)(MUTUAL_TYPE%3D%22001%22)";
+    private static String url3 = "%27)(INTERVAL_TYPE%3D%221%22)(MUTUAL_TYPE%3D%22003%22)";
     private static int pageSize = 500;
     public static String FORMAT_SHORT = "yyyy-MM-dd";
 
