@@ -16,7 +16,7 @@ import java.util.*;
 /**
  * Created by yunwang on 2021/10/18 15:44
  */
-public class SHSZHKStock {
+public class GetSHSZHKStockDateService {
     public static String PATH = "d://HSHSTOCK";
     public static String FILE_PRE = "HSHStock";
     public static String FILE_EXT = ".xlsx";
@@ -29,31 +29,6 @@ public class SHSZHKStock {
 
         //历史数据
 //        getMutilSheet(60);
-    }
-
-    private static void getSingleSheet(int dayTotal) {
-        int dayCount = 1;
-        int count = dayTotal + 30;
-        Date date = new Date();
-        List<EastMoneyBeab.ResultDTO.DataDTO> hshStockDate = null;
-        do {
-            date = DateUtil.getPreviousWorkingDay(date, -1);
-            String ss = df.format(date);
-            System.out.println(ss);
-
-            hshStockDate = getHSHStockDate(ss);
-            if (hshStockDate != null) {
-                EasyExcel.write(PATH + File.separator + FILE_PRE + ss + FILE_EXT, EastMoneyBeab.ResultDTO.DataDTO.class)
-                        .sheet(SHEET_NAME)
-                        .doWrite(hshStockDate);
-//                outExcle(hshStockDate,ss);
-                dayCount++;
-            }
-            count--;
-            if (count <= 0) {
-                break;
-            }
-        } while (hshStockDate == null || dayCount <= dayTotal);
     }
 
     private static void getMutilSheet(int dayTotal) {
@@ -98,26 +73,6 @@ public class SHSZHKStock {
         } while (hshStockDate == null || dayCount <= dayTotal);
     }
 
-    private static List<EastMoneyBeab.ResultDTO.DataDTO> getSingleSheet(List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOList) {
-        if (dataDTOList == null) {
-            return null;
-        }
-        return dataDTOList;
-    }
-
-    private static List<EastMoneyBeab.ResultDTO.DataDTO> getHSHStockDate(String ss) {
-        List<EastMoneyBeab.ResultDTO.DataDTO> dataSHDTOS = getDataSHDTOS(ss);
-        List<EastMoneyBeab.ResultDTO.DataDTO> dataSZDTOS = getDataSZDTOS(ss);
-        List<EastMoneyBeab.ResultDTO.DataDTO> AllStock = new ArrayList<>();
-        if (dataSHDTOS == null || dataSHDTOS == null) {
-            return null;
-        }
-        AllStock.addAll(dataSHDTOS);
-        AllStock.addAll(dataSZDTOS);
-        AllStock.sort(getDtoComparator());
-        return AllStock;
-    }
-
     private static List<EastMoneyBeab.ResultDTO.DataDTO> getDataSZDTOS(String ss) {
         List<EastMoneyBeab.ResultDTO.DataDTO> dataSZDTOS = SZHStockConnect.getDataDTOS(ss);
         if (dataSZDTOS == null) {
@@ -154,14 +109,4 @@ public class SHSZHKStock {
         };
     }
 
-    private static void outExcle(List<EastMoneyBeab.ResultDTO.DataDTO> AllStock, String ss) {
-        String[] columnNames = {"名称", "日期"};
-        ExportExcelUtil exportExcelUtil = new ExportExcelUtil();
-        try {
-            exportExcelUtil.exportExcel("HSHStock", columnNames, AllStock, new FileOutputStream("d://HSHSTOCK" + File.separator + "HSHStock" + ss + ".xlsx"),
-                    ExportExcelUtil.EXCEl_FILE_2007);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
 }

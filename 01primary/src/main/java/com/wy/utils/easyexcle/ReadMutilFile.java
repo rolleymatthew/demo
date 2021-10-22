@@ -4,7 +4,7 @@ import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.read.listener.PageReadListener;
 import com.wy.bean.EastMoneyBeab;
 import com.wy.utils.FilesUtil;
-import com.wy.stock.hszh.SHSZHKStock;
+import com.wy.stock.hszh.GetSHSZHKStockDateService;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
@@ -31,8 +31,8 @@ public class ReadMutilFile {
      */
     public static List<EastMoneyBeab.ResultDTO.DataDTO> getDataDTOS(String code,int daySize,int sheetNum) {
         List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOList = new ArrayList<>();
-        String dir = SHSZHKStock.PATH;
-        List<String> filesOfDictory = FilesUtil.getFilesOfDicByExt(dir, SHSZHKStock.FILE_PRE, SHSZHKStock.FILE_EXT);
+        String dir = GetSHSZHKStockDateService.PATH;
+        List<String> filesOfDictory = FilesUtil.getFilesOfDicByExt(dir, GetSHSZHKStockDateService.FILE_PRE, GetSHSZHKStockDateService.FILE_EXT);
         for (String s : filesOfDictory) {
             if (daySize==0){
                 break;

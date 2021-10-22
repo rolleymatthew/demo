@@ -36,4 +36,13 @@ public class HSZHVoBean {
 
     @ExcelProperty("卖出天数")
     private Double SellDayCount;
+
+    @ExcelProperty("占流通股比变化")
+    private Double changeFreeSharesRatio;
+
+    @ExcelProperty("占总股比变化")
+    private Double changeTotalSharesRatio;
+
+    @ExcelProperty("市值变化(万元)")
+    private Double changeMarketCap;
 }
