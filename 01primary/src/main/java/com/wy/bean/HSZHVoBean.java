@@ -31,18 +31,16 @@ public class HSZHVoBean {
     @ExcelProperty("所属板块")
     private String industryName;
 
+    @ExcelProperty("今日增持市值(万元)")
+    private Double addMarketCap;
+
+    @ExcelProperty("持有市值变化(万元)")
+    private Double changeMarketCap;
+
     @ExcelProperty("买入天数")
     private Double BuyDayCount;
 
     @ExcelProperty("卖出天数")
     private Double SellDayCount;
 
-    @ExcelProperty("占流通股比变化")
-    private Double changeFreeSharesRatio;
-
-    @ExcelProperty("占总股比变化")
-    private Double changeTotalSharesRatio;
-
-    @ExcelProperty("市值变化(万元)")
-    private Double changeMarketCap;
 }

@@ -7,8 +7,10 @@ import com.wy.bean.EastMoneyBeab;
 import com.wy.bean.HSZHVoBean;
 import com.wy.utils.easyexcle.ReadMutilFile;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -16,17 +18,23 @@ import java.util.stream.Collectors;
  * Created by yunwang on 2021/10/19 11:24
  * 沪深港通持股分析
  */
-public class HSHStockAnaly {
+public class HSHStockAnalyService {
     private static String path = "d:";
     private static String sheetTitle = "%s天";
     private static String fileTitle = "沪港通买卖天数.xlsx";
 
     public static void main(String[] args) {
         //获取所有数据
+//        LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap = getDataMap(null, 3, 0);
+//        int[] days = {2, 3};
         LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap = getDataMap(null, -1, 0);
+        int[] days = {2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 30, 50};
+        exportExcle(dataMap, days);
+    }
+
+    public static void exportExcle(LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap, int[] days) {
         ExcelWriter excelWriter = null;
         //计算天数
-        int[] days = {2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 30, 50};
         try {
             excelWriter = EasyExcel.write(path + File.separator + fileTitle, HSZHVoBean.class).build();
             //计算N天内买入卖出的天数
@@ -42,12 +50,6 @@ public class HSHStockAnaly {
                 excelWriter.finish();
             }
         }
-        //当前时间连续买入和卖出的天数
-        //5天之内买入卖出前50大市值
-        //10天之内买入卖出前50大市值
-        //20天之内买入卖出前50大市值
-        //30天之内买入卖出前50大市值
-        //50天之内买入卖出前50大市值
     }
 
 
@@ -64,9 +66,6 @@ public class HSHStockAnaly {
             Map<String, Long> sellDayCount = dtoList.stream().filter(p ->
                     Double.parseDouble(String.valueOf(p.getAddMarketCap())) < 0.0
             ).collect(Collectors.groupingBy(p -> p.getSecurityCode(), Collectors.counting()));
-            Map<String, Double> collect = dtoList.stream()
-                    .collect(Collectors.groupingBy(p -> p.getSecurityCode()
-                    , Collectors.summingDouble(p -> Double.parseDouble(String.valueOf(p.getAddMarketCap())))));
 
             //3加入返回
             hszhVoBeanList.add(getHszhVoBean(stringListEntry, dtoList, buyDayCount, sellDayCount));
@@ -80,6 +79,7 @@ public class HSHStockAnaly {
         HSZHVoBean hszhVoBean = new HSZHVoBean();
         hszhVoBean.setSecurityCode(stringListEntry.getKey());
         hszhVoBean.setSecurityName(oneDTO.getSecurityName());
+        hszhVoBean.setAddMarketCap(oneDTO.getAddMarketCap());
         hszhVoBean.setFreeSharesRatio(oneDTO.getFreeSharesRatio());
         hszhVoBean.setTotalSharesRatio(oneDTO.getTotalSharesRatio());
         hszhVoBean.setHoldMarketCap(oneDTO.getHoldMarketCap());
@@ -99,10 +99,23 @@ public class HSHStockAnaly {
                 hszhVoBean.setSellDayCount(Double.parseDouble(sellDayCount.get(oneDTO.getSecurityCode()).toString()));
             }
         }
+        EastMoneyBeab.ResultDTO.DataDTO dataDTOLast = dtoList.get(dtoList.size() - 1);
+        hszhVoBean.setChangeMarketCap(getaDouble(oneDTO.getHoldMarketCap(), dataDTOLast.getHoldMarketCap()));
+
         return hszhVoBean;
     }
 
-    private static LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> getDataMap(String code, int daySize, int sheetNum) {
+    private static double getaDouble(Double aDouble, Double aDouble1) {
+        if (aDouble == null || aDouble1 == null || Double.isNaN(aDouble) || Double.isNaN(aDouble1)) {
+            return 0;
+        }
+        double result=aDouble.doubleValue() - aDouble1.doubleValue();
+        BigDecimal b = new BigDecimal(result);
+        result = b.setScale(4, BigDecimal.ROUND_HALF_UP).doubleValue();
+        return result;
+    }
+
+    public static LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> getDataMap(String code, int daySize, int sheetNum) {
         //1.读出所有文件路径
         List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOList = ReadMutilFile.getDataDTOS(code, daySize, sheetNum);
         //2.整理出所有数据按照时间顺序排列
