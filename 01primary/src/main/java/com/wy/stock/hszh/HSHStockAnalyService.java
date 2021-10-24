@@ -42,12 +42,10 @@ public class HSHStockAnalyService {
 
     private static LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> getDataMapByDay(String code, int daySize, int sheetNum) {
         //1.读出所有文件路径
-        List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOList = ReadMutilFile.getDataDTOS(code, daySize, sheetNum);
         return null;
     }
 
     private static void exportAmpTop50Excle(LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap, int[] ampTopDays) {
-
     }
 
     private static void exportAmpTopExcle(LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap, int[] ampTopDays) {

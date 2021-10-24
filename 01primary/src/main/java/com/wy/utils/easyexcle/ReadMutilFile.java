@@ -8,10 +8,7 @@ import com.wy.stock.hszh.GetSHSZHKStockDateService;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -25,16 +22,14 @@ public class ReadMutilFile {
 //        System.out.println(dataDTOList.size());
 
         //读取所有文件成日期+当日数据
-        LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataDTOSByDay = getDataDTOSByDay();
+        TreeMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataDTOSByDay = getDataDTOSByDay(-1,0);
         System.out.println(dataDTOSByDay.size());
     }
 
-    private static LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> getDataDTOSByDay() {
+    public static TreeMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> getDataDTOSByDay(int daySize,int sheetNum) {
         List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOList = new ArrayList<>();
         String dir = GetSHSZHKStockDateService.PATH;
         List<String> filesOfDictory = FilesUtil.getFilesOfDicByExt(dir, GetSHSZHKStockDateService.FILE_PRE, GetSHSZHKStockDateService.FILE_EXT);
-        int daySize = 10;
-        int sheetNum = 0;
         for (String s : filesOfDictory) {
             if (daySize == 0) {
                 break;
@@ -43,9 +38,9 @@ public class ReadMutilFile {
             dataDTOList.addAll(printDate(dirFile, null, sheetNum));
             daySize--;
         }
-        LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> collect = dataDTOList.stream()
+        TreeMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> collect = dataDTOList.stream()
                 .sorted(Comparator.comparing(EastMoneyBeab.ResultDTO.DataDTO::getHoldMarketCap).reversed())
-                .collect(Collectors.groupingBy(x -> x.getTradeDate(), LinkedHashMap::new, Collectors.toList()));
+                .collect(Collectors.groupingBy(x -> x.getTradeDate(), ()->new TreeMap<>(new ComparatorDate()), Collectors.toList()));
         return collect;
     }
 
@@ -85,5 +80,12 @@ public class ReadMutilFile {
             }
         })).sheet(sheetNum).doRead();
         return dataDTOList;
+    }
+
+    private static class ComparatorDate implements Comparator<String> {
+        @Override
+        public int compare(String o1, String o2) {
+            return o2.compareToIgnoreCase(o1);
+        }
     }
 }
