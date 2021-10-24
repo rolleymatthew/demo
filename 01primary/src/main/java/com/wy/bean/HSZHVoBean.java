@@ -31,8 +31,8 @@ public class HSZHVoBean {
     @ExcelProperty("所属板块")
     private String industryName;
 
-    @ExcelProperty("今日增持市值(万元)")
-    private Double addMarketCap;
+    @ExcelProperty("持股数变化(万股)")
+    private Double changeShares;
 
     @ExcelProperty("持有市值变化(万元)")
     private Double changeMarketCap;
