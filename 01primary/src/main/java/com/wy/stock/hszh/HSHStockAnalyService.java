@@ -5,10 +5,12 @@ import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.wy.bean.EastMoneyBeab;
 import com.wy.bean.HSZHVoBean;
+import com.wy.bean.HSZHVoBeanCompara;
 import com.wy.utils.DateUtil;
 import com.wy.utils.easyexcle.ReadMutilFile;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.springframework.beans.BeanUtils;
 
 import java.io.File;
 import java.math.BigDecimal;
@@ -40,7 +42,7 @@ public class HSHStockAnalyService {
         //按日期读出所有数据
         TreeMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap1 = getDataMapByDay(null, -1, 0);
         //截取相关数据
-        int[] ampTopDays = {3,5};
+        int[] ampTopDays = {3, 5};
         exportAmpTop50Excle(dataMap1, ampTopDays);
     }
 
@@ -69,12 +71,34 @@ public class HSHStockAnalyService {
             }
             List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOS1 = dataMap.get(s).stream().limit(50).collect(Collectors.toList());
             //开始计算比较两天数据，结果输出excle
-            getComparat(dataDTOS,dataDTOS1);
+            getComparat(dataDTOS, dataDTOS1);
         }
     }
 
     private static void getComparat(List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOS, List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOS1) {
+        List<HSZHVoBeanCompara> collect = dataDTOS.stream().map(x -> {
+            HSZHVoBeanCompara hszhVoBeans = new HSZHVoBeanCompara();
+            BeanUtils.copyProperties(x, hszhVoBeans);
+            return hszhVoBeans;
+        }).collect(Collectors.toList());
+        List<HSZHVoBeanCompara> collect1 = dataDTOS1.stream().map(x -> {
+            HSZHVoBeanCompara hszhVoBeans = new HSZHVoBeanCompara();
+            BeanUtils.copyProperties(x, hszhVoBeans);
+            return hszhVoBeans;
+        }).collect(Collectors.toList());
 
+        collect.stream().filter(s -> {
+            boolean ss = false;
+            for (HSZHVoBeanCompara x : collect1) {
+                if (x.getSecurityCode().equals(s.getSecurityCode())) {
+                    ss = true;
+                    break;
+                }
+            }
+            return ss;
+        }).collect(Collectors.toList());
+        System.out.println(collect.size());
+        System.out.println(collect1.size());
     }
 
     private static void exportAmpTopExcle(LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap, int[] ampTopDays) {
