@@ -5,6 +5,7 @@ import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.wy.bean.EastMoneyBeab;
 import com.wy.bean.HSZHVoBean;
+import com.wy.utils.DateUtil;
 import com.wy.utils.easyexcle.ReadMutilFile;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -19,24 +20,80 @@ import java.util.stream.Collectors;
  * 沪深港通持股分析
  */
 public class HSHStockAnalyService {
-    private static String path = "d:";
+    private static String path = GetSHSZHKStockDateService.PATH;
     private static String sheetTitle = "%s天";
-    private static String fileTitle = "沪港通买卖天数.xlsx";
+    private static String fileTitle = "沪港通买卖天数排序%s.xlsx";
+    private static String fileAmpTitle = "沪港通买卖市值变化排序%s.xlsx";
+    private static String fileAmpTopTitle = "沪港通买卖市值前50强变化%s.xlsx";
 
     public static void main(String[] args) {
         //获取所有数据
 //        LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap = getDataMap(null, 3, 0);
 //        int[] days = {2, 3};
         LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap = getDataMap(null, -1, 0);
-        int[] days = {2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 30, 50};
-        exportExcle(dataMap, days);
+        int[] countUpZeroDays = {2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 30, 50};
+        exportExcle(dataMap, countUpZeroDays);
+        int[] ampTopDays={3,5,10,20,30,50};
+        exportAmpTopExcle(dataMap,ampTopDays);
+
+        LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap1 = getDataMapByDay(null, -1, 0);
+        exportAmpTop50Excle(dataMap1,ampTopDays);
     }
 
-    public static void exportExcle(LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap, int[] days) {
+    private static LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> getDataMapByDay(String code, int daySize, int sheetNum) {
+        //1.读出所有文件路径
+        List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOList = ReadMutilFile.getDataDTOS(code, daySize, sheetNum);
+        return null;
+    }
+
+    private static void exportAmpTop50Excle(LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap, int[] ampTopDays) {
+
+    }
+
+    private static void exportAmpTopExcle(LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap, int[] ampTopDays) {
         ExcelWriter excelWriter = null;
         //计算天数
         try {
-            excelWriter = EasyExcel.write(path + File.separator + fileTitle, HSZHVoBean.class).build();
+            excelWriter = EasyExcel.write(path + File.separator + String.format(fileAmpTitle, DateUtil.getCurrentDay()), HSZHVoBean.class).build();
+            //计算N天内买入卖出的天数
+            for (int i = 0; i < ampTopDays.length; i++) {
+                int day = ampTopDays[i];
+                List<HSZHVoBean> hszhVoBeans = ampTop(dataMap, day);
+                WriteSheet writeSheet = EasyExcel.writerSheet(day, String.format(sheetTitle, day)).build();
+                excelWriter.write(hszhVoBeans, writeSheet);
+            }
+
+        } finally {
+            if (excelWriter != null) {
+                excelWriter.finish();
+            }
+        }
+
+    }
+
+    private static List<HSZHVoBean> ampTop(LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap, int day) {
+        List<HSZHVoBean> hszhVoBeanList = new ArrayList<>();
+        for (Map.Entry<String, List<EastMoneyBeab.ResultDTO.DataDTO>> stringListEntry : dataMap.entrySet()) {
+            //1.取出要计算的天数数据
+            List<EastMoneyBeab.ResultDTO.DataDTO> dtoList = stringListEntry.getValue().stream()
+                    .limit(day).collect(Collectors.toList());
+
+            //2计算
+            HSZHVoBean hszhVoBean = getHszhVoBean(dtoList);
+
+            //3加入返回
+            hszhVoBeanList.add(hszhVoBean);
+
+        }
+        return hszhVoBeanList.stream().sorted(Comparator.comparing(HSZHVoBean::getChangeMarketCap).reversed()).collect(Collectors.toList());
+    }
+
+    public static void exportExcle(LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap, int[] days) {
+
+        ExcelWriter excelWriter = null;
+        //计算天数
+        try {
+            excelWriter = EasyExcel.write(path + File.separator + String.format(fileTitle, DateUtil.getCurrentDay()), HSZHVoBean.class).build();
             //计算N天内买入卖出的天数
             for (int i = 0; i < days.length; i++) {
                 int day = days[i];
@@ -102,21 +159,10 @@ public class HSHStockAnalyService {
         } else {
                 hszhVoBean.setSellDayCount(sellDayCount.doubleValue());
         }
-//        EastMoneyBeab.ResultDTO.DataDTO dataDTOLast = dtoList.get(dtoList.size() - 1);
         hszhVoBean.setChangeMarketCap(changeMarketCap);
         hszhVoBean.setChangeShares(addSharesRepair);
 
         return hszhVoBean;
-    }
-
-    private static double getaDouble(Double aDouble, Double aDouble1) {
-        if (aDouble == null || aDouble1 == null || Double.isNaN(aDouble) || Double.isNaN(aDouble1)) {
-            return 0;
-        }
-        double result = aDouble.doubleValue() - aDouble1.doubleValue();
-        BigDecimal b = new BigDecimal(result);
-        result = b.setScale(4, BigDecimal.ROUND_HALF_UP).doubleValue();
-        return result;
     }
 
     public static LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> getDataMap(String code, int daySize, int sheetNum) {

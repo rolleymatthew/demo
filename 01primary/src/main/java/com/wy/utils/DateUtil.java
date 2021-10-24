@@ -1,5 +1,7 @@
 package com.wy.utils;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -22,4 +24,13 @@ public class DateUtil {
         return cal.getTime();
     }
 
+    /**
+     * 获取当天日期
+     * @return
+     */
+    public static String getCurrentDay(){
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = new Date();
+        return dateFormat.format(date);
+    }
 }
