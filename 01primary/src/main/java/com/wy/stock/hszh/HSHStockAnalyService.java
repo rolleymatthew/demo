@@ -14,6 +14,7 @@ import java.io.File;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by yunwang on 2021/10/19 11:24
@@ -30,22 +31,50 @@ public class HSHStockAnalyService {
         //获取所有数据
 //        LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap = getDataMap(null, 3, 0);
 //        int[] days = {2, 3};
-        LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap = getDataMap(null, -1, 0);
-        int[] countUpZeroDays = {2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 30, 50};
-        exportExcle(dataMap, countUpZeroDays);
-        int[] ampTopDays={3,5,10,20,30,50};
-        exportAmpTopExcle(dataMap,ampTopDays);
+//        LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap = getDataMap(null, -1, 0);
+//        int[] countUpZeroDays = {2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 30, 50};
+//        exportExcle(dataMap, countUpZeroDays);
+//        int[] ampTopDays={3,5,10,20,30,50};
+//        exportAmpTopExcle(dataMap,ampTopDays);
 
-        LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap1 = getDataMapByDay(null, -1, 0);
-        exportAmpTop50Excle(dataMap1,ampTopDays);
+        //按日期读出所有数据
+        TreeMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap1 = getDataMapByDay(null, -1, 0);
+        //截取相关数据
+        int[] ampTopDays = {3,5};
+        exportAmpTop50Excle(dataMap1, ampTopDays);
     }
 
-    private static LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> getDataMapByDay(String code, int daySize, int sheetNum) {
-        //1.读出所有文件路径
-        return null;
+    private static TreeMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> getDataMapByDay(String code, int daySize, int sheetNum) {
+        //1.按照日期从近到远读出所有数据
+        TreeMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataDTOSByDay = ReadMutilFile.getDataDTOSByDay(daySize, sheetNum);
+        return dataDTOSByDay;
     }
 
-    private static void exportAmpTop50Excle(LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap, int[] ampTopDays) {
+    private static void exportAmpTop50Excle(TreeMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap, int[] ampTopDays) {
+        //找出第一天前50数据
+        String s = dataMap.firstKey();
+        List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOS = dataMap.get(s).stream().limit(50).collect(Collectors.toList());
+        //找出对应的天数前50数据
+        for (int ampTopDay : ampTopDays) {
+            int i = 1;
+            for (Map.Entry<String, List<EastMoneyBeab.ResultDTO.DataDTO>> stringListEntry : dataMap.entrySet()) {
+                if (i < ampTopDay) {
+                    i++;
+                    continue;
+                } else {
+                    //找出对应天的数据
+                    s = stringListEntry.getKey();
+                    break;
+                }
+            }
+            List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOS1 = dataMap.get(s).stream().limit(50).collect(Collectors.toList());
+            //开始计算比较两天数据，结果输出excle
+            getComparat(dataDTOS,dataDTOS1);
+        }
+    }
+
+    private static void getComparat(List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOS, List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOS1) {
+
     }
 
     private static void exportAmpTopExcle(LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap, int[] ampTopDays) {
@@ -147,15 +176,15 @@ public class HSHStockAnalyService {
         hszhVoBean.setHoldMarketCap(oneDTO.getHoldMarketCap());
         hszhVoBean.setHoldShares(oneDTO.getHoldShares());
         hszhVoBean.setIndustryName(oneDTO.getIndustryName());
-        if (buyDayCount==null) {
+        if (buyDayCount == null) {
             hszhVoBean.setBuyDayCount(0.0);
         } else {
-                hszhVoBean.setBuyDayCount(buyDayCount.doubleValue());
+            hszhVoBean.setBuyDayCount(buyDayCount.doubleValue());
         }
-        if (sellDayCount==null) {
+        if (sellDayCount == null) {
             hszhVoBean.setSellDayCount(0.0);
         } else {
-                hszhVoBean.setSellDayCount(sellDayCount.doubleValue());
+            hszhVoBean.setSellDayCount(sellDayCount.doubleValue());
         }
         hszhVoBean.setChangeMarketCap(changeMarketCap);
         hszhVoBean.setChangeShares(addSharesRepair);
