@@ -8,6 +8,7 @@ import com.wy.bean.HSZHVoBean;
 import com.wy.bean.HSZHVoBeanCompara;
 import com.wy.utils.DateUtil;
 import com.wy.utils.easyexcle.ReadMutilFile;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.BeanUtils;
@@ -23,26 +24,26 @@ import java.util.stream.Stream;
  * 沪深港通持股分析
  */
 public class HSHStockAnalyService {
-    private static String path = GetSHSZHKStockDateService.PATH;
-    private static String sheetTitle = "%s天";
-    private static String fileTitle = "沪港通买卖天数排序%s.xlsx";
-    private static String fileAmpTitle = "沪港通买卖市值变化排序%s.xlsx";
-    private static String fileAmpTopTitle = "沪港通买卖市值前50强变化%s.xlsx";
+    private static final String path = GetSHSZHKStockDateService.PATH;
+    private static final String sheetTitle = "%s天";
+    private static final String fileTitle = "沪港通买卖天数排序%s.xlsx";
+    private static final String fileAmpTitle = "沪港通买卖市值变化排序%s.xlsx";
+    private static final String fileAmpTopTitle = "沪港通买卖市值前50强变化%s.xlsx";
 
     public static void main(String[] args) {
         //获取所有数据
 //        LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap = getDataMap(null, 3, 0);
 //        int[] days = {2, 3};
-//        LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap = getDataMap(null, -1, 0);
-//        int[] countUpZeroDays = {2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 30, 50};
-//        exportExcle(dataMap, countUpZeroDays);
-//        int[] ampTopDays={3,5,10,20,30,50};
-//        exportAmpTopExcle(dataMap,ampTopDays);
+        LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap = getDataMap(null, -1, 0);
+        int[] countUpZeroDays = {2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 30, 50};
+        exportExcle(dataMap, countUpZeroDays);
+        int[] ampTopDays={3,5,10,20,30,50};
+        exportAmpTopExcle(dataMap,ampTopDays);
 
         //按日期读出所有数据
         TreeMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap1 = getDataMapByDay(null, -1, 0);
         //截取相关数据
-        int[] ampTopDays = {3, 5};
+//        int[] ampTopDays = {3};
         exportAmpTop50Excle(dataMap1, ampTopDays);
     }
 
@@ -54,8 +55,10 @@ public class HSHStockAnalyService {
 
     private static void exportAmpTop50Excle(TreeMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap, int[] ampTopDays) {
         //找出第一天前50数据
+        int limit = 50;
         String s = dataMap.firstKey();
-        List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOS = dataMap.get(s).stream().limit(50).collect(Collectors.toList());
+        List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOS = dataMap.get(s).stream().limit(limit).collect(Collectors.toList());
+        TreeMap<Integer,List<HSZHVoBeanCompara>> hMap=new TreeMap<>();
         //找出对应的天数前50数据
         for (int ampTopDay : ampTopDays) {
             int i = 1;
@@ -69,36 +72,56 @@ public class HSHStockAnalyService {
                     break;
                 }
             }
-            List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOS1 = dataMap.get(s).stream().limit(50).collect(Collectors.toList());
+            List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOS1 = dataMap.get(s).stream().limit(limit).collect(Collectors.toList());
             //开始计算比较两天数据，结果输出excle
-            getComparat(dataDTOS, dataDTOS1);
+            List<HSZHVoBeanCompara> comparat = getComparat(dataDTOS, dataDTOS1);
+            hMap.put(ampTopDay,comparat);
         }
+        exportAmp50TopExcle(hMap,ampTopDays);
     }
 
-    private static void getComparat(List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOS, List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOS1) {
-        List<HSZHVoBeanCompara> collect = dataDTOS.stream().map(x -> {
-            HSZHVoBeanCompara hszhVoBeans = new HSZHVoBeanCompara();
-            BeanUtils.copyProperties(x, hszhVoBeans);
-            return hszhVoBeans;
-        }).collect(Collectors.toList());
-        List<HSZHVoBeanCompara> collect1 = dataDTOS1.stream().map(x -> {
-            HSZHVoBeanCompara hszhVoBeans = new HSZHVoBeanCompara();
-            BeanUtils.copyProperties(x, hszhVoBeans);
-            return hszhVoBeans;
-        }).collect(Collectors.toList());
+    private static List<HSZHVoBeanCompara> getComparat(List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOS, List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOS1) {
+        //过滤产生增加的数据
+        List<HSZHVoBeanCompara> newTopAdd = dataDTOS.stream()
+                .filter(s -> {
+                    boolean ss = true;
+                    for (EastMoneyBeab.ResultDTO.DataDTO x : dataDTOS1) {
+                        if (x.getSecurityCode().equals(s.getSecurityCode())) {
+                            ss = false;
+                            break;
+                        }
+                    }
+                    return ss;
+                })
+                .map(x -> {
+                    HSZHVoBeanCompara hszhVoBeans = new HSZHVoBeanCompara();
+                    BeanUtils.copyProperties(x, hszhVoBeans);
+                    hszhVoBeans.setMethored("新增");
+                    return hszhVoBeans;
+                }).collect(Collectors.toList());
 
-        collect.stream().filter(s -> {
-            boolean ss = false;
-            for (HSZHVoBeanCompara x : collect1) {
-                if (x.getSecurityCode().equals(s.getSecurityCode())) {
-                    ss = true;
-                    break;
-                }
-            }
-            return ss;
-        }).collect(Collectors.toList());
-        System.out.println(collect.size());
-        System.out.println(collect1.size());
+        //过滤产生减少的数据
+        List<HSZHVoBeanCompara> oldTopReduce = dataDTOS1.stream()
+                .filter(s -> {
+                    boolean ss = true;
+                    for (EastMoneyBeab.ResultDTO.DataDTO x : dataDTOS) {
+                        if (x.getSecurityCode().equals(s.getSecurityCode())) {
+                            ss = false;
+                            break;
+                        }
+                    }
+                    return ss;
+                })
+                .map(x -> {
+                    HSZHVoBeanCompara hszhVoBeans = new HSZHVoBeanCompara();
+                    BeanUtils.copyProperties(x, hszhVoBeans);
+                    hszhVoBeans.setMethored("减少");
+                    return hszhVoBeans;
+                }).collect(Collectors.toList());
+
+        //组装增加减少数据到一个sheet返回数据
+        List<HSZHVoBeanCompara> ret=Stream.concat(newTopAdd.stream(),oldTopReduce.stream()).collect(Collectors.toList());
+        return ret;
     }
 
     private static void exportAmpTopExcle(LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap, int[] ampTopDays) {
@@ -112,6 +135,26 @@ public class HSHStockAnalyService {
                 List<HSZHVoBean> hszhVoBeans = ampTop(dataMap, day);
                 WriteSheet writeSheet = EasyExcel.writerSheet(day, String.format(sheetTitle, day)).build();
                 excelWriter.write(hszhVoBeans, writeSheet);
+            }
+
+        } finally {
+            if (excelWriter != null) {
+                excelWriter.finish();
+            }
+        }
+
+    }
+
+    private static void exportAmp50TopExcle(TreeMap<Integer,List<HSZHVoBeanCompara>> data, int[] ampTopDays) {
+        ExcelWriter excelWriter = null;
+        //计算天数
+        try {
+            excelWriter = EasyExcel.write(path + File.separator + String.format(fileAmpTopTitle, DateUtil.getCurrentDay()), HSZHVoBeanCompara.class).build();
+            //计算N天内买入卖出的天数
+            for (int i = 0; i < ampTopDays.length; i++) {
+                int day = ampTopDays[i];
+                WriteSheet writeSheet = EasyExcel.writerSheet(day, String.format(sheetTitle, day)).build();
+                excelWriter.write(data.get(day), writeSheet);
             }
 
         } finally {
