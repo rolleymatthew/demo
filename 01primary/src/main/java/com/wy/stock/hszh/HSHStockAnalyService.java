@@ -37,8 +37,8 @@ public class HSHStockAnalyService {
         LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap = getDataMap(null, -1, 0);
         int[] countUpZeroDays = {2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 30, 50};
         exportExcle(dataMap, countUpZeroDays);
-        int[] ampTopDays={3,5,10,20,30,50};
-        exportAmpTopExcle(dataMap,ampTopDays);
+        int[] ampTopDays = {3, 5, 10, 20, 30, 50};
+        exportAmpTopExcle(dataMap, ampTopDays);
 
         //按日期读出所有数据
         TreeMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap1 = getDataMapByDay(null, -1, 0);
@@ -55,36 +55,44 @@ public class HSHStockAnalyService {
 
     private static void exportAmpTop50Excle(TreeMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap, int[] ampTopDays) {
         //1.找出第一天前50数据
-        int limit = 50;
+        int[] limits = {10, 20, 50};
         String s = dataMap.firstKey();
-        List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOS = dataMap.get(s).stream().limit(limit).collect(Collectors.toList());
-        TreeMap<Integer,List<HSZHVoBeanCompara>> hMap=new TreeMap<>();
+
+        TreeMap<Integer, List<HSZHVoBeanCompara>> hMap = new TreeMap<>();
         //2.找出对应的天数前50数据，进行比较
         for (int ampTopDay : ampTopDays) {
             //按照位置找到对应天数的数据
-            int i = 1;
+            int iCount = 1;
+            String en=";";
             for (Map.Entry<String, List<EastMoneyBeab.ResultDTO.DataDTO>> stringListEntry : dataMap.entrySet()) {
-                if (i < ampTopDay) {
-                    i++;
+                if (iCount < ampTopDay) {
+                    iCount++;
                     continue;
                 } else {
                     //找出对应天的数据
-                    s = stringListEntry.getKey();
+                    en = stringListEntry.getKey();
                     break;
                 }
             }
-            List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOS1 = dataMap.get(s).stream().limit(limit).collect(Collectors.toList());
 
-            //开始计算比较两天数据，结果输出进treemap
-            List<HSZHVoBeanCompara> comparat = getComparat(dataDTOS, dataDTOS1);
-            hMap.put(ampTopDay,comparat);
+            //计算所有天数的数据，输出到一个列表里
+            List<HSZHVoBeanCompara> comparat = new ArrayList<>();
+            for (int i = 0; i < limits.length; i++) {
+                int limit = limits[i];
+                List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOS = dataMap.get(s).stream().limit(limit).collect(Collectors.toList());
+                List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOS1 = dataMap.get(en).stream().limit(limit).collect(Collectors.toList());
+
+                //开始计算比较两天数据，结果输出进treemap
+                comparat.addAll(getComparat(dataDTOS, dataDTOS1, limit));
+            }
+            hMap.put(ampTopDay, comparat);
         }
 
         //3.输出到excle
-        exportAmp50TopExcle(hMap,ampTopDays);
+        exportAmp50TopExcle(hMap, ampTopDays);
     }
 
-    private static List<HSZHVoBeanCompara> getComparat(List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOS, List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOS1) {
+    private static List<HSZHVoBeanCompara> getComparat(List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOS, List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOS1, int limit) {
         //过滤产生增加的数据
         List<HSZHVoBeanCompara> newTopAdd = dataDTOS.stream()
                 .filter(s -> {
@@ -100,7 +108,7 @@ public class HSHStockAnalyService {
                 .map(x -> {
                     HSZHVoBeanCompara hszhVoBeans = new HSZHVoBeanCompara();
                     BeanUtils.copyProperties(x, hszhVoBeans);
-                    hszhVoBeans.setMethored("新增");
+                    hszhVoBeans.setMethored(limit + "强新增");
                     return hszhVoBeans;
                 }).collect(Collectors.toList());
 
@@ -119,12 +127,12 @@ public class HSHStockAnalyService {
                 .map(x -> {
                     HSZHVoBeanCompara hszhVoBeans = new HSZHVoBeanCompara();
                     BeanUtils.copyProperties(x, hszhVoBeans);
-                    hszhVoBeans.setMethored("减少");
+                    hszhVoBeans.setMethored(limit + "强减少");
                     return hszhVoBeans;
                 }).collect(Collectors.toList());
 
         //组装增加减少数据到一个sheet返回数据
-        List<HSZHVoBeanCompara> ret=Stream.concat(newTopAdd.stream(),oldTopReduce.stream()).collect(Collectors.toList());
+        List<HSZHVoBeanCompara> ret = Stream.concat(newTopAdd.stream(), oldTopReduce.stream()).collect(Collectors.toList());
         return ret;
     }
 
@@ -149,7 +157,7 @@ public class HSHStockAnalyService {
 
     }
 
-    private static void exportAmp50TopExcle(TreeMap<Integer,List<HSZHVoBeanCompara>> data, int[] ampTopDays) {
+    private static void exportAmp50TopExcle(TreeMap<Integer, List<HSZHVoBeanCompara>> data, int[] ampTopDays) {
         ExcelWriter excelWriter = null;
         //计算天数
         try {
