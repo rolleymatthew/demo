@@ -42,7 +42,7 @@ public class HSHStockAnalyService {
 
         //按日期读出所有数据
         TreeMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap1 = getDataMapByDay(null, -1, 0);
-        //截取相关数据
+        //输出数据到excle文件
 //        int[] ampTopDays = {3};
         exportAmpTop50Excle(dataMap1, ampTopDays);
     }
@@ -54,13 +54,14 @@ public class HSHStockAnalyService {
     }
 
     private static void exportAmpTop50Excle(TreeMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap, int[] ampTopDays) {
-        //找出第一天前50数据
+        //1.找出第一天前50数据
         int limit = 50;
         String s = dataMap.firstKey();
         List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOS = dataMap.get(s).stream().limit(limit).collect(Collectors.toList());
         TreeMap<Integer,List<HSZHVoBeanCompara>> hMap=new TreeMap<>();
-        //找出对应的天数前50数据
+        //2.找出对应的天数前50数据，进行比较
         for (int ampTopDay : ampTopDays) {
+            //按照位置找到对应天数的数据
             int i = 1;
             for (Map.Entry<String, List<EastMoneyBeab.ResultDTO.DataDTO>> stringListEntry : dataMap.entrySet()) {
                 if (i < ampTopDay) {
@@ -73,10 +74,13 @@ public class HSHStockAnalyService {
                 }
             }
             List<EastMoneyBeab.ResultDTO.DataDTO> dataDTOS1 = dataMap.get(s).stream().limit(limit).collect(Collectors.toList());
-            //开始计算比较两天数据，结果输出excle
+
+            //开始计算比较两天数据，结果输出进treemap
             List<HSZHVoBeanCompara> comparat = getComparat(dataDTOS, dataDTOS1);
             hMap.put(ampTopDay,comparat);
         }
+
+        //3.输出到excle
         exportAmp50TopExcle(hMap,ampTopDays);
     }
 
