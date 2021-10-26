@@ -14,6 +14,8 @@ import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by yunwang on 2021/10/25 17:28
@@ -45,40 +47,103 @@ public class FinanceDateService {
         String urlformat = String.format(URL_DOMAIN + URL_YLNL, stockCode);
         //2.获取数据
         String temp = getResultClasses(urlformat);
+
+
         //3.保存文件
         if (temp.isEmpty()) {
             System.out.println(stockCode + "数据库空");
             return;
         }
+
+        //使用二维数组转置方法转化bean
         String[] line = temp.split("\n");
+        List<String> collect = Arrays.stream(line).filter(x -> x.length() > 10).collect(Collectors.toList());
+        String s1 = collect.get(0);
+        String[] cell = StringUtils.split(s1, ",");
+        String[][] orgData=new String[collect.size()][cell.length];
+        String[][] newData=new String[cell.length][collect.size()];
+        //二维数组赋值
+        for (int i = 0; i < collect.size(); i++) {
+            String s = collect.get(i);
+            String[] split = s.split(",");
+            for (int j = 0; j < split.length; j++) {
+                String s2 =  split[j];
+                orgData[i][j]=s2;
+            }
+        }
 
         List<FinanceDataBean> beanList = new ArrayList<>();
-        for (String s : line) {
-            if (StringUtils.length(s) <= 10) {
-                continue;
-            }
-            String[] cell = StringUtils.split(s, ",");
-            FinanceDataBean financeBean = getFinanceBean(cell);
-            beanList.add(financeBean);
-        }
-        EasyExcel.write(fileName, FinanceDataBean.class)
-                .sheet("模板")
-                .doWrite(beanList);
+//        EasyExcel.write(fileName, FinanceDataBean.class)
+//                .sheet("模板")
+//                .doWrite(beanList);
 
     }
 
-    private static FinanceDataBean getFinanceBean(String[] cell) {
+    private static FinanceDataBean getFinanceBean(String[][] cell,int line,int column) {
         FinanceDataBean financeDataBean = new FinanceDataBean();
-        for (int i = 1; i < cell.length; i++) {
-            String data = cell[i];
-            switch (i) {
-                case 1:
-                    financeDataBean.setReportDate(data);
-                    break;
-                case 2:
-                    financeDataBean.setBasePerShare(data);
-                    break;
-                default:
+        for (int i = 0; i < line; i++) {
+            for (int j = 0; j < column; j++) {
+                String data = cell[i][j];
+                switch (j+1) {
+                    case 1:
+                        financeDataBean.setReportDate(data);
+                        break;
+                    case 2:
+                        financeDataBean.setBasePerShare(data);
+                        break;
+                    case 3:
+                        financeDataBean.setValuePerShare(data);
+                        break;
+                    case 4:
+                        financeDataBean.setCashPerShare(data);
+                        break;
+                    case 5:
+                        financeDataBean.setMainBusiIncome(data);
+                        break;
+                    case 6:
+                        financeDataBean.setMainBusiProfit(data);
+                        break;
+                    case 7:
+                        financeDataBean.setOperatProfit(data);
+                        break;
+                    case 8:
+                        financeDataBean.setInvestIncome(data);
+                        break;
+                    case 9:
+                        financeDataBean.setNotOperatIncome(data);
+                        break;
+                    case 10:
+                        financeDataBean.setTotalProfit(data);
+                        break;
+                    case 11:
+                        financeDataBean.setNetProfit(data);
+                        break;
+                    case 12:
+                        financeDataBean.setRecurNetProfit(data);
+                        break;
+                    case 13:
+                        financeDataBean.setCashFlowOpet(data);
+                        break;
+                    case 14:
+                        financeDataBean.setCashValueIncr(data);
+                        break;
+                    case 15:
+                        financeDataBean.setTotalAssets(data);
+                        break;
+                    case 16:
+                        financeDataBean.setCurrentAssets(data);
+                        break;
+                    case 17:
+                        financeDataBean.setCurrentLiabil(data);
+                        break;
+                    case 18:
+                        financeDataBean.setShareEquity(data);
+                        break;
+                    case 19:
+                        financeDataBean.setNetAssetsWeight(data);
+                        break;
+                    default:
+                }
             }
         }
         return financeDataBean;
@@ -96,23 +161,45 @@ public class FinanceDateService {
         }
 
         //读取行
-        String[] line = temp.split("\n");
-        //读取列
-        TreeMap<String,FinanceDataBean> finMap=new TreeMap<>();
-        for (String cells : line) {
-            if (StringUtils.length(cells) <= 10) {
-                continue;
-            }
-            String[] data = StringUtils.split(cells, ",");
-//            if (finMap.containsKey()) {
-//
-//            }
-            FinanceDataBean financeBean = getFinanceBean(data);
-        }
+        //使用二维数组转置方法转化bean
+        String[] line = temp.split("\r\n");
+        List<String> collect = Arrays.stream(line).filter(x -> x.length() > 10).collect(Collectors.toList());
+        String s1 = collect.get(0);
+        String[] cell = StringUtils.split(s1, ",");
+        int lineLen=collect.size();
+        int columnLen=cell.length;
+        String[][] orgData=new String[lineLen][columnLen];
+        String[][] newData=new String[columnLen][lineLen];
+        fillString(collect, lineLen, columnLen, orgData);
+
+        lineToColumn(lineLen, columnLen, orgData, newData);
+
         List<FinanceDataBean> beanList = new ArrayList<>();
-        EasyExcel.write(fileName, FinanceDataBean.class)
-                .sheet("finance")
-                .doWrite(beanList);
+//        EasyExcel.write(fileName, FinanceDataBean.class)
+//                .sheet("finance")
+//                .doWrite(beanList);
+    }
+
+    private static void lineToColumn(int lineLen, int columnLen, String[][] orgData, String[][] newData) {
+        //行转列
+        for (int i = 0; i < lineLen; i++) {
+            for (int j = 0; j < columnLen; j++) {
+                newData[j][i]= orgData[i][j];
+            }
+
+        }
+    }
+
+    private static void fillString(List<String> collect, int lineLen, int columnLen, String[][] orgData) {
+        //二维数组赋值
+        for (int i = 0; i < lineLen; i++) {
+            String s = collect.get(i);
+            String[] split = s.split(",");
+            for (int j = 1; j < columnLen; j++) {
+                String s2 =  split[j];
+                orgData[i][j-1]=s2;
+            }
+        }
     }
 
     private static List<String> getAllCodes() {
