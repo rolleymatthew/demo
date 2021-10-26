@@ -1,5 +1,6 @@
 package com.wy.stock.finance;
 
+import com.alibaba.excel.EasyExcel;
 import com.wy.chromedriver.PerfitConstant;
 import com.wy.utils.AllStock;
 import com.wy.utils.FilesUtil;
@@ -7,11 +8,9 @@ import com.wy.utils.OkHttpUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -25,18 +24,20 @@ public class FinanceDateService {
     private static String URL_YLNL = "service/zycwzb_%s.html?type=season&part=ylnl";
     private static String URL_ZYCWZB_REPORT = "service/zycwzb_%s.html?type=report";
     //磁盘路径
-    private static String PATH_MAIN = "d:\\financeStock\\";
-    private static String PATH_YLNL = "ylnl\\";
-    private static String PATH_ZYCWZB = "zycwzb\\";
+    private static String PATH_MAIN = "d:\\financeStock";
+    private static String PATH_YLNL = "ylnl";
+    private static String PATH_ZYCWZB = "zycwzb";
     //文件名称
     private static String FILE_NAME = "finance%s.xlsx";
 
     static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(PerfitConstant.threadNum, PerfitConstant.threadNum, 5, TimeUnit.SECONDS
             , new LinkedBlockingDeque<>(), new BasicThreadFactory.Builder().namingPattern("StockUtil-pool-%d").daemon(true).build());
+
     public static void main(String[] args) {
         List<String> allCodes = getAllCodes();
 
-        getYLNLContent(StringUtils.trim("000001"), String.format(FILE_NAME, StringUtils.trim("000001")));
+//        getYLNLContent(StringUtils.trim("000001"), String.format(FILE_NAME, StringUtils.trim("000001")));
+        getZYCWZBContent(StringUtils.trim("000001"), PATH_MAIN + File.separator + String.format(FILE_NAME, StringUtils.trim("000001")));
     }
 
     private static void getYLNLContent(String stockCode, String fileName) {
@@ -49,21 +50,38 @@ public class FinanceDateService {
             System.out.println(stockCode + "数据库空");
             return;
         }
-        String[] split = temp.split("\n");
+        String[] line = temp.split("\n");
 
-        for (String s : split) {
-            System.out.println(s.length());
-            if (StringUtils.length(s) <=10) {
+        List<FinanceDataBean> beanList = new ArrayList<>();
+        for (String s : line) {
+            if (StringUtils.length(s) <= 10) {
                 continue;
             }
-            String[] split1 = StringUtils.split(s, ",");
-            System.out.println(split1.length);
+            String[] cell = StringUtils.split(s, ",");
+            FinanceDataBean financeBean = getFinanceBean(cell);
+            beanList.add(financeBean);
         }
-//        try {
-//            FilesUtil.writeFile(PATH_MAIN + PATH_YLNL, fileName, temp);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        EasyExcel.write(fileName, FinanceDataBean.class)
+                .sheet("模板")
+                .doWrite(beanList);
+
+    }
+
+    private static FinanceDataBean getFinanceBean(String[] cell) {
+        FinanceDataBean financeDataBean = new FinanceDataBean();
+        for (int i = 1; i < cell.length; i++) {
+            String data = cell[i];
+            switch (i) {
+                case 1:
+                    financeDataBean.setReportDate(data);
+                    break;
+                case 2:
+                    financeDataBean.setBasePerShare(data);
+                    break;
+                default:
+            }
+        }
+        return financeDataBean;
     }
 
     private static void getZYCWZBContent(String stockCode, String fileName) {
@@ -76,12 +94,27 @@ public class FinanceDateService {
             System.out.println(stockCode + "数据库空");
             return;
         }
-        try {
-            FilesUtil.writeFile(PATH_MAIN + PATH_ZYCWZB, fileName, temp);
-        } catch (IOException e) {
-            e.printStackTrace();
+
+        //读取行
+        String[] line = temp.split("\n");
+        //读取列
+        TreeMap<String,FinanceDataBean> finMap=new TreeMap<>();
+        for (String cells : line) {
+            if (StringUtils.length(cells) <= 10) {
+                continue;
+            }
+            String[] data = StringUtils.split(cells, ",");
+//            if (finMap.containsKey()) {
+//
+//            }
+            FinanceDataBean financeBean = getFinanceBean(data);
         }
+        List<FinanceDataBean> beanList = new ArrayList<>();
+        EasyExcel.write(fileName, FinanceDataBean.class)
+                .sheet("finance")
+                .doWrite(beanList);
     }
+
     private static List<String> getAllCodes() {
         List<String> codeList = new ArrayList<>();
         String[] codes = AllStock.SH_MAIN.split(",");
@@ -103,6 +136,7 @@ public class FinanceDateService {
 
     /**
      * 获取网易数据
+     *
      * @param url
      * @return
      */
