@@ -3,6 +3,7 @@ package com.wy.stock.finance;
 import com.alibaba.excel.EasyExcel;
 import com.wy.chromedriver.PerfitConstant;
 import com.wy.utils.AllStock;
+import com.wy.utils.ClassUtil;
 import com.wy.utils.OkHttpUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
@@ -36,10 +37,11 @@ public class FinanceDateService {
     public static void main(String[] args) {
         List<String> allCodes = getAllCodes();
 
-//        getYLNLContent(StringUtils.trim("000001"), String.format(FILE_NAME, StringUtils.trim("000001")));
-        allCodes.parallelStream().forEach(x ->
-                getZYCWZBContent(StringUtils.trim(x)
-                        , PATH_MAIN + File.separator + PATH_ZYCWZB_REPORT + File.separator + String.format(FILE_NAME_REPORT, StringUtils.trim(x))));
+        getZYCWZBContent(StringUtils.trim("000001")
+                , PATH_MAIN + File.separator + PATH_ZYCWZB_REPORT + File.separator + String.format(FILE_NAME_REPORT, StringUtils.trim("000001")));
+//        allCodes.parallelStream().forEach(x ->
+//                getZYCWZBContent(StringUtils.trim(x)
+//                        , PATH_MAIN + File.separator + PATH_ZYCWZB_REPORT + File.separator + String.format(FILE_NAME_REPORT, StringUtils.trim(x))));
     }
 
     private static void getYLNLContent(String stockCode, String fileName) {
@@ -153,6 +155,7 @@ public class FinanceDateService {
 
     /**
      * 读取数据并格式化成需要的bean
+     *
      * @param temp
      * @return
      */
@@ -171,15 +174,35 @@ public class FinanceDateService {
         String[][] orgData = new String[lineLen][columnLen];
         String[][] newData = new String[columnLen][lineLen];
 
-        //把数据赋值到一个二维数组orgData里
-        fillString(collect, lineLen, columnLen, orgData);
+        //把数据赋值到一个二维数组orgData里,header放表头
+        List<String> header = new ArrayList<>();
+        fillString(collect, lineLen, columnLen, orgData, header);
 
         //用第二个二维数组newData实现行转列
         lineToColumn(lineLen, columnLen, orgData, newData);
 
         //把生成的二维数组转化成需要的bean列表，返回
-        List<FinanceDataBean> beanList = getFinaByArray(newData, columnLen, lineLen);
+        //使用手工赋值方法
+//        List<FinanceDataBean> beanList = getFinaByArray(newData, columnLen, lineLen);
+        //使用类的反射机制
+        List<FinanceDataBean> beanList = getFinaClassByArray(newData, columnLen, lineLen, header);
         return beanList;
+    }
+
+    private static List<FinanceDataBean> getFinaClassByArray(String[][] newData, int columnLen, int lineLen, List<String> header) {
+        List<FinanceDataBean> ret = new ArrayList<>();
+        for (int i = 0; i < columnLen; i++) {
+            FinanceDataBean financeDataBean=new FinanceDataBean();
+            for (int h = 0; h < header.size(); h++) {
+                String s = header.get(h);
+                String s1 = ConstantBean.DIC.get(s);
+                ClassUtil.setFieldValueByFieldName(financeDataBean,s1,newData[i][h]);
+            }
+            ret.add(financeDataBean);
+
+        }
+
+        return ret;
     }
 
     private static void lineToColumn(int lineLen, int columnLen, String[][] orgData, String[][] newData) {
@@ -192,14 +215,18 @@ public class FinanceDateService {
         }
     }
 
-    private static void fillString(List<String> collect, int lineLen, int columnLen, String[][] orgData) {
+    private static void fillString(List<String> collect, int lineLen, int columnLen, String[][] orgData, List<String> header) {
         //二维数组赋值
         for (int i = 0; i < lineLen; i++) {
             String s = collect.get(i);
             String[] split = s.split(",");
-            for (int j = 1; j < columnLen; j++) {
+            for (int j = 0; j < columnLen; j++) {
                 String s2 = split[j];
-                orgData[i][j - 1] = s2;
+                if (j == 0) {
+                    header.add(s2);
+                } else {
+                    orgData[i][j - 1] = s2;
+                }
             }
         }
     }
