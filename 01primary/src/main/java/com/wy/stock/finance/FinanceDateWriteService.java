@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 /**
  * Created by yunwang on 2021/10/25 17:28
  */
-public class FinanceDateService {
+public class FinanceDateWriteService {
     //盈利能力抓取路径
     private static String URL_DOMAIN = "http://quotes.money.163.com/";
     private static String URL_YLNL = "service/zycwzb_%s.html?type=season&part=ylnl";
