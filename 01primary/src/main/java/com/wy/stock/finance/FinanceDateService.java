@@ -3,19 +3,16 @@ package com.wy.stock.finance;
 import com.alibaba.excel.EasyExcel;
 import com.wy.chromedriver.PerfitConstant;
 import com.wy.utils.AllStock;
-import com.wy.utils.FilesUtil;
 import com.wy.utils.OkHttpUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Created by yunwang on 2021/10/25 17:28
@@ -27,10 +24,11 @@ public class FinanceDateService {
     private static String URL_ZYCWZB_REPORT = "service/zycwzb_%s.html?type=report";
     //磁盘路径
     private static String PATH_MAIN = "d:\\financeStock";
-    private static String PATH_YLNL = "ylnl";
-    private static String PATH_ZYCWZB = "zycwzb";
+    private static String PATH_YLNL = "ylnlSeason";
+    private static String PATH_ZYCWZB_REPORT = "zycwzbReport";
+    private static String PATH_ZYCWZB_SEASON = "zycwzbSeason";
     //文件名称
-    private static String FILE_NAME = "finance%s.xlsx";
+    private static String FILE_NAME_REPORT = "zycwReport%s.xlsx";
 
     static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(PerfitConstant.threadNum, PerfitConstant.threadNum, 5, TimeUnit.SECONDS
             , new LinkedBlockingDeque<>(), new BasicThreadFactory.Builder().namingPattern("StockUtil-pool-%d").daemon(true).build());
@@ -41,7 +39,7 @@ public class FinanceDateService {
 //        getYLNLContent(StringUtils.trim("000001"), String.format(FILE_NAME, StringUtils.trim("000001")));
         allCodes.parallelStream().forEach(x ->
                 getZYCWZBContent(StringUtils.trim(x)
-                        , PATH_MAIN + File.separator + PATH_ZYCWZB + File.separator + String.format(FILE_NAME, StringUtils.trim(x))));
+                        , PATH_MAIN + File.separator + PATH_ZYCWZB_REPORT + File.separator + String.format(FILE_NAME_REPORT, StringUtils.trim(x))));
     }
 
     private static void getYLNLContent(String stockCode, String fileName) {
@@ -59,7 +57,7 @@ public class FinanceDateService {
 
     }
 
-    private static List<FinanceDataBean> getFinanceBean(String[][] cell, int line, int column) {
+    private static List<FinanceDataBean> getFinaByArray(String[][] cell, int line, int column) {
         List<FinanceDataBean> ret = new ArrayList<>();
         for (int i = 0; i < line; i++) {
             FinanceDataBean financeDataBean = new FinanceDataBean();
@@ -115,10 +113,10 @@ public class FinanceDateService {
                         financeDataBean.setCurrentAssets(data);
                         break;
                     case 17:
-                        financeDataBean.setCurrentLiabil(data);
+                        financeDataBean.setTotalLiabil(data);
                         break;
                     case 18:
-                        financeDataBean.setTotalLiabil(data);
+                        financeDataBean.setCurrentLiabil(data);
                         break;
                     case 19:
                         financeDataBean.setShareEquity(data);
@@ -140,29 +138,48 @@ public class FinanceDateService {
         //2.获取数据
         String temp = getResultClasses(urlformat);
         //3.保存文件
-        if (temp.isEmpty()) {
+        if (StringUtils.isEmpty(temp)) {
             System.out.println(stockCode + "数据库空");
             return;
         }
 
         //读取行
         //使用二维数组转置方法转化bean
-        String[] line = temp.split("\r\n");
-        List<String> collect = Arrays.stream(line).filter(x -> x.length() > 10).collect(Collectors.toList());
-        String s1 = collect.get(0);
-        String[] cell = StringUtils.split(s1, ",");
-        int lineLen = collect.size();
-        int columnLen = cell.length;
-        String[][] orgData = new String[lineLen][columnLen];
-        String[][] newData = new String[columnLen][lineLen];
-        fillString(collect, lineLen, columnLen, orgData);
-
-        lineToColumn(lineLen, columnLen, orgData, newData);
-
-        List<FinanceDataBean> beanList = getFinanceBean(newData, columnLen, lineLen);
+        List<FinanceDataBean> beanList = getFinanceDataBeans(temp);
         EasyExcel.write(fileName, FinanceDataBean.class)
                 .sheet("finance")
                 .doWrite(beanList);
+    }
+
+    /**
+     * 读取数据并格式化成需要的bean
+     * @param temp
+     * @return
+     */
+    private static List<FinanceDataBean> getFinanceDataBeans(String temp) {
+        //得到原始的行数据,计算出行数
+        String[] line = temp.split("\r\n");
+        List<String> collect = Arrays.stream(line).filter(x -> x.length() > 10).collect(Collectors.toList());
+        int lineLen = collect.size();
+
+        //得到第一个行数据计算出列数
+        String s1 = collect.get(0);
+        String[] cell = StringUtils.split(s1, ",");
+        int columnLen = cell.length;
+
+        //定义两个做行转列用的二维数组
+        String[][] orgData = new String[lineLen][columnLen];
+        String[][] newData = new String[columnLen][lineLen];
+
+        //把数据赋值到一个二维数组orgData里
+        fillString(collect, lineLen, columnLen, orgData);
+
+        //用第二个二维数组newData实现行转列
+        lineToColumn(lineLen, columnLen, orgData, newData);
+
+        //把生成的二维数组转化成需要的bean列表，返回
+        List<FinanceDataBean> beanList = getFinaByArray(newData, columnLen, lineLen);
+        return beanList;
     }
 
     private static void lineToColumn(int lineLen, int columnLen, String[][] orgData, String[][] newData) {
