@@ -39,7 +39,9 @@ public class FinanceDateService {
         List<String> allCodes = getAllCodes();
 
 //        getYLNLContent(StringUtils.trim("000001"), String.format(FILE_NAME, StringUtils.trim("000001")));
-        getZYCWZBContent(StringUtils.trim("000001"), PATH_MAIN + File.separator + String.format(FILE_NAME, StringUtils.trim("000001")));
+        allCodes.parallelStream().forEach(x ->
+                getZYCWZBContent(StringUtils.trim(x)
+                        , PATH_MAIN + File.separator + PATH_ZYCWZB + File.separator + String.format(FILE_NAME, StringUtils.trim(x))));
     }
 
     private static void getYLNLContent(String stockCode, String fileName) {
@@ -55,37 +57,15 @@ public class FinanceDateService {
             return;
         }
 
-        //使用二维数组转置方法转化bean
-        String[] line = temp.split("\n");
-        List<String> collect = Arrays.stream(line).filter(x -> x.length() > 10).collect(Collectors.toList());
-        String s1 = collect.get(0);
-        String[] cell = StringUtils.split(s1, ",");
-        String[][] orgData=new String[collect.size()][cell.length];
-        String[][] newData=new String[cell.length][collect.size()];
-        //二维数组赋值
-        for (int i = 0; i < collect.size(); i++) {
-            String s = collect.get(i);
-            String[] split = s.split(",");
-            for (int j = 0; j < split.length; j++) {
-                String s2 =  split[j];
-                orgData[i][j]=s2;
-            }
-        }
-
-        List<FinanceDataBean> beanList = new ArrayList<>();
-//        EasyExcel.write(fileName, FinanceDataBean.class)
-//                .sheet("模板")
-//                .doWrite(beanList);
-
     }
 
-    private static List<FinanceDataBean> getFinanceBean(String[][] cell,int line,int column) {
-        List<FinanceDataBean> ret=new ArrayList<>();
+    private static List<FinanceDataBean> getFinanceBean(String[][] cell, int line, int column) {
+        List<FinanceDataBean> ret = new ArrayList<>();
         for (int i = 0; i < line; i++) {
             FinanceDataBean financeDataBean = new FinanceDataBean();
             for (int j = 0; j < column; j++) {
                 String data = cell[i][j];
-                switch (j+1) {
+                switch (j + 1) {
                     case 1:
                         financeDataBean.setReportDate(data);
                         break;
@@ -171,15 +151,15 @@ public class FinanceDateService {
         List<String> collect = Arrays.stream(line).filter(x -> x.length() > 10).collect(Collectors.toList());
         String s1 = collect.get(0);
         String[] cell = StringUtils.split(s1, ",");
-        int lineLen=collect.size();
-        int columnLen=cell.length;
-        String[][] orgData=new String[lineLen][columnLen];
-        String[][] newData=new String[columnLen][lineLen];
+        int lineLen = collect.size();
+        int columnLen = cell.length;
+        String[][] orgData = new String[lineLen][columnLen];
+        String[][] newData = new String[columnLen][lineLen];
         fillString(collect, lineLen, columnLen, orgData);
 
         lineToColumn(lineLen, columnLen, orgData, newData);
 
-        List<FinanceDataBean> beanList = getFinanceBean(newData,columnLen,lineLen);
+        List<FinanceDataBean> beanList = getFinanceBean(newData, columnLen, lineLen);
         EasyExcel.write(fileName, FinanceDataBean.class)
                 .sheet("finance")
                 .doWrite(beanList);
@@ -189,7 +169,7 @@ public class FinanceDateService {
         //行转列
         for (int i = 0; i < lineLen; i++) {
             for (int j = 0; j < columnLen; j++) {
-                newData[j][i]= orgData[i][j];
+                newData[j][i] = orgData[i][j];
             }
 
         }
@@ -201,8 +181,8 @@ public class FinanceDateService {
             String s = collect.get(i);
             String[] split = s.split(",");
             for (int j = 1; j < columnLen; j++) {
-                String s2 =  split[j];
-                orgData[i][j-1]=s2;
+                String s2 = split[j];
+                orgData[i][j - 1] = s2;
             }
         }
     }
