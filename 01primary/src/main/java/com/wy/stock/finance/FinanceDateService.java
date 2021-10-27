@@ -79,9 +79,10 @@ public class FinanceDateService {
 
     }
 
-    private static FinanceDataBean getFinanceBean(String[][] cell,int line,int column) {
-        FinanceDataBean financeDataBean = new FinanceDataBean();
+    private static List<FinanceDataBean> getFinanceBean(String[][] cell,int line,int column) {
+        List<FinanceDataBean> ret=new ArrayList<>();
         for (int i = 0; i < line; i++) {
+            FinanceDataBean financeDataBean = new FinanceDataBean();
             for (int j = 0; j < column; j++) {
                 String data = cell[i][j];
                 switch (j+1) {
@@ -137,16 +138,20 @@ public class FinanceDateService {
                         financeDataBean.setCurrentLiabil(data);
                         break;
                     case 18:
-                        financeDataBean.setShareEquity(data);
+                        financeDataBean.setTotalLiabil(data);
                         break;
                     case 19:
+                        financeDataBean.setShareEquity(data);
+                        break;
+                    case 20:
                         financeDataBean.setNetAssetsWeight(data);
                         break;
                     default:
                 }
             }
+            ret.add(financeDataBean);
         }
-        return financeDataBean;
+        return ret;
     }
 
     private static void getZYCWZBContent(String stockCode, String fileName) {
@@ -174,10 +179,10 @@ public class FinanceDateService {
 
         lineToColumn(lineLen, columnLen, orgData, newData);
 
-        List<FinanceDataBean> beanList = new ArrayList<>();
-//        EasyExcel.write(fileName, FinanceDataBean.class)
-//                .sheet("finance")
-//                .doWrite(beanList);
+        List<FinanceDataBean> beanList = getFinanceBean(newData,columnLen,lineLen);
+        EasyExcel.write(fileName, FinanceDataBean.class)
+                .sheet("finance")
+                .doWrite(beanList);
     }
 
     private static void lineToColumn(int lineLen, int columnLen, String[][] orgData, String[][] newData) {

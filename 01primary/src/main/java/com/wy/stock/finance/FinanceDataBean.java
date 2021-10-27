@@ -40,6 +40,8 @@ public class FinanceDataBean {
     private String totalAssets;
     @ExcelProperty("流动资产(万元)")
     private String currentAssets;
+    @ExcelProperty("总负债(万元)")
+    private String totalLiabil;
     @ExcelProperty("流动负债(万元)")
     private String currentLiabil;
     @ExcelProperty("股东权益不含少数股东权益(万元)")
