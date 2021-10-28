@@ -24,12 +24,14 @@ public class FinanceDateWriteService {
     private static String URL_YLNL = "service/zycwzb_%s.html?type=season&part=ylnl";
     private static String URL_ZYCWZB_REPORT = "service/zycwzb_%s.html?type=report";
     //磁盘路径
-    private static String PATH_MAIN = "d:\\financeStock";
-    private static String PATH_YLNL = "ylnlSeason";
-    private static String PATH_ZYCWZB_REPORT = "zycwzbReport";
-    private static String PATH_ZYCWZB_SEASON = "zycwzbSeason";
+    public static String PATH_MAIN = "d:\\financeStock";
+    public static String PATH_YLNL = "ylnlSeason";
+    public static String PATH_ZYCWZB_REPORT = "zycwzbReport";
+    public static String PATH_ZYCWZB_SEASON = "zycwzbSeason";
     //文件名称
-    private static String FILE_NAME_REPORT = "zycwReport%s.xlsx";
+    public static String FILE_NAME_PRE = "zycwReport";
+    public static String FILE_NAME_EXT = ".xlsx";
+    public static String FILE_NAME_REPORT = FILE_NAME_PRE + "%s" + FILE_NAME_EXT;
 
     static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(PerfitConstant.threadNum, PerfitConstant.threadNum, 5, TimeUnit.SECONDS
             , new LinkedBlockingDeque<>(), new BasicThreadFactory.Builder().namingPattern("StockUtil-pool-%d").daemon(true).build());
@@ -192,11 +194,11 @@ public class FinanceDateWriteService {
     private static List<FinanceDataBean> getFinaClassByArray(String[][] newData, int columnLen, int lineLen, List<String> header) {
         List<FinanceDataBean> ret = new ArrayList<>();
         for (int i = 0; i < columnLen; i++) {
-            FinanceDataBean financeDataBean=new FinanceDataBean();
+            FinanceDataBean financeDataBean = new FinanceDataBean();
             for (int h = 0; h < header.size(); h++) {
                 String s = header.get(h);
                 String s1 = ConstantBean.DIC.get(s);
-                ClassUtil.setFieldValueByFieldName(financeDataBean,s1,newData[i][h]);
+                ClassUtil.setFieldValueByFieldName(financeDataBean, s1, newData[i][h]);
             }
             ret.add(financeDataBean);
 
@@ -231,7 +233,7 @@ public class FinanceDateWriteService {
         }
     }
 
-    private static List<String> getAllCodes() {
+    public static List<String> getAllCodes() {
         List<String> codeList = new ArrayList<>();
         String[] codes = AllStock.SH_MAIN.split(",");
         for (String code : codes) {
