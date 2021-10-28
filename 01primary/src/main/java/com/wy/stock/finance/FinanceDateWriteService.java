@@ -236,20 +236,20 @@ public class FinanceDateWriteService {
 
     public static List<String> getAllCodes() {
         List<String> codeList = new ArrayList<>();
-        String[] codes = AllStock.SH_MAIN_.split(",");
+        String[] codes = AllStock.SH_MAIN.split(",");
         for (String code : codes) {
             codeList.add(StringUtils.trim(code));
         }
 
-//        codes = AllStock.SH_KC.split(",");
-//        for (String code : codes) {
-//            codeList.add(StringUtils.trim(code));
-//        }
-//
-//        codes = AllStock.SZ.split(",");
-//        for (String code : codes) {
-//            codeList.add(StringUtils.trim(code));
-//        }
+        codes = AllStock.SH_KC.split(",");
+        for (String code : codes) {
+            codeList.add(StringUtils.trim(code));
+        }
+
+        codes = AllStock.SZ.split(",");
+        for (String code : codes) {
+            codeList.add(StringUtils.trim(code));
+        }
         return codeList;
     }
 

@@ -26,10 +26,10 @@ public class GetSHSZHKStockDateService {
 
     public static void main(String[] args) {
         //当天
-        getMutilSheet(2);
+//        getMutilSheet(2);
 
         //历史数据
-//        getMutilSheet(60);
+        getMutilSheet(60);
     }
 
     private static void getMutilSheet(int dayTotal) {
