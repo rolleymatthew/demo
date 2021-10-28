@@ -1,6 +1,7 @@
 package com.wy.stock.finance;
 
 import com.alibaba.excel.EasyExcel;
+import com.wy.bean.Contant;
 import com.wy.chromedriver.PerfitConstant;
 import com.wy.utils.AllStock;
 import com.wy.utils.ClassUtil;
@@ -24,7 +25,7 @@ public class FinanceDateWriteService {
     private static String URL_YLNL = "service/zycwzb_%s.html?type=season&part=ylnl";
     private static String URL_ZYCWZB_REPORT = "service/zycwzb_%s.html?type=report";
     //磁盘路径
-    public static String PATH_MAIN = "d:\\financeStock";
+    public static String PATH_MAIN = Contant.DIR+File.separator+"financeStock";
     public static String PATH_YLNL = "ylnlSeason";
     public static String PATH_ZYCWZB_REPORT = "zycwzbReport";
     public static String PATH_ZYCWZB_SEASON = "zycwzbSeason";
@@ -235,20 +236,20 @@ public class FinanceDateWriteService {
 
     public static List<String> getAllCodes() {
         List<String> codeList = new ArrayList<>();
-        String[] codes = AllStock.SH_MAIN.split(",");
+        String[] codes = AllStock.SH_MAIN_.split(",");
         for (String code : codes) {
             codeList.add(StringUtils.trim(code));
         }
 
-        codes = AllStock.SH_KC.split(",");
-        for (String code : codes) {
-            codeList.add(StringUtils.trim(code));
-        }
-
-        codes = AllStock.SZ.split(",");
-        for (String code : codes) {
-            codeList.add(StringUtils.trim(code));
-        }
+//        codes = AllStock.SH_KC.split(",");
+//        for (String code : codes) {
+//            codeList.add(StringUtils.trim(code));
+//        }
+//
+//        codes = AllStock.SZ.split(",");
+//        for (String code : codes) {
+//            codeList.add(StringUtils.trim(code));
+//        }
         return codeList;
     }
 

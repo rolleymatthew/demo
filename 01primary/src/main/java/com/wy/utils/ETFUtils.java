@@ -3,6 +3,7 @@ package com.wy.utils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.wy.bean.Contant;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.io.*;
@@ -15,19 +16,19 @@ public class ETFUtils {
             "&pageHelp.pageNo=1&pageHelp.cacheSize=1" +
             "&sqlId=COMMON_SSE_ZQPZ_ETFZL_XXPL_ETFGM_SEARCH_L&STAT_DATE=%s" +
             "&_=1606103195911";
-//    private static String url = "http://query.sse.com.cn/commonQuery" +
+    //    private static String url = "http://query.sse.com.cn/commonQuery" +
 //            ".do?isPagination=true&pageHelp.pageSize=%s&pageHelp" +
 //            ".pageNo=1&pageHelp.cacheSize=1&sqlId=COMMON_SSE_ZQPZ_ETFZL_XXPL_ETFGM_SEARCH_L&STAT_DATE=%s" +
 //            "&_=1606103195911";
     public static String FORMAT_SHORT = "yyyy-MM-dd";
 
-    public static String pat = "d:\\etf";
+    public static String pat = Contant.DIR + File.separator + "etf";
 
     public static List<String> dateList = new ArrayList<>();
 
     private static List<ResultClass> totalResult = new ArrayList<>();
-    private static String[] columnNames = {"日期", "名称", "代码", "总份额(万份)","第一天","第二天","第三天"};
-    private static String[] columnNamesScope = {"日期", "名称", "代码", "总份额(万份)","比对日期","比对前总份额(万份)", "变动份额(万份)"};
+    private static String[] columnNames = {"日期", "名称", "代码", "总份额(万份)", "第一天", "第二天", "第三天"};
+    private static String[] columnNamesScope = {"日期", "名称", "代码", "总份额(万份)", "比对日期", "比对前总份额(万份)", "变动份额(万份)"};
 
     public static void main(String[] args) throws IOException, InterruptedException {
         //导出一天的所有数据文件
@@ -65,7 +66,7 @@ public class ETFUtils {
         getFourDayDelComp(totalMap, exportExcelUtil);
 
         //4.三天变化最大的前十
-        int[] days = {1,2,3,5,10,20,30,60,90};
+        int[] days = {1, 2, 3, 5, 10, 20, 30, 60, 90};
         for (int day : days) {
             getScopesByDays(exportExcelUtil, totalMap, day);
         }
@@ -78,7 +79,7 @@ public class ETFUtils {
         List<ScopeClass> reduceMap = new ArrayList<>();
         for (Map.Entry<Integer, List<ResultClass>> integerListEntry : totalMap.entrySet()) {
             List<ResultClass> listEntryValue = integerListEntry.getValue();
-            if (listEntryValue.size() >= days+1) {
+            if (listEntryValue.size() >= days + 1) {
 
                 ResultClass resultClass = listEntryValue.get(0);
                 ResultClass resultClass2 = listEntryValue.get(days);
@@ -136,9 +137,9 @@ public class ETFUtils {
                         && thirdETF > yesterdayETF
                         && yesterdayETF > nowETF) {
                     resultClassListAll.add(resultClass);
-                    resultClass.setDEFF1(yesterdayETF-nowETF);
-                    resultClass.setDEFF2(thirdETF-yesterdayETF);
-                    resultClass.setDEFF3(fourETF-thirdETF);
+                    resultClass.setDEFF1(yesterdayETF - nowETF);
+                    resultClass.setDEFF2(thirdETF - yesterdayETF);
+                    resultClass.setDEFF3(fourETF - thirdETF);
                     stringBuilder.append(getString(resultClass));
                     yesterdayETF = 0.0;
                     nowETF = 0.0;
@@ -181,9 +182,9 @@ public class ETFUtils {
                         && thirdETF < yesterdayETF
                         && yesterdayETF < nowETF) {
                     stringBuilder.append(getString(resultClass));
-                    resultClass.setDEFF1(nowETF-yesterdayETF);
-                    resultClass.setDEFF2(yesterdayETF-thirdETF);
-                    resultClass.setDEFF3(thirdETF-fourETF);
+                    resultClass.setDEFF1(nowETF - yesterdayETF);
+                    resultClass.setDEFF2(yesterdayETF - thirdETF);
+                    resultClass.setDEFF3(thirdETF - fourETF);
                     resultClassListAll.add(resultClass);
                     yesterdayETF = 0.0;
                     nowETF = 0.0;
@@ -220,8 +221,8 @@ public class ETFUtils {
                         && thirdETF > yesterdayETF
                         && yesterdayETF > nowETF) {
                     stringBuilder.append(getString(resultClass));
-                    resultClass.setDEFF1(yesterdayETF-nowETF);
-                    resultClass.setDEFF2(thirdETF-yesterdayETF);
+                    resultClass.setDEFF1(yesterdayETF - nowETF);
+                    resultClass.setDEFF2(thirdETF - yesterdayETF);
                     resultClassListAll.add(resultClass);
                     yesterdayETF = 0.0;
                     nowETF = 0.0;
@@ -251,7 +252,7 @@ public class ETFUtils {
                 }
                 if (yesterdayETF > 0 && nowETF > 0 && yesterdayETF > nowETF) {
                     stringBuilder.append(getString(resultClass));
-                    resultClass.setDEFF1(yesterdayETF-nowETF);
+                    resultClass.setDEFF1(yesterdayETF - nowETF);
                     resultClassListAll.add(resultClass);
                     yesterdayETF = 0.0;
                     nowETF = 0.0;
@@ -286,8 +287,8 @@ public class ETFUtils {
                         && thirdETF < yesterdayETF
                         && yesterdayETF < nowETF) {
                     stringBuilder.append(getString(resultClass));
-                    resultClass.setDEFF1(nowETF-yesterdayETF);
-                    resultClass.setDEFF2(yesterdayETF-thirdETF);
+                    resultClass.setDEFF1(nowETF - yesterdayETF);
+                    resultClass.setDEFF2(yesterdayETF - thirdETF);
                     resultClassListAll.add(resultClass);
                     yesterdayETF = 0.0;
                     nowETF = 0.0;
@@ -317,7 +318,7 @@ public class ETFUtils {
                 }
                 if (yesterdayETF > 0 && nowETF > 0 && yesterdayETF < nowETF) {
                     stringBuilder.append(getString(resultClass));
-                    resultClass.setDEFF1(nowETF-yesterdayETF);
+                    resultClass.setDEFF1(nowETF - yesterdayETF);
                     resultClassListAll.add(resultClass);
                     yesterdayETF = 0.0;
                     nowETF = 0.0;
@@ -440,7 +441,7 @@ public class ETFUtils {
         headerMap.put("Host", "query.sse.com.cn");
         headerMap.put("Referer", "http://www.sse.com.cn/");
         headerMap.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36");
-        String ss = OkHttpUtil.doGet(url, headerMap,null);
+        String ss = OkHttpUtil.doGet(url, headerMap, null);
         JSONObject jsonObject = JSON.parseObject(ss);
         JSONArray result = jsonObject.getJSONArray("result");
         List<ResultClass> resultClassList = new ArrayList<>();

@@ -3,6 +3,7 @@ package com.wy.stock.hszh;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.write.metadata.WriteSheet;
+import com.wy.bean.Contant;
 import com.wy.bean.EastMoneyBeab;
 import com.wy.utils.DateUtil;
 import com.wy.utils.ExportExcelUtil;
@@ -17,7 +18,7 @@ import java.util.*;
  * Created by yunwang on 2021/10/18 15:44
  */
 public class GetSHSZHKStockDateService {
-    public static String PATH = "d://HSHSTOCK";
+    public static String PATH = Contant.DIR + File.separator + "HSHSTOCK";
     public static String FILE_PRE = "HSHStock";
     public static String FILE_EXT = ".xlsx";
     public static String SHEET_NAME = "HSHSTOCK";

@@ -21,17 +21,22 @@ public class FinanceDateReadService {
     public static void main(String[] args) {
         List<String> allCodes = FinanceDateWriteService.getAllCodes();
         //读取文件
-        Map<String,List<FinanceDataBean>> dataMap=new ConcurrentHashMap<>();
+        Map<String, List<FinanceDataBean>> dataMap = getFinanceListMap(allCodes);
+
+        dataMap.entrySet().forEach(x -> System.out.println(x));
+    }
+
+    private static Map<String, List<FinanceDataBean>> getFinanceListMap(List<String> allCodes) {
+        Map<String, List<FinanceDataBean>> dataMap = new ConcurrentHashMap<>();
         allCodes.parallelStream().forEach(s -> {
-                    EasyExcel.read(FinanceDateWriteService.PATH_MAIN + File.separator
+            EasyExcel.read(FinanceDateWriteService.PATH_MAIN + File.separator
                             + FinanceDateWriteService.PATH_ZYCWZB_REPORT + File.separator
                             + String.format(FinanceDateWriteService.FILE_NAME_REPORT, StringUtils.trim(s)), FinanceDataBean.class
-                            , new PageReadListener<FinanceDataBean>(dataList -> {
-                                dataMap.put(s,dataList);
+                    , new PageReadListener<FinanceDataBean>(dataList -> {
+                        dataMap.put(s, dataList);
                     })).sheet(0).doRead();
-                }
-        );
-        System.out.println(dataMap.size());
+        });
+        return dataMap;
     }
 
 }
