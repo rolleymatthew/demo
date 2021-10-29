@@ -29,18 +29,14 @@ public class ETFFundResearchService {
         Map<Integer, List<ETFBean.PageHelpDTO.DataDTO>> collectByCode = allFundData.stream().sorted(Comparator.comparing(ETFBean.PageHelpDTO.DataDTO::getStatDate).reversed())
                 .collect(Collectors.groupingBy(ETFBean.PageHelpDTO.DataDTO::getSecCode));
 
-        //连续2日新增的
-        Set<Map.Entry<Integer, List<ETFBean.PageHelpDTO.DataDTO>>> collect = collectByCode.entrySet().stream()
-                .filter(x -> {
-                    //过滤出连续新增的
-                    long count = x.getValue().stream().limit(2).filter(s -> s.getAddVol() > 0).count();
-                    if (count == 2) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                }
-        ).collect(Collectors.toSet());
+        //连续多日日新增的
+        int[] days={2,3};
+        for (int day : days) {
+            Map<Integer, List<ETFBean.PageHelpDTO.DataDTO>> etfDateByUpZero = getETFDateByUpZero(collectByCode, day);
+            Map<Integer, List<ETFBean.PageHelpDTO.DataDTO>> etfDateByDownZero = getETFDateByDownZero(collectByCode, day);
+        }
+
+
         collectByCode.entrySet().stream().forEach(x -> {
                     //截断流到想要的天数
                     Stream<ETFBean.PageHelpDTO.DataDTO> dataDTOStream = x.getValue().stream().limit(2);
@@ -50,8 +46,8 @@ public class ETFFundResearchService {
                     if (count == 2) {
                         //计算所有变动数据
                         System.out.println(x.getKey());
-                        Double addTot = dataDTOStream.collect(Collectors.summingDouble(ETFBean.PageHelpDTO.DataDTO::getAddVol));
-                        System.out.println(addTot);
+//                        Double addTot = dataDTOStream.collect(Collectors.summingDouble(ETFBean.PageHelpDTO.DataDTO::getAddVol));
+//                        System.out.println(addTot);
 //                        Optional<ETFBean.PageHelpDTO.DataDTO> first = dataDTOStream.findFirst();
 //                        if (first.isPresent()){
 //                            ETFBean.PageHelpDTO.DataDTO dataDTO = first.get();
@@ -64,6 +60,46 @@ public class ETFFundResearchService {
 
                 }
         );
+    }
+
+    /**
+     * 连续增加规模
+     * @param collectByCode
+     * @param limit
+     * @return
+     */
+    private static Map<Integer, List<ETFBean.PageHelpDTO.DataDTO>> getETFDateByUpZero(Map<Integer, List<ETFBean.PageHelpDTO.DataDTO>> collectByCode,int limit) {
+        return collectByCode.entrySet().stream()
+                .filter(x -> {
+                            //过滤出连续新增的
+                            long count = x.getValue().stream().limit(limit)
+                                    .filter(s -> s.getAddVol() > 0).count();
+                            if (count == limit) {
+                                return true;
+                            } else {
+                                return false;
+                            }
+                        }
+                        //截断数据到需要的长度
+                ).collect(Collectors.toMap(x -> x.getKey()
+                        , x -> x.getValue().stream().limit(limit).collect(Collectors.toList())));
+    }
+
+    private static Map<Integer, List<ETFBean.PageHelpDTO.DataDTO>> getETFDateByDownZero(Map<Integer, List<ETFBean.PageHelpDTO.DataDTO>> collectByCode,int limit) {
+        return collectByCode.entrySet().stream()
+                .filter(x -> {
+                            //过滤出连续新增的
+                            long count = x.getValue().stream().limit(limit)
+                                    .filter(s -> s.getAddVol() < 0).count();
+                            if (count == limit) {
+                                return true;
+                            } else {
+                                return false;
+                            }
+                        }
+                        //截断数据到需要的长度
+                ).collect(Collectors.toMap(x -> x.getKey()
+                        , x -> x.getValue().stream().limit(limit).collect(Collectors.toList())));
     }
 
     private static List<ETFBean.PageHelpDTO.DataDTO> getAllFundData() {
