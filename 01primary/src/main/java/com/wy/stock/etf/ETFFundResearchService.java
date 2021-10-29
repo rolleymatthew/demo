@@ -44,7 +44,7 @@ public class ETFFundResearchService {
             List<ETFCompVoBean> collect1 = etfDateByUpZero.entrySet().stream()
                     .map(x -> {
                         ETFCompVoBean etfCompVoBean = new ETFCompVoBean();
-                        BeanUtils.copyProperties(x, etfCompVoBean);
+                        BeanUtils.copyProperties(x.getValue().get(0), etfCompVoBean);
                         etfCompVoBean.setAddTotValue(collect.get(x.getKey()));
                         return etfCompVoBean;
                     }).collect(Collectors.toList());
