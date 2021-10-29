@@ -32,7 +32,7 @@ public class GetSHSZHKStockDateService {
         getMutilSheet(60);
     }
 
-    private static void getMutilSheet(int dayTotal) {
+    public static void getMutilSheet(int dayTotal) {
         int dayCount = 1;
         int count = dayTotal + 30;
         Date date = new Date();
@@ -41,7 +41,7 @@ public class GetSHSZHKStockDateService {
         do {
             date = DateUtil.getPreviousWorkingDay(date, -1);
             String ss = df.format(date);
-            System.out.println(ss);
+            System.out.println("GetSHSZHKStockDateService:" + ss);
 
             hshStockDate = getDataSHDTOS(ss);
             hszStockDate = getDataSZDTOS(ss);

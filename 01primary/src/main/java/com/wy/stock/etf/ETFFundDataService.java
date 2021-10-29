@@ -36,27 +36,26 @@ public class ETFFundDataService {
     public static void main(String[] args) {
         int dayCount = 90;
         getETFFundData(dayCount);
-
-
     }
 
-    private static void getETFFundData(int dayCount) {
+    public static void getETFFundData(int dayCount) {
         Date date = new Date();
         for (int i = 0; i < dayCount; i++) {
             date = DateUtil.getPreviousWorkingDay(date, -1);
             String shortDate = DateUtil.fmtShortDate(date);
-            System.out.println(shortDate);
+            System.out.println("getETFFundData:" + shortDate);
             List<ETFBean.PageHelpDTO.DataDTO> etfFundBeanDataDTOList = getETFFundBean(shortDate, pageSize);
 
             if (CollectionUtils.isEmpty(etfFundBeanDataDTOList)) {
+                //文件为空跳过到前一天
                 i--;
+            } else {
+                //写入excle文件
+                String fileName = Contant.DIR + File.separator + FILE_PRE + File.separator + FILE_PRE + shortDate + FILE_EXT;
+                EasyExcel.write(fileName, ETFBean.PageHelpDTO.DataDTO.class)
+                        .sheet(FILE_PRE + shortDate)
+                        .doWrite(etfFundBeanDataDTOList);
             }
-
-            //写入excle文件
-            String fileName = Contant.DIR + File.separator + FILE_PRE + File.separator + FILE_PRE + shortDate + FILE_EXT;
-            EasyExcel.write(fileName, ETFBean.PageHelpDTO.DataDTO.class)
-                    .sheet(FILE_PRE + shortDate)
-                    .doWrite(etfFundBeanDataDTOList);
         }
     }
 
