@@ -30,8 +30,6 @@ public class ETFFundDataService {
 
     //文件前缀
     public static final String FILE_PRE = "ETF";
-    //文件后缀
-    public static final String FILE_EXT = ".xlsx";
 
     public static void main(String[] args) {
         int dayCount = 90;
@@ -70,14 +68,16 @@ public class ETFFundDataService {
                         , ETFBean.PageHelpDTO.DataDTO::getTotVol));
                 etfFundBeanDataDTOList.stream().forEach(x -> {
                     //从map中找到前一天的数据相减
+                    double v = 0;
                     if (totVolMap.containsKey(x.getSecCode())) {
-                        x.setAddVol(x.getTotVol() - totVolMap.get(x.getSecCode()));
+                        v = x.getTotVol() - totVolMap.get(x.getSecCode());
                     }
+                    x.setAddVol(v);
                 });
             }
 
             //写入excle文件
-            String fileName = Contant.DIR + File.separator + FILE_PRE + File.separator + FILE_PRE + fileNameDate + FILE_EXT;
+            String fileName = Contant.DIR + File.separator + FILE_PRE + File.separator + FILE_PRE + fileNameDate + Contant.FILE_EXT;
             EasyExcel.write(fileName, ETFBean.PageHelpDTO.DataDTO.class)
                     .sheet(FILE_PRE + shortDate)
                     .doWrite(etfFundBeanDataDTOList);

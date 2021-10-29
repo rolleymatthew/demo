@@ -33,7 +33,7 @@ public class FinanceDateWriteService {
     public static String PATH_ZYCWZB_SEASON = "zycwzbSeason";
     //文件名称
     public static String FILE_NAME_PRE = "zycwReport";
-    public static String FILE_NAME_EXT = ".xlsx";
+    public static String FILE_NAME_EXT = Contant.FILE_EXT;
     public static String FILE_NAME_REPORT = FILE_NAME_PRE + "%s" + FILE_NAME_EXT;
 
     static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(PerfitConstant.threadNum, PerfitConstant.threadNum, 5, TimeUnit.SECONDS

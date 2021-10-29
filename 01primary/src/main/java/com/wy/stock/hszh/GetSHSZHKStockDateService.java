@@ -20,7 +20,7 @@ import java.util.*;
 public class GetSHSZHKStockDateService {
     public static String PATH = Contant.DIR + File.separator + "HSHSTOCK";
     public static String FILE_PRE = "HSHStock";
-    public static String FILE_EXT = ".xlsx";
+    public static String FILE_EXT = Contant.FILE_EXT;
     public static String SHEET_NAME = "HSHSTOCK";
     private static SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 

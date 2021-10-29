@@ -6,4 +6,7 @@ package com.wy.bean;
  */
 public class Contant {
     public static final String DIR="d:\\stock";
+    //文件后缀
+    public static final String FILE_EXT = ".xlsx";
+
 }
