@@ -4,10 +4,12 @@ import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.read.listener.PageReadListener;
 import com.wy.bean.Contant;
 import com.wy.bean.ETFBean;
+import com.wy.bean.ETFCompVoBean;
 import com.wy.bean.EastMoneyBeab;
 import com.wy.stock.hszh.GetSHSZHKStockDateService;
 import com.wy.utils.FilesUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 
 import java.io.File;
 import java.util.*;
@@ -30,45 +32,62 @@ public class ETFFundResearchService {
                 .collect(Collectors.groupingBy(ETFBean.PageHelpDTO.DataDTO::getSecCode));
 
         //连续多日日新增的
-        int[] days={2,3};
+        int[] days = {2, 3};
         for (int day : days) {
             Map<Integer, List<ETFBean.PageHelpDTO.DataDTO>> etfDateByUpZero = getETFDateByUpZero(collectByCode, day);
             Map<Integer, List<ETFBean.PageHelpDTO.DataDTO>> etfDateByDownZero = getETFDateByDownZero(collectByCode, day);
+            //计算变化数量
+            Map<Integer, Double> collect = etfDateByUpZero.entrySet().stream().collect(Collectors.toMap(x -> x.getKey()
+                    , x -> x.getValue().stream().collect(Collectors.summingDouble(ETFBean.PageHelpDTO.DataDTO::getAddVol))));
+            Map<Integer, Double> collect2 = etfDateByDownZero.entrySet().stream().collect(Collectors.toMap(x -> x.getKey()
+                    , x -> x.getValue().stream().collect(Collectors.summingDouble(ETFBean.PageHelpDTO.DataDTO::getAddVol))));
+            List<ETFCompVoBean> collect1 = etfDateByUpZero.entrySet().stream()
+                    .map(x -> {
+                        ETFCompVoBean etfCompVoBean = new ETFCompVoBean();
+                        BeanUtils.copyProperties(x, etfCompVoBean);
+                        etfCompVoBean.setAddTotValue(collect.get(x.getKey()));
+                        return etfCompVoBean;
+                    }).collect(Collectors.toList());
+            EasyExcel.write("d:\\" + day+".xlsx", ETFCompVoBean.class)
+                    .sheet("dfa")
+                    .doWrite(collect1);
+
         }
 
 
-        collectByCode.entrySet().stream().forEach(x -> {
-                    //截断流到想要的天数
-                    Stream<ETFBean.PageHelpDTO.DataDTO> dataDTOStream = x.getValue().stream().limit(2);
-                    //计算连续增加的数量
-                    long count = dataDTOStream.filter(s -> s.getAddVol() > 0).count();
-                    System.out.println(count);
-                    if (count == 2) {
-                        //计算所有变动数据
-                        System.out.println(x.getKey());
-//                        Double addTot = dataDTOStream.collect(Collectors.summingDouble(ETFBean.PageHelpDTO.DataDTO::getAddVol));
-//                        System.out.println(addTot);
-//                        Optional<ETFBean.PageHelpDTO.DataDTO> first = dataDTOStream.findFirst();
-//                        if (first.isPresent()){
-//                            ETFBean.PageHelpDTO.DataDTO dataDTO = first.get();
-//                            System.out.println(dataDTO.getStatDate());
-//                        }
-//                        ETFBean.PageHelpDTO.DataDTO dataDTOLast = dataDTOStream.skip(2).findFirst().orElse(null);
-//                        System.out.println(dataDTOLast.getStatDate());
-
-                    }
-
-                }
-        );
+//        collectByCode.entrySet().stream().forEach(x -> {
+//                    //截断流到想要的天数
+//                    Stream<ETFBean.PageHelpDTO.DataDTO> dataDTOStream = x.getValue().stream().limit(2);
+//                    //计算连续增加的数量
+//                    long count = dataDTOStream.filter(s -> s.getAddVol() > 0).count();
+//                    System.out.println(count);
+//                    if (count == 2) {
+//                        //计算所有变动数据
+//                        System.out.println(x.getKey());
+////                        Double addTot = dataDTOStream.collect(Collectors.summingDouble(ETFBean.PageHelpDTO.DataDTO::getAddVol));
+////                        System.out.println(addTot);
+////                        Optional<ETFBean.PageHelpDTO.DataDTO> first = dataDTOStream.findFirst();
+////                        if (first.isPresent()){
+////                            ETFBean.PageHelpDTO.DataDTO dataDTO = first.get();
+////                            System.out.println(dataDTO.getStatDate());
+////                        }
+////                        ETFBean.PageHelpDTO.DataDTO dataDTOLast = dataDTOStream.skip(2).findFirst().orElse(null);
+////                        System.out.println(dataDTOLast.getStatDate());
+//
+//                    }
+//
+//                }
+//        );
     }
 
     /**
      * 连续增加规模
+     *
      * @param collectByCode
      * @param limit
      * @return
      */
-    private static Map<Integer, List<ETFBean.PageHelpDTO.DataDTO>> getETFDateByUpZero(Map<Integer, List<ETFBean.PageHelpDTO.DataDTO>> collectByCode,int limit) {
+    private static Map<Integer, List<ETFBean.PageHelpDTO.DataDTO>> getETFDateByUpZero(Map<Integer, List<ETFBean.PageHelpDTO.DataDTO>> collectByCode, int limit) {
         return collectByCode.entrySet().stream()
                 .filter(x -> {
                             //过滤出连续新增的
@@ -85,7 +104,7 @@ public class ETFFundResearchService {
                         , x -> x.getValue().stream().limit(limit).collect(Collectors.toList())));
     }
 
-    private static Map<Integer, List<ETFBean.PageHelpDTO.DataDTO>> getETFDateByDownZero(Map<Integer, List<ETFBean.PageHelpDTO.DataDTO>> collectByCode,int limit) {
+    private static Map<Integer, List<ETFBean.PageHelpDTO.DataDTO>> getETFDateByDownZero(Map<Integer, List<ETFBean.PageHelpDTO.DataDTO>> collectByCode, int limit) {
         return collectByCode.entrySet().stream()
                 .filter(x -> {
                             //过滤出连续新增的
