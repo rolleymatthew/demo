@@ -29,9 +29,9 @@ public class ETFFundDataService {
     private static final int pageSize = 500;
 
     //文件前缀
-    private static final String FILE_PRE = "ETF";
+    public static final String FILE_PRE = "ETF";
     //文件后缀
-    private static final String FILE_EXT = ".xlsx";
+    public static final String FILE_EXT = ".xlsx";
 
     public static void main(String[] args) {
         int dayCount = 90;
