@@ -52,7 +52,7 @@ public class DateUtil {
             } else {
                 fmtstr = "yyyy-MM-dd";
             }
-            SimpleDateFormat sdf = new SimpleDateFormat(fmtstr, Locale.UK);
+            SimpleDateFormat sdf = new SimpleDateFormat(fmtstr, Locale.PRC);
             return sdf.parse(datestr);
         } catch (Exception e) {
             return null;
@@ -65,12 +65,24 @@ public class DateUtil {
      * @param date
      * @return date string
      */
-    public static String fmtDate(Date date) {
+    public static String fmtFullDate(Date date) {
         if (null == date) {
             return null;
         }
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.PRC);
+            return sdf.format(date);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public static String fmtShortDate(Date date) {
+        if (null == date) {
+            return null;
+        }
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.PRC);
             return sdf.format(date);
         } catch (Exception e) {
             return null;

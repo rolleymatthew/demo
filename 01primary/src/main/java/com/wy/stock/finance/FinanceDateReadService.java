@@ -2,16 +2,13 @@ package com.wy.stock.finance;
 
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.read.listener.PageReadListener;
-import com.wy.bean.EastMoneyBeab;
-import com.wy.stock.hszh.GetSHSZHKStockDateService;
-import com.wy.utils.FilesUtil;
+import com.wy.bean.FinanceDataBean;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 /**
  * @author yunwang

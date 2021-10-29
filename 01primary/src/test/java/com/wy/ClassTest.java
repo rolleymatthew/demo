@@ -1,8 +1,7 @@
 package com.wy;
 
-import com.wy.stock.finance.FinanceDataBean;
+import com.wy.bean.FinanceDataBean;
 import com.wy.utils.ClassUtil;
-import org.springframework.beans.BeanUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;

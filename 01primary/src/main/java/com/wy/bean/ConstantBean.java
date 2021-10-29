@@ -1,4 +1,4 @@
-package com.wy.stock.finance;
+package com.wy.bean;
 
 import org.apache.commons.collections.map.AbstractMapDecorator;
 

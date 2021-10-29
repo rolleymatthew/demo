@@ -1,4 +1,4 @@
-package com.wy.stock.finance;
+package com.wy.bean;
 
 import com.alibaba.excel.annotation.ExcelProperty;
 import lombok.Data;
