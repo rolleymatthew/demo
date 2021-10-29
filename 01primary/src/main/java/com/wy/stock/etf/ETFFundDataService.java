@@ -40,22 +40,52 @@ public class ETFFundDataService {
 
     public static void getETFFundData(int dayCount) {
         Date date = new Date();
-        for (int i = 0; i < dayCount; i++) {
+        //输出文件命名
+        String fileNameDate = "";
+        //输出的数据
+        List<ETFBean.PageHelpDTO.DataDTO> etfFundBeanDataDTOList = new ArrayList<>();
+        for (int i = 0; i <= dayCount; i++) {
             date = DateUtil.getPreviousWorkingDay(date, -1);
             String shortDate = DateUtil.fmtShortDate(date);
             System.out.println("getETFFundData:" + shortDate);
-            List<ETFBean.PageHelpDTO.DataDTO> etfFundBeanDataDTOList = getETFFundBean(shortDate, pageSize);
+            List<ETFBean.PageHelpDTO.DataDTO> etfFundBeanDataDTOListNext = getETFFundBean(shortDate, pageSize);
 
-            if (CollectionUtils.isEmpty(etfFundBeanDataDTOList)) {
+            if (CollectionUtils.isEmpty(etfFundBeanDataDTOListNext)) {
                 //文件为空跳过到前一天
                 i--;
-            } else {
-                //写入excle文件
-                String fileName = Contant.DIR + File.separator + FILE_PRE + File.separator + FILE_PRE + shortDate + FILE_EXT;
-                EasyExcel.write(fileName, ETFBean.PageHelpDTO.DataDTO.class)
-                        .sheet(FILE_PRE + shortDate)
-                        .doWrite(etfFundBeanDataDTOList);
+                continue;
             }
+
+            //提取后一天的数据
+            if (CollectionUtils.isEmpty(etfFundBeanDataDTOList)) {
+                etfFundBeanDataDTOList.addAll(etfFundBeanDataDTOListNext);
+                //第一次的日期
+                fileNameDate = shortDate;
+                continue;
+            }
+
+            //两天的数据进行计算得出规模差值写入当天数据
+            if (CollectionUtils.isNotEmpty(etfFundBeanDataDTOList) && CollectionUtils.isNotEmpty(etfFundBeanDataDTOListNext)) {
+                Map<Integer, Double> totVolMap = etfFundBeanDataDTOListNext.stream().collect(Collectors.toMap(ETFBean.PageHelpDTO.DataDTO::getSecCode
+                        , ETFBean.PageHelpDTO.DataDTO::getTotVol));
+                etfFundBeanDataDTOList.stream().forEach(x -> {
+                    //从map中找到前一天的数据相减
+                    if (totVolMap.containsKey(x.getSecCode())) {
+                        x.setAddVol(x.getTotVol() - totVolMap.get(x.getSecCode()));
+                    }
+                });
+            }
+
+            //写入excle文件
+            String fileName = Contant.DIR + File.separator + FILE_PRE + File.separator + FILE_PRE + fileNameDate + FILE_EXT;
+            EasyExcel.write(fileName, ETFBean.PageHelpDTO.DataDTO.class)
+                    .sheet(FILE_PRE + shortDate)
+                    .doWrite(etfFundBeanDataDTOList);
+
+            //更新数据
+            etfFundBeanDataDTOList.clear();
+            etfFundBeanDataDTOList.addAll(etfFundBeanDataDTOListNext);
+            fileNameDate = shortDate;
         }
     }
 

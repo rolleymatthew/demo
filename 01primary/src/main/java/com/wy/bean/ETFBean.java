@@ -105,6 +105,8 @@ public class ETFBean {
             @ExcelProperty("份额(万份)")
             @JSONField(name = "TOT_VOL")
             private Double totVol;
+            @ExcelProperty("今日变动份额(万份)")
+            private Double addVol;
         }
     }
 }

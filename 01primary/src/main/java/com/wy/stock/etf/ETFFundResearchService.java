@@ -22,7 +22,7 @@ public class ETFFundResearchService {
         List<ETFBean.PageHelpDTO.DataDTO> allFundData = getAllFundData();
 
         //分拆日期分组,规模倒序
-        Map<String, List<ETFBean.PageHelpDTO.DataDTO>> collectByDate = allFundData.stream().sorted(Comparator.comparing(ETFBean.PageHelpDTO.DataDTO::getTotVol).reversed())
+        TreeMap<String, List<ETFBean.PageHelpDTO.DataDTO>> collectByDate = allFundData.stream().sorted(Comparator.comparing(ETFBean.PageHelpDTO.DataDTO::getTotVol).reversed())
                 .collect(Collectors.groupingBy(x->x.getStatDate(),()->new TreeMap<>(new ComparatorDate()),Collectors.toList()));
         //按照代码分组,时间倒序
         Map<Integer, List<ETFBean.PageHelpDTO.DataDTO>> collectByCode = allFundData.stream().sorted(Comparator.comparing(ETFBean.PageHelpDTO.DataDTO::getStatDate).reversed())
