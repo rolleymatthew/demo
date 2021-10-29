@@ -24,6 +24,7 @@ public class FinanceDateReadService {
         Map<String, List<FinanceDataBean>> dataMap = getFinanceListMap(allCodes);
 
         dataMap.entrySet().forEach(x -> System.out.println(x));
+
     }
 
     private static Map<String, List<FinanceDataBean>> getFinanceListMap(List<String> allCodes) {
