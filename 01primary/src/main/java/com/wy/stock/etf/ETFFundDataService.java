@@ -35,6 +35,12 @@ public class ETFFundDataService {
 
     public static void main(String[] args) {
         int dayCount = 90;
+        getETFFundData(dayCount);
+
+
+    }
+
+    private static void getETFFundData(int dayCount) {
         Date date = new Date();
         for (int i = 0; i < dayCount; i++) {
             date = DateUtil.getPreviousWorkingDay(date, -1);
@@ -52,8 +58,6 @@ public class ETFFundDataService {
                     .sheet(FILE_PRE + shortDate)
                     .doWrite(etfFundBeanDataDTOList);
         }
-
-
     }
 
     private static List<ETFBean.PageHelpDTO.DataDTO> getETFFundBean(String shortDate, int size) {
