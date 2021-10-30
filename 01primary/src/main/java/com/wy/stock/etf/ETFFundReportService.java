@@ -9,6 +9,7 @@ import com.wy.bean.ETFBean;
 import com.wy.bean.ETFCompVoBean;
 import com.wy.bean.EastMoneyBeab;
 import com.wy.stock.hszh.GetSHSZHKStockDateService;
+import com.wy.utils.DateUtil;
 import com.wy.utils.FilesUtil;
 import com.wy.utils.easyexcle.WriteTest;
 import org.apache.commons.collections.CollectionUtils;
@@ -45,7 +46,7 @@ public class ETFFundReportService {
         ExcelWriter excelWriter = null;
         try {
             // 这里 指定文件
-            excelWriter = EasyExcel.write(Contant.DIR + File.separator + "analyseETF.xlsx", ETFCompVoBean.class).build();
+            excelWriter = EasyExcel.write(Contant.REPORT_DIR + "ETFReport" + DateUtil.getCurrentDay() + ".xlsx", ETFCompVoBean.class).build();
             //连续多日日新增的
             int i = 0;
             for (int day : days) {

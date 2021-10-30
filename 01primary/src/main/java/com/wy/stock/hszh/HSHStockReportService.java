@@ -3,6 +3,7 @@ package com.wy.stock.hszh;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.write.metadata.WriteSheet;
+import com.wy.bean.Contant;
 import com.wy.bean.EastMoneyBeab;
 import com.wy.bean.HSZHVoBean;
 import com.wy.bean.HSZHVoBeanCompara;
@@ -25,6 +26,7 @@ import java.util.stream.Stream;
  */
 public class HSHStockReportService {
     private static final String path = GetSHSZHKStockDateService.PATH;
+    private static final String REPORT_PATH = Contant.DIR + File.separator + Contant.REPORT_DIR + File.separator;
     private static final String sheetTitle = "%s天";
     private static final String fileTitle = "沪港通买卖天数排序%s.xlsx";
     private static final String fileAmpTitle = "沪港通买卖市值变化排序%s.xlsx";
@@ -63,7 +65,7 @@ public class HSHStockReportService {
         for (int ampTopDay : ampTopDays) {
             //按照位置找到对应天数的数据
             int iCount = 1;
-            String en=";";
+            String en = ";";
             for (Map.Entry<String, List<EastMoneyBeab.ResultDTO.DataDTO>> stringListEntry : dataMap.entrySet()) {
                 if (iCount < ampTopDay) {
                     iCount++;
@@ -140,7 +142,7 @@ public class HSHStockReportService {
         ExcelWriter excelWriter = null;
         //计算天数
         try {
-            excelWriter = EasyExcel.write(path + File.separator + String.format(fileAmpTitle, DateUtil.getCurrentDay()), HSZHVoBean.class).build();
+            excelWriter = EasyExcel.write(REPORT_PATH + String.format(fileAmpTitle, DateUtil.getCurrentDay()), HSZHVoBean.class).build();
             //计算N天内买入卖出的天数
             for (int i = 0; i < ampTopDays.length; i++) {
                 int day = ampTopDays[i];
@@ -161,7 +163,7 @@ public class HSHStockReportService {
         ExcelWriter excelWriter = null;
         //计算天数
         try {
-            excelWriter = EasyExcel.write(path + File.separator + String.format(fileAmpTopTitle, DateUtil.getCurrentDay()), HSZHVoBeanCompara.class).build();
+            excelWriter = EasyExcel.write(REPORT_PATH + String.format(fileAmpTopTitle, DateUtil.getCurrentDay()), HSZHVoBeanCompara.class).build();
             //计算N天内买入卖出的天数
             for (int i = 0; i < ampTopDays.length; i++) {
                 int day = ampTopDays[i];
@@ -199,7 +201,7 @@ public class HSHStockReportService {
         ExcelWriter excelWriter = null;
         //计算天数
         try {
-            excelWriter = EasyExcel.write(path + File.separator + String.format(fileTitle, DateUtil.getCurrentDay()), HSZHVoBean.class).build();
+            excelWriter = EasyExcel.write(REPORT_PATH + String.format(fileTitle, DateUtil.getCurrentDay()), HSZHVoBean.class).build();
             //计算N天内买入卖出的天数
             for (int i = 0; i < days.length; i++) {
                 int day = days[i];
