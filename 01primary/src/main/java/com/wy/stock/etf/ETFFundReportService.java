@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  * Created by yunwang on 2021/10/29 13:53
  */
 public class ETFFundReportService {
-    private static String PATH = Contant.REPORT_DIR;
+    private static String PATH = Contant.REPORT_PATH;
 
     public static void main(String[] args) {
         int[] days = {2, 3, 4, 5, 6, 7, 8, 9, 10};
