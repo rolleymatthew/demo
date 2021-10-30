@@ -35,16 +35,17 @@ public class HSHStockReportService {
         //获取所有数据
 //        LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap = getDataMap(null, 3, 0);
 //        int[] days = {2, 3};
-        LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap = getDataMap(null, -1, 0);
         int[] countUpZeroDays = {2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 30, 50};
-        exportExcle(dataMap, countUpZeroDays);
         int[] ampTopDays = {3, 5, 10, 20, 30, 50};
+        getETFReport(countUpZeroDays, ampTopDays);
+    }
+
+    public static void getETFReport(int[] countUpZeroDays, int[] ampTopDays) {
+        LinkedHashMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap = getDataMap(null, -1, 0);
+        exportExcle(dataMap, countUpZeroDays);
         exportAmpTopExcle(dataMap, ampTopDays);
 
-        //按日期读出所有数据
         TreeMap<String, List<EastMoneyBeab.ResultDTO.DataDTO>> dataMap1 = getDataMapByDay(null, -1, 0);
-        //输出数据到excle文件
-//        int[] ampTopDays = {3};
         exportAmpTop50Excle(dataMap1, ampTopDays);
     }
 

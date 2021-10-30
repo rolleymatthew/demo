@@ -29,7 +29,7 @@ public class ETFFundReportService {
 
     }
 
-    private static void analyseETF(int[] days) {
+    public static void analyseETF(int[] days) {
         List<ETFBean.PageHelpDTO.DataDTO> allFundData = getAllFundData();
 
         getETFFundTopByDay(days, allFundData);

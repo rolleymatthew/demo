@@ -44,6 +44,10 @@ public class FinanceDateWriteService {
 
 //        getZYCWZBContent(StringUtils.trim("000001")
 //                , PATH_MAIN + File.separator + PATH_ZYCWZB_REPORT + File.separator + String.format(FILE_NAME_REPORT, StringUtils.trim("000001")));
+        getFinanceData(allCodes);
+    }
+
+    public static void getFinanceData(List<String> allCodes) {
         allCodes.parallelStream().forEach(x ->
                 getZYCWZBContent(StringUtils.trim(x)
                         , PATH_MAIN + File.separator + PATH_ZYCWZB_REPORT + File.separator + String.format(FILE_NAME_REPORT, StringUtils.trim(x))));
