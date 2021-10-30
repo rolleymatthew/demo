@@ -36,14 +36,9 @@ public class FinanceDateWriteService {
     public static String FILE_NAME_EXT = Contant.FILE_EXT;
     public static String FILE_NAME_REPORT = FILE_NAME_PRE + "%s" + FILE_NAME_EXT;
 
-    static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(PerfitConstant.threadNum, PerfitConstant.threadNum, 5, TimeUnit.SECONDS
-            , new LinkedBlockingDeque<>(), new BasicThreadFactory.Builder().namingPattern("StockUtil-pool-%d").daemon(true).build());
-
     public static void main(String[] args) {
         List<String> allCodes = getAllCodes();
 
-//        getZYCWZBContent(StringUtils.trim("000001")
-//                , PATH_MAIN + File.separator + PATH_ZYCWZB_REPORT + File.separator + String.format(FILE_NAME_REPORT, StringUtils.trim("000001")));
         getFinanceData(allCodes);
     }
 
@@ -51,96 +46,6 @@ public class FinanceDateWriteService {
         allCodes.parallelStream().forEach(x ->
                 getZYCWZBContent(StringUtils.trim(x)
                         , PATH_MAIN + File.separator + PATH_ZYCWZB_REPORT + File.separator + String.format(FILE_NAME_REPORT, StringUtils.trim(x))));
-    }
-
-    private static void getYLNLContent(String stockCode, String fileName) {
-        //1.生成URL
-        String urlformat = String.format(URL_DOMAIN + URL_YLNL, stockCode);
-        //2.获取数据
-        String temp = getResultClasses(urlformat);
-
-
-        //3.保存文件
-        if (temp.isEmpty()) {
-            System.out.println(stockCode + "数据库空");
-            return;
-        }
-
-    }
-
-    private static List<FinanceDataBean> getFinaByArray(String[][] cell, int line, int column) {
-        List<FinanceDataBean> ret = new ArrayList<>();
-        for (int i = 0; i < line; i++) {
-            FinanceDataBean financeDataBean = new FinanceDataBean();
-            for (int j = 0; j < column; j++) {
-                String data = cell[i][j];
-                switch (j + 1) {
-                    case 1:
-                        financeDataBean.setReportDate(data);
-                        break;
-                    case 2:
-                        financeDataBean.setBasePerShare(data);
-                        break;
-                    case 3:
-                        financeDataBean.setValuePerShare(data);
-                        break;
-                    case 4:
-                        financeDataBean.setCashPerShare(data);
-                        break;
-                    case 5:
-                        financeDataBean.setMainBusiIncome(data);
-                        break;
-                    case 6:
-                        financeDataBean.setMainBusiProfit(data);
-                        break;
-                    case 7:
-                        financeDataBean.setOperatProfit(data);
-                        break;
-                    case 8:
-                        financeDataBean.setInvestIncome(data);
-                        break;
-                    case 9:
-                        financeDataBean.setNotOperatIncome(data);
-                        break;
-                    case 10:
-                        financeDataBean.setTotalProfit(data);
-                        break;
-                    case 11:
-                        financeDataBean.setNetProfit(data);
-                        break;
-                    case 12:
-                        financeDataBean.setRecurNetProfit(data);
-                        break;
-                    case 13:
-                        financeDataBean.setCashFlowOpet(data);
-                        break;
-                    case 14:
-                        financeDataBean.setCashValueIncr(data);
-                        break;
-                    case 15:
-                        financeDataBean.setTotalAssets(data);
-                        break;
-                    case 16:
-                        financeDataBean.setCurrentAssets(data);
-                        break;
-                    case 17:
-                        financeDataBean.setTotalLiabil(data);
-                        break;
-                    case 18:
-                        financeDataBean.setCurrentLiabil(data);
-                        break;
-                    case 19:
-                        financeDataBean.setShareEquity(data);
-                        break;
-                    case 20:
-                        financeDataBean.setNetAssetsWeight(data);
-                        break;
-                    default:
-                }
-            }
-            ret.add(financeDataBean);
-        }
-        return ret;
     }
 
     private static void getZYCWZBContent(String stockCode, String fileName) {
@@ -158,7 +63,7 @@ public class FinanceDateWriteService {
         //使用二维数组转置方法转化bean
         List<FinanceDataBean> beanList = getFinanceDataBeans(temp);
         EasyExcel.write(fileName, FinanceDataBean.class)
-                .sheet("finance")
+                .sheet(stockCode)
                 .doWrite(beanList);
     }
 
@@ -191,8 +96,6 @@ public class FinanceDateWriteService {
         lineToColumn(lineLen, columnLen, orgData, newData);
 
         //把生成的二维数组转化成需要的bean列表，返回
-        //使用手工赋值方法
-//        List<FinanceDataBean> beanList = getFinaByArray(newData, columnLen, lineLen);
         //使用类的反射机制
         List<FinanceDataBean> beanList = getFinaClassByArray(newData, columnLen, lineLen, header);
         return beanList;
