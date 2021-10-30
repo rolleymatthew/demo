@@ -7,25 +7,21 @@ import com.alibaba.excel.write.metadata.WriteSheet;
 import com.wy.bean.Contant;
 import com.wy.bean.ETFBean;
 import com.wy.bean.ETFCompVoBean;
-import com.wy.bean.EastMoneyBeab;
-import com.wy.stock.hszh.GetSHSZHKStockDateService;
 import com.wy.utils.DateUtil;
 import com.wy.utils.FilesUtil;
-import com.wy.utils.easyexcle.WriteTest;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 
 import java.io.File;
 import java.util.*;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Created by yunwang on 2021/10/29 13:53
  */
 public class ETFFundReportService {
+    private static String PATH = Contant.REPORT_DIR;
+
     public static void main(String[] args) {
         int[] days = {2, 3, 4, 5, 6, 7, 8, 9, 10};
 
@@ -36,9 +32,19 @@ public class ETFFundReportService {
     private static void analyseETF(int[] days) {
         List<ETFBean.PageHelpDTO.DataDTO> allFundData = getAllFundData();
 
+        getETFFundTopByDay(days, allFundData);
         //分拆日期分组,规模倒序
         TreeMap<String, List<ETFBean.PageHelpDTO.DataDTO>> collectByDate = allFundData.stream().sorted(Comparator.comparing(ETFBean.PageHelpDTO.DataDTO::getTotVol).reversed())
                 .collect(Collectors.groupingBy(x -> x.getStatDate(), () -> new TreeMap<>(new ComparatorDate()), Collectors.toList()));
+    }
+
+    /**
+     * 计算ETF每天的规模增减变化排名
+     *
+     * @param days
+     * @param allFundData
+     */
+    private static void getETFFundTopByDay(int[] days, List<ETFBean.PageHelpDTO.DataDTO> allFundData) {
         //按照代码分组,时间倒序
         Map<Integer, List<ETFBean.PageHelpDTO.DataDTO>> collectByCode = allFundData.stream().sorted(Comparator.comparing(ETFBean.PageHelpDTO.DataDTO::getStatDate).reversed())
                 .collect(Collectors.groupingBy(ETFBean.PageHelpDTO.DataDTO::getSecCode));
@@ -46,7 +52,7 @@ public class ETFFundReportService {
         ExcelWriter excelWriter = null;
         try {
             // 这里 指定文件
-            excelWriter = EasyExcel.write(Contant.REPORT_DIR + "ETFReport" + DateUtil.getCurrentDay() + ".xlsx", ETFCompVoBean.class).build();
+            excelWriter = EasyExcel.write(PATH + "ETFReport" + DateUtil.getCurrentDay() + ".xlsx", ETFCompVoBean.class).build();
             //连续多日日新增的
             int i = 0;
             for (int day : days) {

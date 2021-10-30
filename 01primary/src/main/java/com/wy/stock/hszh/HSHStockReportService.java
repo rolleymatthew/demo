@@ -25,12 +25,11 @@ import java.util.stream.Stream;
  * 沪深港通持股分析
  */
 public class HSHStockReportService {
-    private static final String path = GetSHSZHKStockDateService.PATH;
-    private static final String REPORT_PATH = Contant.DIR + File.separator + Contant.REPORT_DIR + File.separator;
     private static final String sheetTitle = "%s天";
     private static final String fileTitle = "沪港通买卖天数排序%s.xlsx";
     private static final String fileAmpTitle = "沪港通买卖市值变化排序%s.xlsx";
     private static final String fileAmpTopTitle = "沪港通买卖市值前50强变化%s.xlsx";
+    private static final String PATH = Contant.REPORT_PATH;
 
     public static void main(String[] args) {
         //获取所有数据
@@ -142,7 +141,7 @@ public class HSHStockReportService {
         ExcelWriter excelWriter = null;
         //计算天数
         try {
-            excelWriter = EasyExcel.write(REPORT_PATH + String.format(fileAmpTitle, DateUtil.getCurrentDay()), HSZHVoBean.class).build();
+            excelWriter = EasyExcel.write(PATH + String.format(fileAmpTitle, DateUtil.getCurrentDay()), HSZHVoBean.class).build();
             //计算N天内买入卖出的天数
             for (int i = 0; i < ampTopDays.length; i++) {
                 int day = ampTopDays[i];
@@ -163,7 +162,7 @@ public class HSHStockReportService {
         ExcelWriter excelWriter = null;
         //计算天数
         try {
-            excelWriter = EasyExcel.write(REPORT_PATH + String.format(fileAmpTopTitle, DateUtil.getCurrentDay()), HSZHVoBeanCompara.class).build();
+            excelWriter = EasyExcel.write(PATH + String.format(fileAmpTopTitle, DateUtil.getCurrentDay()), HSZHVoBeanCompara.class).build();
             //计算N天内买入卖出的天数
             for (int i = 0; i < ampTopDays.length; i++) {
                 int day = ampTopDays[i];
@@ -201,7 +200,7 @@ public class HSHStockReportService {
         ExcelWriter excelWriter = null;
         //计算天数
         try {
-            excelWriter = EasyExcel.write(REPORT_PATH + String.format(fileTitle, DateUtil.getCurrentDay()), HSZHVoBean.class).build();
+            excelWriter = EasyExcel.write(PATH + String.format(fileTitle, DateUtil.getCurrentDay()), HSZHVoBean.class).build();
             //计算N天内买入卖出的天数
             for (int i = 0; i < days.length; i++) {
                 int day = days[i];
