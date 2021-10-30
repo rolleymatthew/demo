@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author yunwang
  * @Date 2021-10-27
  */
-public class FinanceDateReadService {
+public class FinanceDateReportService {
     public static void main(String[] args) {
         List<String> allCodes = FinanceDateWriteService.getAllCodes();
         //读取文件

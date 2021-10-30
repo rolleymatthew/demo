@@ -23,7 +23,7 @@ import java.util.stream.Stream;
  * Created by yunwang on 2021/10/19 11:24
  * 沪深港通持股分析
  */
-public class HSHStockAnalyService {
+public class HSHStockReportService {
     private static final String path = GetSHSZHKStockDateService.PATH;
     private static final String sheetTitle = "%s天";
     private static final String fileTitle = "沪港通买卖天数排序%s.xlsx";
