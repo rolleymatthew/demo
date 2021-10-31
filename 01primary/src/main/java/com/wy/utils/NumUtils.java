@@ -20,7 +20,11 @@ public class NumUtils {
 
     public static Double roundDouble(double d) {
         DecimalFormat df=new DecimalFormat(".##");
-        Double st=Double.parseDouble(df.format(d));
+        Double st=0.0;
+        try {
+            st=Double.parseDouble(df.format(d));
+        }catch (Exception e){
+        }
         return st;
     }
 
