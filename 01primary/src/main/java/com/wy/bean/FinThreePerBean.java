@@ -12,18 +12,18 @@ import lombok.Data;
 public class FinThreePerBean {
     @ExcelProperty("代码")
     private String securityCode;
-    @ExcelIgnore
+    @ExcelProperty("报告日期")
     private String ReportData;
     @ExcelProperty("毛利率")
     private Double grossProfit;
-    @ExcelIgnore
+    @ExcelProperty("毛利率增加")
     private Double addGrossProfit;
     @ExcelProperty("营业利润率")
     private Double operatProfit;
-    @ExcelIgnore
+    @ExcelProperty("营业利润率增加")
     private Double addOperatProfit;
     @ExcelProperty("净利率")
     private Double netProfit;
-    @ExcelIgnore
+    @ExcelProperty("净利率增加")
     private Double addNetProfit;
 }
