@@ -27,6 +27,11 @@ public class FinanceDateReportService {
     public static void main(String[] args) {
         int[] counts = {1, 2, 3};
         List<String> allCodes = FinanceDateWriteService.getAllCodes();
+        countUpFinThreePer(counts, allCodes);
+
+    }
+
+    public static void countUpFinThreePer(int[] counts, List<String> allCodes) {
         //读取文件
         Map<String, List<FinanceDataBean>> dataMap = getFinanceListMap(allCodes);
 
@@ -36,6 +41,10 @@ public class FinanceDateReportService {
         //找到三率三升的
         Map<String, List<FinThreePerBean>> threePerMap = fillFinPerMap(finPerMap);
 
+        outputUpFinThreePer(counts, threePerMap);
+    }
+
+    private static void outputUpFinThreePer(int[] counts, Map<String, List<FinThreePerBean>> threePerMap) {
         ExcelWriter excelWriter = null;
         try {
             excelWriter = EasyExcel.write(FinanceDateWriteService.PATH_MAIN + File.separator
@@ -52,7 +61,6 @@ public class FinanceDateReportService {
                 excelWriter.finish();
             }
         }
-
     }
 
     private static List<FinThreePerBean> UpFinThreePerList(Map<String, List<FinThreePerBean>> threePerMap, int count) {

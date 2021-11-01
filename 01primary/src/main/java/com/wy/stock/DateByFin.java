@@ -9,7 +9,7 @@ import java.util.List;
  * @author yunwang
  * @Date 2021-10-27
  */
-public class DateByMounth {
+public class DateByFin {
     public static void main(String[] args) {
         //获取所有公司代码
         List<String> allCodes = FinanceDateWriteService.getAllCodes();
