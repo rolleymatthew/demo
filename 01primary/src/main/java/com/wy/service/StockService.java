@@ -10,4 +10,5 @@ public interface StockService {
     ResultVO hsshDataByDay(int dayCount);
     ResultVO ETFDataByDay(int dayCount);
     ResultVO hsshAndETFDataByDay(int dayCount);
+    ResultVO hsshAndETFReport();
 }

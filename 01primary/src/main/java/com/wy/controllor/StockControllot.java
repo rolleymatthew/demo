@@ -26,9 +26,16 @@ public class StockControllot {
         ResultVO resultVO = stockService.hsshDataByDay(dayCount);
         return resultVO;
     }
+
     @GetMapping("/hszhAndETF")
     public ResultVO getHSZHAndETF(@RequestParam(value = "dayCount", defaultValue = "1")int dayCount){
         ResultVO resultVO = stockService.hsshAndETFDataByDay(dayCount);
+        return resultVO;
+    }
+
+    @GetMapping("/hszhETFReport")
+    public ResultVO getHSZHAndETFReport(@RequestParam(value = "dayCount", defaultValue = "1")int dayCount){
+        ResultVO resultVO = stockService.hsshAndETFReport();
         return resultVO;
     }
 }
