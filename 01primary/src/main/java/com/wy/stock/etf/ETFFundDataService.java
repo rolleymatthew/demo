@@ -36,7 +36,7 @@ public class ETFFundDataService {
         getETFFundData(dayCount);
     }
 
-    public static void getETFFundData(int dayCount) {
+    public static boolean getETFFundData(int dayCount) {
         Date date = new Date();
         //输出文件命名
         String fileNameDate = "";
@@ -87,6 +87,7 @@ public class ETFFundDataService {
             etfFundBeanDataDTOList.addAll(etfFundBeanDataDTOListNext);
             fileNameDate = shortDate;
         }
+        return true;
     }
 
     private static List<ETFBean.PageHelpDTO.DataDTO> getETFFundBean(String shortDate, int size) {

@@ -1,0 +1,1 @@
+java -jar ../../../target/01primary-0.0.1-SNAPSHOT.jar
