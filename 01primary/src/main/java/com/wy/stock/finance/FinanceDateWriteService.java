@@ -52,7 +52,7 @@ public class FinanceDateWriteService {
         //1.生成URL
         String urlformat = String.format(URL_DOMAIN + URL_ZYCWZB_REPORT, stockCode);
         //2.获取数据
-        String temp = getResultClasses(urlformat);
+        String temp = FinanceSpider.getResultClasses(urlformat);
         //3.保存文件
         if (StringUtils.isEmpty(temp)) {
             System.out.println(stockCode + "数据库空");
@@ -90,10 +90,10 @@ public class FinanceDateWriteService {
 
         //把数据赋值到一个二维数组orgData里,header放表头
         List<String> header = new ArrayList<>();
-        fillString(collect, lineLen, columnLen, orgData, header);
+        FinanceCommonService.fillString(collect, lineLen, columnLen, orgData, header);
 
         //用第二个二维数组newData实现行转列
-        lineToColumn(lineLen, columnLen, orgData, newData);
+        FinanceCommonService.lineToColumn(lineLen, columnLen, orgData, newData);
 
         //把生成的二维数组转化成需要的bean列表，返回
         //使用类的反射机制
@@ -117,32 +117,6 @@ public class FinanceDateWriteService {
         return ret;
     }
 
-    private static void lineToColumn(int lineLen, int columnLen, String[][] orgData, String[][] newData) {
-        //行转列
-        for (int i = 0; i < lineLen; i++) {
-            for (int j = 0; j < columnLen; j++) {
-                newData[j][i] = orgData[i][j];
-            }
-
-        }
-    }
-
-    private static void fillString(List<String> collect, int lineLen, int columnLen, String[][] orgData, List<String> header) {
-        //二维数组赋值
-        for (int i = 0; i < lineLen; i++) {
-            String s = collect.get(i);
-            String[] split = s.split(",");
-            for (int j = 0; j < columnLen; j++) {
-                String s2 = split[j];
-                if (j == 0) {
-                    header.add(s2);
-                } else {
-                    orgData[i][j - 1] = s2;
-                }
-            }
-        }
-    }
-
     public static List<String> getAllCodes() {
         List<String> codeList = new ArrayList<>();
         String[] codes = AllStock.SH_MAIN.split(",");
@@ -160,26 +134,6 @@ public class FinanceDateWriteService {
             codeList.add(StringUtils.trim(code));
         }
         return codeList;
-    }
-
-    /**
-     * 获取网易数据
-     *
-     * @param url
-     * @return
-     */
-    private static String getResultClasses(String url) {
-        Map<String, String> headerMap = new HashMap<>();
-        headerMap.put("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9");
-        headerMap.put("Accept-Encoding", "gzip, deflate");
-        headerMap.put("Accept-Language", "zh-CN,zh;q=0.9");
-        headerMap.put("Connection", "keep-alive");
-        headerMap.put("Cookie", "_ntes_nuid=76a91bb4dcad207df2a333e108b5d3d5; UM_distinctid=1788239a7fc1ac-0e34781bc02f84-53e356a-100200-1788239a7fd543; _ga=GA1.2.661645210.1617092526; _ntes_nnid=76a91bb4dcad207df2a333e108b5d3d5,1630396364778; _antanalysis_s_id=1631930382671; _gid=GA1.2.881378113.1631930384");
-        headerMap.put("Host", "quotes.money.163.com");
-        headerMap.put("Referer", "http://quotes.money.163.com/f10/zycwzb_601816,season.html");
-        headerMap.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36 SE 2.X MetaSr 1.0");
-        String ss = OkHttpUtil.doGet(url, headerMap, "GBK");
-        return ss;
     }
 
 }
