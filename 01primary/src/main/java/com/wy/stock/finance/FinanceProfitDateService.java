@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -25,11 +26,13 @@ public class FinanceProfitDateService {
         //2.获取数据
         String temp = FinanceSpider.getResultClasses(urlformat);
 
-        List<FinanceDataBean> financeDataBeans = getFinanceDataBeans(temp).stream().filter(f-> StringUtils.isNotEmpty(f.getReportDate())).collect(Collectors.toList());
+        //3.转成bean
+        List<FinanceDataBean> financeDataBeans = getFinanceDataBeans(temp,ConstantBean.ZYCWZB_DIC)
+                .stream().filter(f-> StringUtils.isNotEmpty(f.getReportDate())).collect(Collectors.toList());
         financeDataBeans.stream().forEach(f -> System.out.println(f.getReportDate()));
     }
 
-    private static List<FinanceDataBean> getFinanceDataBeans(String temp) {
+    private static List<FinanceDataBean> getFinanceDataBeans(String temp, Map<String,String> dicMap) {
         List<FinanceDataBean> ret = new ArrayList<>();
         //1.拆分出行，抽取表头数据,计算出行数，对应BEAN的属性
         List<String> stringList = FinanceCommonService.getStringList(temp);
@@ -42,12 +45,10 @@ public class FinanceProfitDateService {
 
         //3.使用类的反射机制把生成的二维数组转化成需要的bean列表，返回
         int columnLen = FinanceCommonService.getColumnLen(stringList);
-        for (int i = 0; i < columnLen; i++) {
+        for (int line = 0; line < columnLen; line++) {
             FinanceDataBean financeDataBean = new FinanceDataBean();
-            for (int h = 0; h < header.size(); h++) {
-                String s = header.get(h);
-                String s1 = ConstantBean.DIC.get(s);
-                ClassUtil.setFieldValueByFieldName(financeDataBean, s1, newData[i][h]);
+            for (int col = 0; col < header.size(); col++) {
+                ClassUtil.setFieldValueByFieldName(financeDataBean, dicMap.get(header.get(col)), newData[line][col]);
             }
             ret.add(financeDataBean);
 

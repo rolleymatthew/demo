@@ -4,20 +4,13 @@ import com.alibaba.excel.EasyExcel;
 import com.wy.bean.ConstantBean;
 import com.wy.bean.Contant;
 import com.wy.bean.FinanceDataBean;
-import com.wy.chromedriver.PerfitConstant;
 import com.wy.utils.AllStock;
 import com.wy.utils.ClassUtil;
-import com.wy.utils.OkHttpUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 
 import java.io.File;
 import java.util.*;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * Created by yunwang on 2021/10/25 17:28
@@ -91,7 +84,7 @@ public class FinanceDateWriteService {
             FinanceDataBean financeDataBean = new FinanceDataBean();
             for (int h = 0; h < header.size(); h++) {
                 String s = header.get(h);
-                String s1 = ConstantBean.DIC.get(s);
+                String s1 = ConstantBean.ZYCWZB_DIC.get(s);
                 ClassUtil.setFieldValueByFieldName(financeDataBean, s1, newData[i][h]);
             }
             ret.add(financeDataBean);

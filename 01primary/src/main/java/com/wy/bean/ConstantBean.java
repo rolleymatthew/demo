@@ -10,7 +10,7 @@ import java.util.Map;
  * Created by yunwang on 2021/10/27 15:44
  */
 public class ConstantBean {
-    public static final Map<String,String> DIC=new HashMap<String,String>(){
+    public static final Map<String,String> ZYCWZB_DIC =new HashMap<String,String>(){
         {
             put("报告日期", "reportDate");
             put("基本每股收益(元)", "basePerShare");
