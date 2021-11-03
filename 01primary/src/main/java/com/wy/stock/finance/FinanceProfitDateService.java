@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 public class FinanceProfitDateService {
     //    private static String URL_ZYCWZB_REPORT = "service/lrb_%s.html";
     private static String URL_ZYCWZB_REPORT = "service/zycwzb_%s.html?type=report";
+    private static String PATH = FinanceCommonService.PATH_MAIN + File.separator + FinanceDateWriteService.PATH_ZYCWZB_REPORT + File.separator;
 
     public static void main(String[] args) {
         List<String> allCodes = FinanceCommonService.getAllCodes(true);
@@ -29,7 +30,7 @@ public class FinanceProfitDateService {
     public static void getFinanceData(List<String> allCodes) {
         allCodes.parallelStream().forEach(x ->
                 getBeansByCode(StringUtils.trim(x),
-                        FinanceCommonService.PATH_MAIN + File.separator + FinanceDateWriteService.PATH_ZYCWZB_REPORT + File.separator + String.format(FinanceDateWriteService.FILE_NAME_REPORT, StringUtils.trim(x))));
+                        PATH + String.format(FinanceDateWriteService.FILE_NAME_REPORT, StringUtils.trim(x))));
     }
 
     private static void getBeansByCode(String stockCode,String fileName) {
