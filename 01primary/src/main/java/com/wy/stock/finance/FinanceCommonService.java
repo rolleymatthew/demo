@@ -1,11 +1,14 @@
 package com.wy.stock.finance;
 
 import com.wy.bean.ConstantBean;
+import com.wy.bean.Contant;
 import com.wy.bean.FinanceDataBean;
+import com.wy.utils.AllStock;
 import com.wy.utils.ClassUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -16,6 +19,8 @@ import java.util.stream.Collectors;
  * @Date 2021-11-03
  */
 public class FinanceCommonService {
+
+    public static String PATH_MAIN = Contant.DIR+ File.separator+"financeStock";
 
     public static String[][] getArrayDates(String temp) {
         List<String> collect = getStringList(temp);
@@ -91,5 +96,27 @@ public class FinanceCommonService {
         return columnLen;
     }
 
+    public static List<String> getAllCodes(boolean debug) {
+        List<String> codeList = new ArrayList<>();
+        if (debug){
+            codeList.add(StringUtils.trim(AllStock.SH_MAIN_));
+            return codeList;
+        }
+        String[] codes = AllStock.SH_MAIN.split(",");
+        for (String code : codes) {
+            codeList.add(StringUtils.trim(code));
+        }
+
+        codes = AllStock.SH_KC.split(",");
+        for (String code : codes) {
+            codeList.add(StringUtils.trim(code));
+        }
+
+        codes = AllStock.SZ.split(",");
+        for (String code : codes) {
+            codeList.add(StringUtils.trim(code));
+        }
+        return codeList;
+    }
 
 }

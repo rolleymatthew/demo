@@ -47,7 +47,7 @@ public class FinanceDateReportService {
     private static void outputUpFinThreePer(int[] counts, Map<String, List<FinThreePerBean>> threePerMap) {
         ExcelWriter excelWriter = null;
         try {
-            excelWriter = EasyExcel.write(FinanceDateWriteService.PATH_MAIN + File.separator
+            excelWriter = EasyExcel.write(FinanceCommonService.PATH_MAIN + File.separator
                     + String.format(FinanceDateWriteService.FILE_NAME_REPORT, DateUtil.getCurrentDay()), FinThreePerBean.class).build();
             for (int i = 0; i < counts.length; i++) {
                 int i1 = counts[i];
@@ -135,7 +135,7 @@ public class FinanceDateReportService {
     private static Map<String, List<FinanceDataBean>> getFinanceListMap(List<String> allCodes) {
         Map<String, List<FinanceDataBean>> dataMap = new ConcurrentHashMap<>();
         allCodes.parallelStream().forEach(s -> {
-            EasyExcel.read(FinanceDateWriteService.PATH_MAIN + File.separator
+            EasyExcel.read(FinanceCommonService.PATH_MAIN + File.separator
                             + FinanceDateWriteService.PATH_ZYCWZB_REPORT + File.separator
                             + String.format(FinanceDateWriteService.FILE_NAME_REPORT, StringUtils.trim(s)), FinanceDataBean.class
                     , new PageReadListener<FinanceDataBean>(dataList -> {

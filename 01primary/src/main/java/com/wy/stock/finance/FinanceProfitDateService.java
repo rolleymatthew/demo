@@ -1,11 +1,13 @@
 package com.wy.stock.finance;
 
+import com.alibaba.excel.EasyExcel;
 import com.wy.bean.ConstantBean;
 import com.wy.bean.FinanceDataBean;
 import com.wy.utils.ClassUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -20,16 +22,33 @@ public class FinanceProfitDateService {
     private static String URL_ZYCWZB_REPORT = "service/zycwzb_%s.html?type=report";
 
     public static void main(String[] args) {
+        List<String> allCodes = FinanceCommonService.getAllCodes(true);
+        getFinanceData(allCodes);
+    }
+
+    public static void getFinanceData(List<String> allCodes) {
+        allCodes.parallelStream().forEach(x ->
+                getBeansByCode(StringUtils.trim(x),
+                        FinanceCommonService.PATH_MAIN + File.separator + FinanceDateWriteService.PATH_ZYCWZB_REPORT + File.separator + String.format(FinanceDateWriteService.FILE_NAME_REPORT, StringUtils.trim(x))));
+    }
+
+    private static void getBeansByCode(String stockCode,String fileName) {
         //1.生成URL
-        String stockCode = "000001";
         String urlformat = String.format(FinanceSpider.URL_DOMAIN + URL_ZYCWZB_REPORT, stockCode);
         //2.获取数据
         String temp = FinanceSpider.getResultClasses(urlformat);
+        if (StringUtils.isEmpty(temp)) {
+            System.out.println(stockCode + "数据库空");
+            return;
+        }
 
         //3.转成bean
-        List<FinanceDataBean> financeDataBeans = getFinanceDataBeans(temp,ConstantBean.ZYCWZB_DIC)
+        List<FinanceDataBean> beanList = getFinanceDataBeans(temp,ConstantBean.ZYCWZB_DIC)
                 .stream().filter(f-> StringUtils.isNotEmpty(f.getReportDate())).collect(Collectors.toList());
-        financeDataBeans.stream().forEach(f -> System.out.println(f.getReportDate()));
+        //4.保存文件
+        EasyExcel.write(fileName, FinanceDataBean.class)
+                .sheet(stockCode)
+                .doWrite(beanList);
     }
 
     private static List<FinanceDataBean> getFinanceDataBeans(String temp, Map<String,String> dicMap) {
