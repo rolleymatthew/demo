@@ -28,7 +28,7 @@ public class FinanceProfitDateService {
     private static String PATH = FinanceCommonService.PATH_MAIN + File.separator + FILE_NAME_PRE + File.separator;
 
     public static void main(String[] args) {
-        List<String> allCodes = FinanceCommonService.getAllCodes(false);
+        List<String> allCodes = FinanceCommonService.getAllCodes(true);
         getFinanceData(allCodes);
     }
 

@@ -44,6 +44,12 @@ public class FinanceCommonService {
         List<String> collect = Arrays.stream(line).filter(x -> x.length() > 10).collect(Collectors.toList());
         return collect;
     }
+    public static List<String[]> getStringsList(String temp) {
+        String[] line = temp.split("\r\n");
+        List<String[]> collect = Arrays.stream(line).filter(x -> x.length() > 10)
+                .map(l->l.split(",")).collect(Collectors.toList());
+        return collect;
+    }
 
     /**
      * 行转列
@@ -72,6 +78,14 @@ public class FinanceCommonService {
         return header;
     }
 
+    public static List<String> getHeaders(List<String[]> collect) {
+        List<String> header = collect.stream()
+                .filter(x -> x.length>=2)
+                .map(s -> Arrays.stream(s).limit(1).collect(Collectors.toList()).toString())
+                .collect(Collectors.toList());
+        return header;
+    }
+
     private static String[][] fillStringArray(List<String> collect) {
         //二维数组赋值
         int columnLen = getColumnLen(collect);
@@ -90,8 +104,8 @@ public class FinanceCommonService {
     }
 
     public static int getColumnLen(List<String> collect) {
-        String s1 = collect.get(0);
-        String[] cell = StringUtils.split(s1, ",");
+        List<String[]> strings = collect.stream().map(l -> l.split(",")).collect(Collectors.toList());
+        String[] cell = strings.get(0);
         int columnLen = cell.length;
         return columnLen;
     }
