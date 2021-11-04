@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 public class FinanceDateReportService {
     public static void main(String[] args) {
         int[] counts = {1, 2, 3};
-        List<String> allCodes = FinanceDateWriteService.getAllCodes();
+        List<String> allCodes = FinanceCommonService.getAllCodes(true);
         countUpFinThreePer(counts, allCodes);
 
     }

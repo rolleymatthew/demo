@@ -39,18 +39,6 @@ public class FinanceCommonService {
     }
 
     /**
-     * 行数据
-     *
-     * @param temp
-     * @return
-     */
-    public static List<String> getStringList(String temp) {
-        String[] line = temp.split("\r\n");
-        List<String> collect = Arrays.stream(line).filter(x -> x.length() > 10).collect(Collectors.toList());
-        return collect;
-    }
-
-    /**
      * 行数据，对应bean的属性，每一行数据同时按照","拆分成数组
      *
      * @param temp

@@ -69,16 +69,16 @@ public class FinanceDateWriteService {
     private static List<FinanceDataBean> getFinanceDataBeans(String temp) {
         List<FinanceDataBean> ret = new ArrayList<>();
         //1.拆分出行，抽取表头数据,计算出行数，对应BEAN的属性
-        List<String> stringList = FinanceCommonService.getStringList(temp);
+        List<String[]> stringList = FinanceCommonService.getStringsList(temp);
         if (CollectionUtils.isEmpty(stringList)) return null;
-        List<String> header = FinanceCommonService.getHeader(stringList);
+        List<String> header = FinanceCommonService.getHeaders(stringList);
         if (CollectionUtils.isEmpty(header)) return null;
 
         //2.产生二维数组
         String[][] newData = FinanceCommonService.getArrayDates(temp);
 
         //3.使用类的反射机制把生成的二维数组转化成需要的bean列表，返回
-        int columnLen = FinanceCommonService.getColumnLen(stringList);
+        int columnLen = FinanceCommonService.getColumnLens(stringList);
         for (int i = 0; i < columnLen; i++) {
             FinanceDataBean financeDataBean = new FinanceDataBean();
             for (int h = 0; h < header.size(); h++) {
@@ -90,25 +90,6 @@ public class FinanceDateWriteService {
 
         }
         return ret;
-    }
-
-    public static List<String> getAllCodes() {
-        List<String> codeList = new ArrayList<>();
-        String[] codes = AllStock.SH_MAIN.split(",");
-        for (String code : codes) {
-            codeList.add(StringUtils.trim(code));
-        }
-
-        codes = AllStock.SH_KC.split(",");
-        for (String code : codes) {
-            codeList.add(StringUtils.trim(code));
-        }
-
-        codes = AllStock.SZ.split(",");
-        for (String code : codes) {
-            codeList.add(StringUtils.trim(code));
-        }
-        return codeList;
     }
 
 }

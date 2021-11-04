@@ -1,5 +1,6 @@
 package com.wy.stock;
 
+import com.wy.stock.finance.FinanceCommonService;
 import com.wy.stock.finance.FinanceDateWriteService;
 import com.wy.stock.hszh.HSHStockReportService;
 
@@ -12,7 +13,7 @@ import java.util.List;
 public class DateByFin {
     public static void main(String[] args) {
         //获取所有公司代码
-        List<String> allCodes = FinanceDateWriteService.getAllCodes();
+        List<String> allCodes = FinanceCommonService.getAllCodes(true);
         //获取主要财务指标
         FinanceDateWriteService.getFinanceData(allCodes);
 
