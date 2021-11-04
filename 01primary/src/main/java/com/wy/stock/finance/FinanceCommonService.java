@@ -20,15 +20,20 @@ import java.util.stream.Collectors;
  */
 public class FinanceCommonService {
 
-    public static String PATH_MAIN = Contant.DIR+ File.separator+"financeStock";
+    public static String PATH_MAIN = Contant.DIR + File.separator + "financeStock";
 
+    /**
+     * 把字符数据格式化成二维数组
+     * 定义两个做行转列用的二维数组,把数据赋值到一个二维数组orgData里,用第二个二维数组newData实现行转列
+     * @param temp 需要格式化的字符数据
+     * @return 格式化好的二维数组，准备生成bean
+     */
     public static String[][] getArrayDates(String temp) {
-        List<String> collect = getStringList(temp);
+        List<String[]> collect = getStringsList(temp);
         if (CollectionUtils.isEmpty(collect)) return null;
 
-        //定义两个做行转列用的二维数组,把数据赋值到一个二维数组orgData里,用第二个二维数组newData实现行转列
-        String[][] orgData = fillStringArray(collect);
-        String[][] newData = lineToColumnArray(orgData, collect);
+        String[][] orgData = fillStringsArray(collect);
+        String[][] newData = lineToColumnsArray(orgData, collect);
 
         return newData;
     }
@@ -44,10 +49,17 @@ public class FinanceCommonService {
         List<String> collect = Arrays.stream(line).filter(x -> x.length() > 10).collect(Collectors.toList());
         return collect;
     }
+
+    /**
+     * 行数据，对应bean的属性，每一行数据同时按照","拆分成数组
+     *
+     * @param temp
+     * @return 按照bean的一列数据
+     */
     public static List<String[]> getStringsList(String temp) {
-        String[] line = temp.split("\r\n");
+        String[] line = temp.split(StringUtils.CR + StringUtils.LF);
         List<String[]> collect = Arrays.stream(line).filter(x -> x.length() > 10)
-                .map(l->l.split(",")).collect(Collectors.toList());
+                .map(l -> l.split(",")).collect(Collectors.toList());
         return collect;
     }
 
@@ -58,9 +70,9 @@ public class FinanceCommonService {
      * @param collect
      * @return
      */
-    private static String[][] lineToColumnArray(String[][] orgData, List<String> collect) {
-        int lineLen = getHeader(collect).size();
-        int columnLen = getColumnLen(collect);
+    private static String[][] lineToColumnsArray(String[][] orgData, List<String[]> collect) {
+        int lineLen = getHeaders(collect).size();
+        int columnLen = getColumnLens(collect);
         String[][] newData = new String[columnLen][lineLen];
         for (int i = 0; i < lineLen; i++) {
             for (int j = 0; j < columnLen; j++) {
@@ -78,25 +90,34 @@ public class FinanceCommonService {
         return header;
     }
 
+    /**
+     * 获取表头数据
+     * @param collect
+     * @return
+     */
     public static List<String> getHeaders(List<String[]> collect) {
-        List<String> header = collect.stream()
-                .filter(x -> x.length>=2)
-                .map(s -> Arrays.stream(s).limit(1).collect(Collectors.toList()).toString())
+        List<String> col = collect.stream()
+                .filter(x -> x.length >= 2)
+                .map(s -> s[0])
                 .collect(Collectors.toList());
+        List<String> header = col.stream().filter(s -> StringUtils.isNotEmpty(s)).collect(Collectors.toList());
         return header;
     }
 
-    private static String[][] fillStringArray(List<String> collect) {
+    /**
+     * 填充二维数组数据，准备行转列
+     * @param collect
+     * @return
+     */
+    private static String[][] fillStringsArray(List<String[]> collect) {
         //二维数组赋值
-        int columnLen = getColumnLen(collect);
+        int columnLen = getColumnLens(collect);
         int lineLen = collect.size();
         String[][] orgData = new String[lineLen][columnLen];
         for (int i = 0; i < lineLen; i++) {
-            String s = collect.get(i);
-            String[] split = s.split(",");
+            String[] split = collect.get(i);
             for (int j = 1; j < columnLen; j++) {
-                String s2 = split[j];
-                orgData[i][j - 1] = s2;
+                orgData[i][j - 1] = split[j];
 
             }
         }
@@ -110,9 +131,25 @@ public class FinanceCommonService {
         return columnLen;
     }
 
+    /**
+     * 获取有多少天的数据，既是行转列的行数
+     * @param collect
+     * @return
+     */
+    public static int getColumnLens(List<String[]> collect) {
+        String[] cell = collect.get(0);
+        int columnLen = cell.length;
+        return columnLen;
+    }
+
+    /**
+     * 所有代码
+     * @param debug 调试标记位 true正式产生所有数据 false只产生一个代码的数据
+     * @return
+     */
     public static List<String> getAllCodes(boolean debug) {
         List<String> codeList = new ArrayList<>();
-        if (debug){
+        if (debug) {
             codeList.add(StringUtils.trim(AllStock.SH_MAIN_));
             return codeList;
         }
