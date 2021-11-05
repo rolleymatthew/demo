@@ -1,10 +1,10 @@
 server:
   port: 8888
 
-Compte:
+compte:
   adasfa: asdfds
 
-Stock:
+stockcode:
   balance:
     - 报告日期,ReportDate
     - 货币资金,MonetaryFund

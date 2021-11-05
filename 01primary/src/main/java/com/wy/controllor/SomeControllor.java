@@ -30,7 +30,7 @@ public class SomeControllor {
         return "port=" + port;
     }
 
-    @Value("${Compte.adasfa}")
+    @Value("${compte.adasfa}")
     private String custome;
     @GetMapping("/custome")
     public String customeHandle() {

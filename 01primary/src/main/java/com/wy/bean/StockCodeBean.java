@@ -12,9 +12,16 @@ import org.springframework.stereotype.Component;
 @PropertySource(value = "classpath:stock.properties", encoding = "UTF-8")
 @ConfigurationProperties("stock")
 @Data
-public class Stock {
+public class StockCodeBean {
+    /**
+     * 上海全部(主板+科创板)
+     */
     private String shCode;
+    /**
+     * 深圳
+     */
     private String szCode;
+
     private String finCode;
 
 }

@@ -1,7 +1,6 @@
 package com.wy.service.impl;
 
-import com.wy.bean.Stock;
-import com.wy.bean.Student;
+import com.wy.bean.StockCodeBean;
 import com.wy.service.SomeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,7 +17,7 @@ public class SomeServiceImpl implements SomeService {
     }
 
     @Autowired
-    private Stock stock;
+    private StockCodeBean stock;
     @Override
     public String getCode() {
         String ret=stock.getShCode();
