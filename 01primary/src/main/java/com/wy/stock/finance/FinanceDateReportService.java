@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 public class FinanceDateReportService {
     public static void main(String[] args) {
         int[] counts = {1, 2, 3};
-        List<String> allCodes = FinanceCommonService.getAllCodes(true);
+        List<String> allCodes = FinanceCommonService.getAllCodes(false);
         countUpFinThreePer(counts, allCodes);
 
     }
@@ -39,10 +39,32 @@ public class FinanceDateReportService {
         //计算三率
         Map<String, List<FinThreePerBean>> finPerMap = getFinPerMap(dataMap);
 
-        //找到三率三升的
+        //填充三率变换
         Map<String, List<FinThreePerBean>> threePerMap = fillFinPerMap(finPerMap);
 
+        //找到三率三升的并输出文件
         outputUpFinThreePer(counts, threePerMap);
+
+        //毛利率上升
+//        outputUpMaoLiPer(counts, threePerMap);
+    }
+
+    private static void outputUpMaoLiPer(int[] counts, Map<String, List<FinThreePerBean>> threePerMap) {
+        List<FinThreePerBean> finThreePerBeans = MaoLiUp(threePerMap, 1);
+
+    }
+
+    private static List<FinThreePerBean> MaoLiUp(Map<String, List<FinThreePerBean>> threePerMap, int i) {
+        List<FinThreePerBean> ret=new ArrayList<>();
+        for (Map.Entry<String, List<FinThreePerBean>> stringListEntry : threePerMap.entrySet()) {
+            List<FinThreePerBean> collect = stringListEntry.getValue().stream().limit(1).collect(Collectors.toList());
+            List<FinThreePerBean> collect1 = collect.stream()
+                    .filter(s -> s.getAddGrossProfit().doubleValue() > 0).collect(Collectors.toList());
+            if (collect1.size()==1){
+                ret.addAll(collect1);
+            }
+        }
+        return ret;
     }
 
     private static void outputUpFinThreePer(int[] counts, Map<String, List<FinThreePerBean>> threePerMap) {
@@ -115,17 +137,31 @@ public class FinanceDateReportService {
                     List<ProfitDateBean> collect = x.getValue().stream().collect(Collectors.toList());
                     List<FinThreePerBean> threePerBeanList = collect.stream().map(s -> {
                         FinThreePerBean finThreePerBean = new FinThreePerBean();
-                        Double mainBusiIncome = NumUtils.stringToDouble(s.getTotalOperatingIncome());
-                        Double cost = NumUtils.stringToDouble(s.getTotalOperatingCost());
+                        Double mainBusiIncome = income(s);
+                        Double cost = cost(s);
                         finThreePerBean.setReportData(s.getReportDate());
                         finThreePerBean.setGrossProfit(NumUtils.roundDouble(cost / mainBusiIncome * 100));
-                        finThreePerBean.setOperatProfit(NumUtils.roundDouble(NumUtils.stringToDouble(s.getOtherBusinessProfit()) / mainBusiIncome * 100));
+                        finThreePerBean.setOperatProfit(NumUtils.roundDouble(NumUtils.stringToDouble(s.getOperatingProfit()) / mainBusiIncome * 100));
                         finThreePerBean.setNetProfit(NumUtils.roundDouble(NumUtils.stringToDouble(s.getNetProfit()) / mainBusiIncome * 100));
                         return finThreePerBean;
                     }).collect(Collectors.toList());
                     return threePerBeanList;
                 }));
         return finPerMap;
+    }
+
+    private static Double income(ProfitDateBean s) {
+        if (StringUtils.equalsIgnoreCase(s.getOperatingIncome(),"--")){
+            //金融企业计算方式
+        }
+        return NumUtils.stringToDouble(s.getOperatingIncome());
+    }
+
+    private static Double cost(ProfitDateBean s) {
+        if (StringUtils.equalsIgnoreCase(s.getOperatingCost(),"--")){
+            //金融企业计算方式
+        }
+        return NumUtils.stringToDouble(s.getOperatingCost());
     }
 
     /**
