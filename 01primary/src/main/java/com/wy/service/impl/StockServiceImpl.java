@@ -91,6 +91,7 @@ public class StockServiceImpl implements StockService {
             FinanceCashFlowDateService.getFinanceData(allCodes);
             FinanceProfitDateService.getFinanceData(allCodes);
             FinanceDateWriteService.getFinanceData(allCodes);
+            flag.decrementAndGet();
         }else {
             return ResultVO.build(-1, "已经在运行抓取");
         }
