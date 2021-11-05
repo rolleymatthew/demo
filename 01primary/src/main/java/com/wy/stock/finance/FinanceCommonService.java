@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author yunwang
@@ -23,6 +24,7 @@ public class FinanceCommonService {
 
     public static String PATH_MAIN = Contant.DIR + File.separator + "financeStock";
 
+    public static Map<String,String> BalanceDicMap=convertDicMap(ConstantBean.balance);
     /**
      * 把字符数据格式化成二维数组
      * 定义两个做行转列用的二维数组,把数据赋值到一个二维数组orgData里,用第二个二维数组newData实现行转列
@@ -89,7 +91,7 @@ public class FinanceCommonService {
     public static List<String> getHeaders(List<String[]> collect) {
         List<String> col = collect.stream()
                 .filter(x -> x.length >= 2)
-                .map(s -> s[0])
+                .map(s -> s[0].replaceAll("\\(万元\\)",""))
                 .collect(Collectors.toList());
         List<String> header = col.stream().filter(s -> StringUtils.isNotEmpty(s)).collect(Collectors.toList());
         return header;
@@ -203,4 +205,15 @@ public class FinanceCommonService {
         return ret;
     }
 
+    /**
+     * 拆分标题和bean属性对应字典
+     * @param dicString
+     * @return
+     */
+    public static Map<String, String> convertDicMap(String dicString) {
+        return Stream.of(dicString).map(c -> c.split(","))
+                .flatMap(Arrays::stream)
+                .collect(Collectors.toMap(x -> StringUtils.substring(x, 0, StringUtils.indexOf(x, "|"))
+                        , x -> StringUtils.substring(x, StringUtils.indexOf(x, "|") + 1)));
+    }
 }
