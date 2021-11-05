@@ -27,6 +27,8 @@ class ApplicationTests {
 //    @Ignore
     void ymlTest() {
         ymlBean.getBalance().forEach(x -> System.out.println("line:"+x));
-
+        ymlBean.getSh().entrySet().stream().forEach(x-> System.out.println(x.getKey()+"   "+x.getValue()));
+        ymlBean.getKc().entrySet().stream().forEach(x-> System.out.println(x.getKey()+"   "+x.getValue()));
+        ymlBean.getSz().entrySet().stream().forEach(x-> System.out.println(x.getKey()+"   "+x.getValue()));
     }
 }
