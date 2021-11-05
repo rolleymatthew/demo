@@ -16,26 +16,32 @@ public class StockControllot {
     private StockService stockService;
 
     @GetMapping("/etf")
-    public ResultVO getETF(@RequestParam(value = "dayCount", defaultValue = "1")int dayCount){
+    public ResultVO getETF(@RequestParam(value = "dayCount", defaultValue = "1") int dayCount) {
         ResultVO resultVO = stockService.ETFDataByDay(dayCount);
         return resultVO;
     }
 
     @GetMapping("/hszh")
-    public ResultVO getHSZH(@RequestParam(value = "dayCount", defaultValue = "1")int dayCount){
+    public ResultVO getHSZH(@RequestParam(value = "dayCount", defaultValue = "1") int dayCount) {
         ResultVO resultVO = stockService.hsshDataByDay(dayCount);
         return resultVO;
     }
 
     @GetMapping("/hszhAndETF")
-    public ResultVO getHSZHAndETF(@RequestParam(value = "dayCount", defaultValue = "1")int dayCount){
+    public ResultVO getHSZHAndETF(@RequestParam(value = "dayCount", defaultValue = "1") int dayCount) {
         ResultVO resultVO = stockService.hsshAndETFDataByDay(dayCount);
         return resultVO;
     }
 
     @GetMapping("/hszhETFReport")
-    public ResultVO getHSZHAndETFReport(@RequestParam(value = "dayCount", defaultValue = "1")int dayCount){
+    public ResultVO getHSZHAndETFReport(@RequestParam(value = "dayCount", defaultValue = "1") int dayCount) {
         ResultVO resultVO = stockService.hsshAndETFReport();
+        return resultVO;
+    }
+
+    @GetMapping("/fin")
+    public ResultVO getFinanceData(@RequestParam(value = "code", required = false) String code) {
+        ResultVO resultVO = stockService.FinanceDateByMonth(code);
         return resultVO;
     }
 }

@@ -7,10 +7,15 @@ import com.wy.stock.etf.ETFFundReportService;
 import com.wy.stock.finance.*;
 import com.wy.stock.hszh.GetSHSZHKStockDateService;
 import com.wy.stock.hszh.HSHStockReportService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by yunwang on 2021/11/2 10:11
@@ -70,14 +75,25 @@ public class StockServiceImpl implements StockService {
     }
 
     @Override
-    public ResultVO FinanceDateByMonth() {
+    public ResultVO FinanceDateByMonth(String code) {
         //获取所有公司代码
-        List<String> allCodes = FinanceCommonService.getAllCodes(false);
-        //获取财务数据
-        FinanceBalanceDateService.getFinanceData(allCodes);
-        FinanceCashFlowDateService.getFinanceData(allCodes);
-        FinanceProfitDateService.getFinanceData(allCodes);
-        FinanceDateWriteService.getFinanceData(allCodes);
+        if (flag.incrementAndGet() == 1) {
+            List<String> allCodes = new ArrayList<String>();
+            if (StringUtils.isEmpty(code)) {
+                allCodes = FinanceCommonService.getAllCodes(false);
+            } else if (StringUtils.indexOf(code, ",") > -1) {
+                allCodes = Stream.of(code).map(f -> f.split(",")).flatMap(Arrays::stream).collect(Collectors.toList());
+            } else {
+                allCodes.add(code);
+            }
+            //获取财务数据
+            FinanceBalanceDateService.getFinanceData(allCodes);
+            FinanceCashFlowDateService.getFinanceData(allCodes);
+            FinanceProfitDateService.getFinanceData(allCodes);
+            FinanceDateWriteService.getFinanceData(allCodes);
+        }else {
+            return ResultVO.build(-1, "已经在运行抓取");
+        }
         return ResultVO.ok();
     }
 }
