@@ -4,13 +4,14 @@ import com.alibaba.excel.EasyExcel;
 import com.wy.bean.ConstantBean;
 import com.wy.bean.Contant;
 import com.wy.bean.FinanceDataBean;
-import com.wy.utils.AllStock;
 import com.wy.utils.ClassUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 
 import java.io.File;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by yunwang on 2021/10/25 17:28
@@ -54,10 +55,16 @@ public class FinanceDateWriteService {
 
         //读取行
         //使用二维数组转置方法转化bean
-        List<FinanceDataBean> beanList = getFinanceDataBeans(temp);
+        List<Object> beanList = FinanceCommonService.convertStringToBeans(temp, ConstantBean.ZYCWZB_DIC, FinanceDataBean.class);
+        List<FinanceDataBean> financeDataBeans = beanList.stream().map(x -> {
+                    FinanceDataBean financeDataBean = new FinanceDataBean();
+                    BeanUtils.copyProperties(x, financeDataBean);
+                    return financeDataBean;
+                }).filter(s -> StringUtils.isNotEmpty(s.getReportDate())).sorted(Comparator.comparing(FinanceDataBean::getReportDate).reversed())
+                .collect(Collectors.toList());
         EasyExcel.write(fileName, FinanceDataBean.class)
                 .sheet(stockCode)
-                .doWrite(beanList);
+                .doWrite(financeDataBeans);
     }
 
     /**

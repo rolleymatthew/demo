@@ -11,7 +11,7 @@ import java.util.List;
  */
 public class ReportByFin {
     public static void main(String[] args) {
-        List<String> allCodes = FinanceCommonService.getAllCodes();
+        List<String> allCodes = FinanceCommonService.getAllCodes(false);
         int[] counts = {1, 2, 3};
         FinanceDateReportService.countUpFinThreePer(counts, allCodes);
     }

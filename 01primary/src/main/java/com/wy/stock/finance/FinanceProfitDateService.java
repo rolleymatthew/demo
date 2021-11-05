@@ -3,16 +3,13 @@ package com.wy.stock.finance;
 import com.alibaba.excel.EasyExcel;
 import com.wy.bean.ConstantBean;
 import com.wy.bean.Contant;
-import com.wy.bean.FinanceDataBean;
 import com.wy.bean.ProfitDateBean;
-import com.wy.utils.ClassUtil;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -21,7 +18,6 @@ import java.util.stream.Collectors;
  */
 public class FinanceProfitDateService {
     private static String URL_LRB_REPORT = "service/lrb_%s.html";
-    //    private static String URL_ZYCWZB_REPORT = "service/zycwzb_%s.html?type=report";
     public static String FILE_NAME_PRE = "profit";
     public static String FILE_NAME_EXT = Contant.FILE_EXT;
     public static String FILE_NAME_REPORT = FILE_NAME_PRE + "%s" + FILE_NAME_EXT;
@@ -49,35 +45,18 @@ public class FinanceProfitDateService {
         }
 
         //3.转成bean
-        List<ProfitDateBean> beanList = getFinanceDataBeanss(temp, ConstantBean.LRB_DIC)
-                .stream().filter(f -> StringUtils.isNotEmpty(f.getReportDate())).collect(Collectors.toList());
+        List<Object> beanList = FinanceCommonService.convertStringToBeans(temp, ConstantBean.LRB_DIC, ProfitDateBean.class);
+        List<ProfitDateBean> profitDateBeanList = beanList.stream().map(x -> {
+                    ProfitDateBean profitDateBean = new ProfitDateBean();
+                    BeanUtils.copyProperties(x, profitDateBean);
+                    return profitDateBean;
+                }).filter(f -> StringUtils.isNotEmpty(f.getReportDate())).sorted(Comparator.comparing(ProfitDateBean::getReportDate).reversed())
+                .collect(Collectors.toList());
+
         //4.保存文件
         EasyExcel.write(fileName, ProfitDateBean.class)
                 .sheet(stockCode)
-                .doWrite(beanList);
+                .doWrite(profitDateBeanList);
     }
 
-    private static List<ProfitDateBean> getFinanceDataBeanss(String temp, Map<String, String> dicMap) {
-        List<ProfitDateBean> ret = new ArrayList<>();
-        //1.拆分出行，抽取表头数据,计算出行数，对应BEAN的属性
-        List<String[]> stringList = FinanceCommonService.getStringsList(temp);
-        if (CollectionUtils.isEmpty(stringList)) return null;
-        List<String> header = FinanceCommonService.getHeaders(stringList);
-        if (CollectionUtils.isEmpty(header)) return null;
-
-        //2.产生二维数组
-        String[][] newData = FinanceCommonService.getArrayDates(temp);
-
-        //3.使用类的反射机制把生成的二维数组转化成需要的bean列表，返回
-        int columnLen = FinanceCommonService.getColumnLens(stringList);
-        for (int line = 0; line < columnLen; line++) {
-            ProfitDateBean financeDataBean = new ProfitDateBean();
-            for (int col = 0; col < header.size(); col++) {
-                ClassUtil.setFieldValueByFieldName(financeDataBean, dicMap.get(header.get(col)), newData[line][col]);
-            }
-            ret.add(financeDataBean);
-
-        }
-        return ret;
-    }
 }

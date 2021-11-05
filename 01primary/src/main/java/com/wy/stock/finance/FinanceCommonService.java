@@ -12,6 +12,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -25,6 +26,7 @@ public class FinanceCommonService {
     /**
      * 把字符数据格式化成二维数组
      * 定义两个做行转列用的二维数组,把数据赋值到一个二维数组orgData里,用第二个二维数组newData实现行转列
+     *
      * @param temp 需要格式化的字符数据
      * @return 格式化好的二维数组，准备生成bean
      */
@@ -80,6 +82,7 @@ public class FinanceCommonService {
 
     /**
      * 获取表头数据
+     *
      * @param collect
      * @return
      */
@@ -94,6 +97,7 @@ public class FinanceCommonService {
 
     /**
      * 填充二维数组数据，准备行转列
+     *
      * @param collect
      * @return
      */
@@ -121,6 +125,7 @@ public class FinanceCommonService {
 
     /**
      * 获取有多少天的数据，既是行转列的行数
+     *
      * @param collect
      * @return
      */
@@ -132,6 +137,7 @@ public class FinanceCommonService {
 
     /**
      * 所有代码
+     *
      * @param debug 调试标记位 true正式产生所有数据 false只产生一个代码的数据
      * @return
      */
@@ -156,6 +162,45 @@ public class FinanceCommonService {
             codeList.add(StringUtils.trim(code));
         }
         return codeList;
+    }
+
+    /**
+     * 把下载的文件转化成实体bean列表，按照规定好的表头映射
+     *
+     * @param temp
+     * @param dicMap
+     * @param clazz
+     * @return
+     */
+    public static List<Object> convertStringToBeans(String temp, Map<String, String> dicMap, Class<?> clazz) {
+        List<Object> ret = new ArrayList<>();
+        //1.拆分出行，抽取表头数据,计算出行数，对应BEAN的属性
+        List<String[]> stringList = FinanceCommonService.getStringsList(temp);
+        if (CollectionUtils.isEmpty(stringList)) return null;
+        List<String> header = FinanceCommonService.getHeaders(stringList);
+        if (CollectionUtils.isEmpty(header)) return null;
+
+        //2.产生二维数组
+        String[][] newData = FinanceCommonService.getArrayDates(temp);
+
+        //3.使用类的反射机制把生成的二维数组转化成需要的bean列表，返回
+        int columnLen = FinanceCommonService.getColumnLens(stringList);
+        for (int line = 0; line < columnLen; line++) {
+            Object o = null;
+            try {
+                o = clazz.newInstance();
+            } catch (InstantiationException e) {
+            } catch (IllegalAccessException e) {
+            }
+
+            if (o == null) continue;
+            for (int col = 0; col < header.size(); col++) {
+                ClassUtil.setFieldValueByFieldName(o, dicMap.get(header.get(col)), newData[line][col]);
+            }
+            ret.add(o);
+
+        }
+        return ret;
     }
 
 }
