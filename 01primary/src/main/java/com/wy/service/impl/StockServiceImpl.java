@@ -4,10 +4,12 @@ import com.wy.bean.ResultVO;
 import com.wy.service.StockService;
 import com.wy.stock.etf.ETFFundDataService;
 import com.wy.stock.etf.ETFFundReportService;
+import com.wy.stock.finance.*;
 import com.wy.stock.hszh.GetSHSZHKStockDateService;
 import com.wy.stock.hszh.HSHStockReportService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -64,6 +66,18 @@ public class StockServiceImpl implements StockService {
         } else {
             return ResultVO.build(-1, "已经在运行抓取");
         }
+        return ResultVO.ok();
+    }
+
+    @Override
+    public ResultVO FinanceDateByMonth() {
+        //获取所有公司代码
+        List<String> allCodes = FinanceCommonService.getAllCodes(false);
+        //获取财务数据
+        FinanceBalanceDateService.getFinanceData(allCodes);
+        FinanceCashFlowDateService.getFinanceData(allCodes);
+        FinanceProfitDateService.getFinanceData(allCodes);
+        FinanceDateWriteService.getFinanceData(allCodes);
         return ResultVO.ok();
     }
 }
