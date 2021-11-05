@@ -25,6 +25,8 @@ public class FinanceCommonService {
     public static String PATH_MAIN = Contant.DIR + File.separator + "financeStock";
 
     public static Map<String,String> BalanceDicMap=convertDicMap(ConstantBean.balance);
+
+    public static Map<String,String> CashFlowDicMap=convertDicMap(ConstantBean.cashFlow);
     /**
      * 把字符数据格式化成二维数组
      * 定义两个做行转列用的二维数组,把数据赋值到一个二维数组orgData里,用第二个二维数组newData实现行转列
@@ -197,7 +199,10 @@ public class FinanceCommonService {
 
             if (o == null) continue;
             for (int col = 0; col < header.size(); col++) {
-                ClassUtil.setFieldValueByFieldName(o, dicMap.get(header.get(col)), newData[line][col]);
+                System.out.println(col);
+                System.out.println(header.get(col).trim());
+                System.out.println(dicMap.get(header.get(col).trim()));
+                ClassUtil.setFieldValueByFieldName(o, dicMap.get(header.get(col).trim()), newData[line][col]);
             }
             ret.add(o);
 
@@ -213,7 +218,7 @@ public class FinanceCommonService {
     public static Map<String, String> convertDicMap(String dicString) {
         return Stream.of(dicString).map(c -> c.split(","))
                 .flatMap(Arrays::stream)
-                .collect(Collectors.toMap(x -> StringUtils.substring(x, 0, StringUtils.indexOf(x, "|"))
-                        , x -> StringUtils.substring(x, StringUtils.indexOf(x, "|") + 1)));
+                .collect(Collectors.toMap(x -> StringUtils.substring(x, 0, StringUtils.indexOf(x, "|")).trim()
+                        , x -> StringUtils.substring(x, StringUtils.indexOf(x, "|") + 1).trim()));
     }
 }
