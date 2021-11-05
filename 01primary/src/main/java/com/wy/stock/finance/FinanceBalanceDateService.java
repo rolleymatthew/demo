@@ -48,10 +48,10 @@ public class FinanceBalanceDateService {
         //3.转成bean
         List<Object> beanList = FinanceCommonService.convertStringToBeans(temp, FinanceCommonService.BalanceDicMap, BalanceDateBean.class);
         List<BalanceDateBean> profitDateBeanList = beanList.stream().map(x -> {
-                    BalanceDateBean profitDateBean = new BalanceDateBean();
-                    BeanUtils.copyProperties(x, profitDateBean);
-                    return profitDateBean;
-                }).filter(f -> StringUtils.isNotEmpty(f.getReportDate())).sorted(Comparator.comparing(BalanceDateBean::getReportDate).reversed())
+            BalanceDateBean profitDateBean = new BalanceDateBean();
+            BeanUtils.copyProperties(x, profitDateBean);
+            return profitDateBean;
+        }).filter(f -> StringUtils.isNotEmpty(f.getReportDate())).sorted(Comparator.comparing(BalanceDateBean::getReportDate).reversed())
                 .collect(Collectors.toList());
 
         //4.保存文件

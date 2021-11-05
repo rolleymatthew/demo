@@ -24,9 +24,10 @@ public class FinanceCommonService {
 
     public static String PATH_MAIN = Contant.DIR + File.separator + "financeStock";
 
-    public static Map<String,String> BalanceDicMap=convertDicMap(ConstantBean.balance);
+    public static Map<String, String> BalanceDicMap = convertDicMap(ConstantBean.balance);
 
-    public static Map<String,String> CashFlowDicMap=convertDicMap(ConstantBean.cashFlow);
+    public static Map<String, String> CashFlowDicMap = convertDicMap(ConstantBean.cashFlow);
+
     /**
      * 把字符数据格式化成二维数组
      * 定义两个做行转列用的二维数组,把数据赋值到一个二维数组orgData里,用第二个二维数组newData实现行转列
@@ -53,7 +54,7 @@ public class FinanceCommonService {
     public static List<String[]> getStringsList(String temp) {
         String[] line = temp.split(StringUtils.CR + StringUtils.LF);
         List<String[]> collect = Arrays.stream(line).filter(x -> x.length() > 10)
-                .map(l -> l.split(",")).collect(Collectors.toList());
+                .map(l -> l.trim().split(",")).collect(Collectors.toList());
         return collect;
     }
 
@@ -76,14 +77,6 @@ public class FinanceCommonService {
         return newData;
     }
 
-    public static List<String> getHeader(List<String> collect) {
-        List<String> header = collect.stream()
-                .filter(x -> StringUtils.indexOf(x, ",") > 0)
-                .map(s -> StringUtils.substring(s, 0, StringUtils.indexOf(s, ",")))
-                .collect(Collectors.toList());
-        return header;
-    }
-
     /**
      * 获取表头数据
      *
@@ -93,7 +86,7 @@ public class FinanceCommonService {
     public static List<String> getHeaders(List<String[]> collect) {
         List<String> col = collect.stream()
                 .filter(x -> x.length >= 2)
-                .map(s -> s[0].replaceAll("\\(万元\\)",""))
+                .map(s -> s[0])
                 .collect(Collectors.toList());
         List<String> header = col.stream().filter(s -> StringUtils.isNotEmpty(s)).collect(Collectors.toList());
         return header;
@@ -118,13 +111,6 @@ public class FinanceCommonService {
             }
         }
         return orgData;
-    }
-
-    public static int getColumnLen(List<String> collect) {
-        List<String[]> strings = collect.stream().map(l -> l.split(",")).collect(Collectors.toList());
-        String[] cell = strings.get(0);
-        int columnLen = cell.length;
-        return columnLen;
     }
 
     /**
@@ -199,10 +185,7 @@ public class FinanceCommonService {
 
             if (o == null) continue;
             for (int col = 0; col < header.size(); col++) {
-                System.out.println(col);
-                System.out.println(header.get(col).trim());
-                System.out.println(dicMap.get(header.get(col).trim()));
-                ClassUtil.setFieldValueByFieldName(o, dicMap.get(header.get(col).trim()), newData[line][col]);
+                ClassUtil.setFieldValueByFieldName(o, StringUtils.trim(dicMap.get(StringUtils.trim(header.get(col)))), newData[line][col]);
             }
             ret.add(o);
 
@@ -212,6 +195,7 @@ public class FinanceCommonService {
 
     /**
      * 拆分标题和bean属性对应字典
+     *
      * @param dicString
      * @return
      */

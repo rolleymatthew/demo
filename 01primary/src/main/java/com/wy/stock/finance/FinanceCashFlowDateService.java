@@ -24,7 +24,7 @@ public class FinanceCashFlowDateService {
 
 
     public static void main(String[] args) {
-        List<String> allCodes = FinanceCommonService.getAllCodes(true);
+        List<String> allCodes = FinanceCommonService.getAllCodes(false);
         getFinanceData(allCodes);
     }
 
@@ -43,14 +43,13 @@ public class FinanceCashFlowDateService {
             System.out.println("error:" + stockCode + "现金流量表数据空");
             return;
         }
-
         //3.转成bean
         List<Object> beanList = FinanceCommonService.convertStringToBeans(temp, FinanceCommonService.CashFlowDicMap, CashFlowBean.class);
         List<CashFlowBean> profitDateBeanList = beanList.stream().map(x -> {
-                    CashFlowBean profitDateBean = new CashFlowBean();
-                    BeanUtils.copyProperties(x, profitDateBean);
-                    return profitDateBean;
-                }).filter(f -> StringUtils.isNotEmpty(f.getReportDate())).sorted(Comparator.comparing(CashFlowBean::getReportDate).reversed())
+            CashFlowBean profitDateBean = new CashFlowBean();
+            BeanUtils.copyProperties(x, profitDateBean);
+            return profitDateBean;
+        }).filter(f -> StringUtils.isNotEmpty(f.getReportDate())).sorted(Comparator.comparing(CashFlowBean::getReportDate).reversed())
                 .collect(Collectors.toList());
 
         //4.保存文件
