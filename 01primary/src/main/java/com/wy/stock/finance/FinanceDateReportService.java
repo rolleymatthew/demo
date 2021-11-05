@@ -7,6 +7,7 @@ import com.alibaba.excel.write.metadata.WriteSheet;
 import com.wy.bean.EastMoneyBeab;
 import com.wy.bean.FinThreePerBean;
 import com.wy.bean.FinanceDataBean;
+import com.wy.bean.ProfitDateBean;
 import com.wy.utils.DateUtil;
 import com.wy.utils.NumUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -33,7 +34,7 @@ public class FinanceDateReportService {
 
     public static void countUpFinThreePer(int[] counts, List<String> allCodes) {
         //读取文件
-        Map<String, List<FinanceDataBean>> dataMap = getFinanceListMap(allCodes);
+        Map<String, List<ProfitDateBean>> dataMap = getFinanceListMap(allCodes);
 
         //计算三率
         Map<String, List<FinThreePerBean>> finPerMap = getFinPerMap(dataMap);
@@ -107,17 +108,18 @@ public class FinanceDateReportService {
         return threePerMap;
     }
 
-    private static Map<String, List<FinThreePerBean>> getFinPerMap(Map<String, List<FinanceDataBean>> dataMap) {
+    private static Map<String, List<FinThreePerBean>> getFinPerMap(Map<String, List<ProfitDateBean>> dataMap) {
         //计算所有的三率Map
         Map<String, List<FinThreePerBean>> finPerMap = dataMap.entrySet().stream().collect(Collectors.toMap(x -> x.getKey()
                 , x -> {
-                    List<FinanceDataBean> collect = x.getValue().stream().collect(Collectors.toList());
+                    List<ProfitDateBean> collect = x.getValue().stream().collect(Collectors.toList());
                     List<FinThreePerBean> threePerBeanList = collect.stream().map(s -> {
                         FinThreePerBean finThreePerBean = new FinThreePerBean();
-                        Double mainBusiIncome = NumUtils.stringToDouble(s.getMainBusiIncome());
+                        Double mainBusiIncome = NumUtils.stringToDouble(s.getTotalOperatingIncome());
+                        Double cost = NumUtils.stringToDouble(s.getTotalOperatingCost());
                         finThreePerBean.setReportData(s.getReportDate());
-                        finThreePerBean.setGrossProfit(NumUtils.roundDouble(NumUtils.stringToDouble(s.getMainBusiProfit()) / mainBusiIncome * 100));
-                        finThreePerBean.setOperatProfit(NumUtils.roundDouble(NumUtils.stringToDouble(s.getOperatProfit()) / mainBusiIncome * 100));
+                        finThreePerBean.setGrossProfit(NumUtils.roundDouble(cost / mainBusiIncome * 100));
+                        finThreePerBean.setOperatProfit(NumUtils.roundDouble(NumUtils.stringToDouble(s.getOtherBusinessProfit()) / mainBusiIncome * 100));
                         finThreePerBean.setNetProfit(NumUtils.roundDouble(NumUtils.stringToDouble(s.getNetProfit()) / mainBusiIncome * 100));
                         return finThreePerBean;
                     }).collect(Collectors.toList());
@@ -132,16 +134,16 @@ public class FinanceDateReportService {
      * @param allCodes 代码
      * @return
      */
-    private static Map<String, List<FinanceDataBean>> getFinanceListMap(List<String> allCodes) {
-        Map<String, List<FinanceDataBean>> dataMap = new ConcurrentHashMap<>();
+    private static Map<String, List<ProfitDateBean>> getFinanceListMap(List<String> allCodes) {
+        Map<String, List<ProfitDateBean>> dataMap = new ConcurrentHashMap<>();
         allCodes.parallelStream().forEach(s -> {
             EasyExcel.read(FinanceCommonService.PATH_MAIN + File.separator
-                            + FinanceDateWriteService.PATH_ZYCWZB_REPORT + File.separator
-                            + String.format(FinanceDateWriteService.FILE_NAME_REPORT, StringUtils.trim(s)), FinanceDataBean.class
-                    , new PageReadListener<FinanceDataBean>(dataList -> {
+                            + FinanceProfitDateService.FILE_NAME_PRE + File.separator
+                            + String.format(FinanceProfitDateService.FILE_NAME_REPORT, StringUtils.trim(s)), ProfitDateBean.class
+                    , new PageReadListener<ProfitDateBean>(dataList -> {
                         dataMap.put(s, dataList.stream()
                                 .filter(x -> StringUtils.isNotEmpty(x.getReportDate()))
-                                .sorted(Comparator.comparing(FinanceDataBean::getReportDate).reversed())
+                                .sorted(Comparator.comparing(ProfitDateBean::getReportDate).reversed())
                                 .collect(Collectors.toList()));
                     })).sheet(0).doRead();
         });

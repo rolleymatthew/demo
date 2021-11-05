@@ -19,12 +19,9 @@ import java.util.stream.Collectors;
 public class FinanceDateWriteService {
     //盈利能力抓取路径
     private static String URL_DOMAIN = "http://quotes.money.163.com/";
-    private static String URL_YLNL = "service/zycwzb_%s.html?type=season&part=ylnl";
     private static String URL_ZYCWZB_REPORT = "service/zycwzb_%s.html?type=report";
     //磁盘路径
-    public static String PATH_YLNL = "ylnlSeason";
     public static String PATH_ZYCWZB_REPORT = "zycwzbReport";
-    public static String PATH_ZYCWZB_SEASON = "zycwzbSeason";
     //文件名称
     public static String FILE_NAME_PRE = "zycwReport";
     public static String FILE_NAME_EXT = Contant.FILE_EXT;
