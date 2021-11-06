@@ -1,15 +1,11 @@
 package com.wy;
 
-import com.wy.bean.YmlBean;
+import com.wy.bean.StockCodeYmlBean;
 import com.wy.service.SomeService;
 import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @SpringBootTest
 class ApplicationTests {
@@ -23,7 +19,7 @@ class ApplicationTests {
     }
 
     @Autowired
-    private YmlBean ymlBean;
+    private StockCodeYmlBean ymlBean;
 
     @Test
 //    @Ignore
