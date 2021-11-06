@@ -15,3 +15,12 @@ spring:
   profiles:
     include:
       shcode,szcode,shkccode,allcode
+
+logging:
+  config: logback.xml
+  level:
+    .: error
+    org.spring.framework: info
+    org.springframework.web: info
+    org.springframework.boot.autoconfigure: info
+    com.sohu.auto: debug
