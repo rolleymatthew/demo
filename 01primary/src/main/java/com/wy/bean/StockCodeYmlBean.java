@@ -15,7 +15,7 @@ import java.util.Map;
 @Data
 @Component
 @ConfigurationProperties(prefix = "stockcode")
-public class YmlBean {
+public class StockCodeYmlBean {
     private List<String> balance;
     private Map<String, String> sh;
     private Map<String, String> kc;
