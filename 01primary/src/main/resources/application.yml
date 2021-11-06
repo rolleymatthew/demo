@@ -14,4 +14,4 @@ stockcode:
 spring:
   profiles:
     include:
-      shcode,szcode,shkccode
+      shcode,szcode,shkccode,allcode

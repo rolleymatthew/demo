@@ -7,7 +7,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @SpringBootTest
 class ApplicationTests {
@@ -26,9 +28,10 @@ class ApplicationTests {
     @Test
 //    @Ignore
     void ymlTest() {
-        ymlBean.getBalance().forEach(x -> System.out.println("line:"+x));
-        ymlBean.getSh().entrySet().stream().forEach(x-> System.out.println(x.getKey()+"   "+x.getValue()));
-        ymlBean.getKc().entrySet().stream().forEach(x-> System.out.println(x.getKey()+"   "+x.getValue()));
-        ymlBean.getSz().entrySet().stream().forEach(x-> System.out.println(x.getKey()+"   "+x.getValue()));
+//        ymlBean.getBalance().forEach(x -> System.out.println("line:"+x));
+//        ymlBean.getSh().entrySet().stream().forEach(x-> System.out.println(x.getKey()+"   "+x.getValue()));
+//        ymlBean.getKc().entrySet().stream().forEach(x-> System.out.println(x.getKey()+"   "+x.getValue()));
+//        ymlBean.getSz().entrySet().stream().forEach(x-> System.out.println(x.getKey().toString()+"   "+x.getValue()));
+        ymlBean.getAcode().entrySet().stream().forEach(System.out::println);
     }
 }

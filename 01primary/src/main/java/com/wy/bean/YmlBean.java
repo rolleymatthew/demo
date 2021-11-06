@@ -20,4 +20,5 @@ public class YmlBean {
     private Map<String, String> sh;
     private Map<String, String> kc;
     private Map<String, String> sz;
+    private Map<String, String> acode;
 }
