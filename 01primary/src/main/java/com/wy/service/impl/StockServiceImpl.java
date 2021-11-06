@@ -1,6 +1,7 @@
 package com.wy.service.impl;
 
 import com.wy.bean.ResultVO;
+import com.wy.bean.StockCodeYmlBean;
 import com.wy.service.StockService;
 import com.wy.stock.etf.ETFFundDataService;
 import com.wy.stock.etf.ETFFundReportService;
@@ -8,6 +9,7 @@ import com.wy.stock.finance.*;
 import com.wy.stock.hszh.GetSHSZHKStockDateService;
 import com.wy.stock.hszh.HSHStockReportService;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -25,6 +27,8 @@ public class StockServiceImpl implements StockService {
 
     private static AtomicInteger flag = new AtomicInteger(0);
 
+    @Autowired
+    StockCodeYmlBean stockCodeYmlBean;
     @Override
     public ResultVO hsshDataByDay(int dayCount) {
         if (flag.incrementAndGet() == 1) {
@@ -80,7 +84,7 @@ public class StockServiceImpl implements StockService {
         if (flag.incrementAndGet() == 1) {
             List<String> allCodes = new ArrayList<String>();
             if (StringUtils.isEmpty(code)) {
-                allCodes = FinanceCommonService.getAllCodes(false);
+                allCodes = stockCodeYmlBean.getAcode().entrySet().stream().map(x->x.getKey()).collect(Collectors.toList());
             } else if (StringUtils.indexOf(code, ",") > -1) {
                 allCodes = Stream.of(code).map(f -> f.split(",")).flatMap(Arrays::stream).collect(Collectors.toList());
             } else {
