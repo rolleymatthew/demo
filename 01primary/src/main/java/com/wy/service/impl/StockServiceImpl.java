@@ -116,4 +116,22 @@ public class StockServiceImpl implements StockService {
         }
         return ResultVO.ok();
     }
+
+    @Override
+    public ResultVO FinanceDateReport(String code) {
+        int[] counts = {1, 2, 3};
+        List<String> allCodes = new ArrayList<>();
+        if (StringUtils.isEmpty(code)) {
+            allCodes = stockCodeYmlBean.getAcode().entrySet().stream().map(x -> x.getKey()).collect(Collectors.toList());
+        } else if (StringUtils.isNotEmpty(code) && StringUtils.contains(code, ",")) {
+            allCodes = Stream.of(code).map(l -> l.split(",")).flatMap(Arrays::stream).collect(Collectors.toList());
+        } else {
+            allCodes.add(code);
+        }
+        logger.info("start report {} finance .", allCodes.size());
+        long start = System.currentTimeMillis();
+        FinanceDateReportService.countUpFinThreePer(counts, allCodes, stockCodeYmlBean.getAcode());
+        logger.info("end finance report {}. {}s", allCodes.size(), (System.currentTimeMillis() - start) / 1000);
+        return ResultVO.ok();
+    }
 }

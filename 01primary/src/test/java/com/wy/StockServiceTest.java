@@ -47,8 +47,15 @@ public class StockServiceTest {
     }
 
     @Test
-//    @Ignore
+    @Ignore
     void stockServiceTest(){
         stockService.FinanceDateByMonth(null);
+    }
+
+    @Test
+//    @Ignore
+    void stockReportServiceTest(){
+//        stockService.FinanceDateReport("000001,000002");
+        stockService.FinanceDateReport(null);
     }
 }
