@@ -145,7 +145,7 @@ public class FinanceDateReportService {
                         Double mainBusiIncome = income(s);
                         Double cost = cost(s);
                         finThreePerBean.setReportData(s.getReportDate());
-                        finThreePerBean.setGrossProfit(NumUtils.roundDouble(cost / mainBusiIncome * 100));
+                        finThreePerBean.setGrossProfit(NumUtils.roundDouble((mainBusiIncome-cost) / mainBusiIncome * 100));
                         finThreePerBean.setOperatProfit(NumUtils.roundDouble(NumUtils.stringToDouble(s.getOperatingProfit()) / mainBusiIncome * 100));
                         finThreePerBean.setNetProfit(NumUtils.roundDouble(NumUtils.stringToDouble(s.getNetProfit()) / mainBusiIncome * 100));
                         return finThreePerBean;
