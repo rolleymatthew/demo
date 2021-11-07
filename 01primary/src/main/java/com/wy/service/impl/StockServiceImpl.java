@@ -98,16 +98,17 @@ public class StockServiceImpl implements StockService {
             logger.info("StockCode count: {}", allCodes.size());
             //获取财务数据
             allCodes.parallelStream().forEach(
-                 x->{
-                     try{
-                         FinanceBalanceDateService.getBeansByCode(x);
-                         FinanceCashFlowDateService.getBeansByCode(x);
-                         FinanceProfitDateService.getBeansByCode(x);
-                         FinanceDateWriteService.getBeansByCode(x);
-                     }catch (Exception e){
-                         logger.error("stock {} error : {}",x,e.toString());
-                     }
-                 }
+                    x -> {
+                        try {
+                            logger.info("stock code : " + x);
+                            FinanceBalanceDateService.getBeansByCode(x);
+                            FinanceCashFlowDateService.getBeansByCode(x);
+                            FinanceProfitDateService.getBeansByCode(x);
+                            FinanceDateWriteService.getBeansByCode(x);
+                        } catch (Exception e) {
+                            logger.error("stock {} error : {}", x, e.toString());
+                        }
+                    }
             );
             flag.decrementAndGet();
         } else {
