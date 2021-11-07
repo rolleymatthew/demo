@@ -3,10 +3,13 @@ package com.wy.stock.finance;
 import com.wy.bean.ConstantBean;
 import com.wy.bean.Contant;
 import com.wy.bean.FinanceDataBean;
+import com.wy.service.impl.StockServiceImpl;
 import com.wy.utils.AllStock;
 import com.wy.utils.ClassUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -21,6 +24,7 @@ import java.util.stream.Stream;
  * @Date 2021-11-03
  */
 public class FinanceCommonService {
+    private static Logger logger = LoggerFactory.getLogger(FinanceCommonService.class);
 
     public static String PATH_MAIN = Contant.DIR + File.separator + "financeStock";
 

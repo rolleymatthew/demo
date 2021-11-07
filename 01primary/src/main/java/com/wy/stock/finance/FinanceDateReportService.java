@@ -8,9 +8,12 @@ import com.wy.bean.EastMoneyBeab;
 import com.wy.bean.FinThreePerBean;
 import com.wy.bean.FinanceDataBean;
 import com.wy.bean.ProfitDateBean;
+import com.wy.service.impl.StockServiceImpl;
 import com.wy.utils.DateUtil;
 import com.wy.utils.NumUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -25,6 +28,8 @@ import java.util.stream.Collectors;
  * @Date 2021-10-27
  */
 public class FinanceDateReportService {
+    private static Logger logger = LoggerFactory.getLogger(FinanceDateReportService.class);
+
     public static void main(String[] args) {
         int[] counts = {1, 2, 3};
         List<String> allCodes = FinanceCommonService.getAllCodes(false);

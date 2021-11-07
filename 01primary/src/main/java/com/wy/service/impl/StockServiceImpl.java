@@ -9,6 +9,8 @@ import com.wy.stock.finance.*;
 import com.wy.stock.hszh.GetSHSZHKStockDateService;
 import com.wy.stock.hszh.HSHStockReportService;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,10 +27,12 @@ import java.util.stream.Stream;
 @Service
 public class StockServiceImpl implements StockService {
 
+    private Logger logger = LoggerFactory.getLogger(StockServiceImpl.class);
     private static AtomicInteger flag = new AtomicInteger(0);
 
     @Autowired
     StockCodeYmlBean stockCodeYmlBean;
+
     @Override
     public ResultVO hsshDataByDay(int dayCount) {
         if (flag.incrementAndGet() == 1) {
@@ -84,23 +88,29 @@ public class StockServiceImpl implements StockService {
         if (flag.incrementAndGet() == 1) {
             List<String> allCodes = new ArrayList<String>();
             if (StringUtils.isEmpty(code)) {
-                allCodes = stockCodeYmlBean.getAcode().entrySet().stream().map(x->x.getKey()).collect(Collectors.toList());
+                allCodes = stockCodeYmlBean.getAcode().entrySet().stream().map(x -> x.getKey()).collect(Collectors.toList());
             } else if (StringUtils.indexOf(code, ",") > -1) {
                 allCodes = Stream.of(code).map(f -> f.split(",")).flatMap(Arrays::stream).collect(Collectors.toList());
             } else {
                 allCodes.add(code);
             }
+
+            logger.info("StockCode count: {}", allCodes.size());
             //获取财务数据
             allCodes.parallelStream().forEach(
                  x->{
-                     FinanceBalanceDateService.getBeansByCode(x);
-                     FinanceCashFlowDateService.getBeansByCode(x);
-                     FinanceProfitDateService.getBeansByCode(x);
-                     FinanceDateWriteService.getBeansByCode(x);
+                     try{
+                         FinanceBalanceDateService.getBeansByCode(x);
+                         FinanceCashFlowDateService.getBeansByCode(x);
+                         FinanceProfitDateService.getBeansByCode(x);
+                         FinanceDateWriteService.getBeansByCode(x);
+                     }catch (Exception e){
+                         logger.error("stock {} error : {}",x,e.toString());
+                     }
                  }
             );
             flag.decrementAndGet();
-        }else {
+        } else {
             return ResultVO.build(-1, "已经在运行抓取");
         }
         return ResultVO.ok();

@@ -61,13 +61,6 @@ public class FilesUtil {
         return file.exists() && file.isFile();
     }
 
-    public static void mkdir(String filename) throws IOException {
-        File file = new File(filename);
-        if (!file.isDirectory()) {
-            file.mkdir();
-        }
-    }
-
     public static void mkdirs(String filename) throws IOException {
         File file = new File(filename);
         if (!file.isDirectory()) {

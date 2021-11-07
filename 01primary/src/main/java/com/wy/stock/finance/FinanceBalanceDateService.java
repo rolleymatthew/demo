@@ -5,10 +5,16 @@ import com.wy.bean.BalanceDateBean;
 import com.wy.bean.ConstantBean;
 import com.wy.bean.Contant;
 import com.wy.bean.ProfitDateBean;
+import com.wy.service.impl.StockServiceImpl;
+import com.wy.utils.FilesUtil;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,6 +23,7 @@ import java.util.stream.Collectors;
  * Created by yunwang on 2021/11/5 15:44
  */
 public class FinanceBalanceDateService {
+    private static Logger logger = LoggerFactory.getLogger(FinanceBalanceDateService.class);
     private static String URL_LRB_REPORT = "service/zcfzb_%s.html";
     public static String FILE_NAME_PRE = "balance";
     public static String FILE_NAME_EXT = Contant.FILE_EXT;
@@ -35,6 +42,10 @@ public class FinanceBalanceDateService {
     }
 
     public static void getBeansByCode(String stockCode) {
+        try {
+            FilesUtil.mkdirs(PATH);
+        } catch (IOException e) {
+        }
         getBeansByCode(stockCode, PATH + String.format(FILE_NAME_REPORT, StringUtils.trim(stockCode)));
     }
 
@@ -44,12 +55,15 @@ public class FinanceBalanceDateService {
         //2.获取数据
         String temp = FinanceSpider.getResultClasses(urlformat);
         if (StringUtils.isEmpty(temp)) {
-            System.out.println("error:" + stockCode + "资产负债表表数据空");
+            logger.info("balance url empty error: {}", stockCode);
             return;
         }
 
         //3.转成bean
         List<Object> beanList = FinanceCommonService.convertStringToBeans(temp, FinanceCommonService.BalanceDicMap, BalanceDateBean.class);
+        if (CollectionUtils.isEmpty(beanList)) {
+            logger.info("balance convertStringToBeans error : {}", stockCode);
+        }
         List<BalanceDateBean> profitDateBeanList = beanList.stream().map(x -> {
                     BalanceDateBean profitDateBean = new BalanceDateBean();
                     BeanUtils.copyProperties(x, profitDateBean);

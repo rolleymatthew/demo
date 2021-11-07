@@ -4,10 +4,16 @@ import com.alibaba.excel.EasyExcel;
 import com.wy.bean.BalanceDateBean;
 import com.wy.bean.CashFlowBean;
 import com.wy.bean.Contant;
+import com.wy.service.impl.StockServiceImpl;
+import com.wy.utils.FilesUtil;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,6 +22,7 @@ import java.util.stream.Collectors;
  * Created by yunwang on 2021/11/5 15:44
  */
 public class FinanceCashFlowDateService {
+    private static Logger logger = LoggerFactory.getLogger(FinanceCashFlowDateService.class);
     private static String URL_LRB_REPORT = "service/xjllb_%s.html";
     public static String FILE_NAME_PRE = "cashflow";
     public static String FILE_NAME_EXT = Contant.FILE_EXT;
@@ -34,6 +41,10 @@ public class FinanceCashFlowDateService {
     }
 
     public static void getBeansByCode(String stockCode) {
+        try {
+            FilesUtil.mkdirs(PATH);
+        } catch (IOException e) {
+        }
         getBeansByCode(stockCode, PATH + String.format(FILE_NAME_REPORT, StringUtils.trim(stockCode)));
     }
 
@@ -43,11 +54,15 @@ public class FinanceCashFlowDateService {
         //2.获取数据
         String temp = FinanceSpider.getResultClasses(urlformat);
         if (StringUtils.isEmpty(temp)) {
-            System.out.println("error:" + stockCode + "现金流量表数据空");
+            logger.info("cash flow error : {}", stockCode);
             return;
         }
         //3.转成bean
         List<Object> beanList = FinanceCommonService.convertStringToBeans(temp, FinanceCommonService.CashFlowDicMap, CashFlowBean.class);
+        if (CollectionUtils.isEmpty(beanList)) {
+            logger.info("cash flow convertStringToBeans error : {}", stockCode);
+            return;
+        }
         List<CashFlowBean> profitDateBeanList = beanList.stream().map(x -> {
                     CashFlowBean profitDateBean = new CashFlowBean();
                     BeanUtils.copyProperties(x, profitDateBean);

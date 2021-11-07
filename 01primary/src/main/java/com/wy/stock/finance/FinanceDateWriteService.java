@@ -4,12 +4,17 @@ import com.alibaba.excel.EasyExcel;
 import com.wy.bean.ConstantBean;
 import com.wy.bean.Contant;
 import com.wy.bean.FinanceDataBean;
+import com.wy.service.impl.StockServiceImpl;
 import com.wy.utils.ClassUtil;
+import com.wy.utils.FilesUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -17,6 +22,7 @@ import java.util.stream.Collectors;
  * Created by yunwang on 2021/10/25 17:28
  */
 public class FinanceDateWriteService {
+    private static Logger logger = LoggerFactory.getLogger(FinanceDateWriteService.class);
     //盈利能力抓取路径
     private static String URL_DOMAIN = "http://quotes.money.163.com/";
     private static String URL_ZYCWZB_REPORT = "service/zycwzb_%s.html?type=report";
@@ -26,6 +32,7 @@ public class FinanceDateWriteService {
     public static String FILE_NAME_PRE = "zycwReport";
     public static String FILE_NAME_EXT = Contant.FILE_EXT;
     public static String FILE_NAME_REPORT = FILE_NAME_PRE + "%s" + FILE_NAME_EXT;
+    private static final String PATH = FinanceCommonService.PATH_MAIN + File.separator + PATH_ZYCWZB_REPORT + File.separator;
 
     public static void main(String[] args) {
         List<String> allCodes = FinanceCommonService.getAllCodes(false);
@@ -39,7 +46,11 @@ public class FinanceDateWriteService {
     }
 
     public static void getBeansByCode(String stockCode) {
-        getZYCWZBContent(stockCode, FinanceCommonService.PATH_MAIN + File.separator + PATH_ZYCWZB_REPORT + File.separator + String.format(FILE_NAME_REPORT, StringUtils.trim(stockCode)));
+        try {
+            FilesUtil.mkdirs(PATH);
+        } catch (IOException e) {
+        }
+        getZYCWZBContent(stockCode, PATH + String.format(FILE_NAME_REPORT, StringUtils.trim(stockCode)));
     }
 
     private static void getZYCWZBContent(String stockCode, String fileName) {
@@ -49,13 +60,17 @@ public class FinanceDateWriteService {
         String temp = FinanceSpider.getResultClasses(urlformat);
         //3.保存文件
         if (StringUtils.isEmpty(temp)) {
-            System.out.println(stockCode + "数据库空");
+            logger.info(stockCode + "数据库空");
             return;
         }
 
         //读取行
         //使用二维数组转置方法转化bean
         List<Object> beanList = FinanceCommonService.convertStringToBeans(temp, ConstantBean.ZYCWZB_DIC, FinanceDataBean.class);
+        if (CollectionUtils.isEmpty(beanList)) {
+            logger.info("getZYCWZBContent convertStringToBeans error : {}", stockCode);
+            return;
+        }
         List<FinanceDataBean> financeDataBeans = beanList.stream().map(x -> {
                     FinanceDataBean financeDataBean = new FinanceDataBean();
                     BeanUtils.copyProperties(x, financeDataBean);
@@ -66,37 +81,4 @@ public class FinanceDateWriteService {
                 .sheet(stockCode)
                 .doWrite(financeDataBeans);
     }
-
-    /**
-     * 读取数据并格式化成需要的bean
-     *
-     * @param temp
-     * @return
-     */
-    private static List<FinanceDataBean> getFinanceDataBeans(String temp) {
-        List<FinanceDataBean> ret = new ArrayList<>();
-        //1.拆分出行，抽取表头数据,计算出行数，对应BEAN的属性
-        List<String[]> stringList = FinanceCommonService.getStringsList(temp);
-        if (CollectionUtils.isEmpty(stringList)) return null;
-        List<String> header = FinanceCommonService.getHeaders(stringList);
-        if (CollectionUtils.isEmpty(header)) return null;
-
-        //2.产生二维数组
-        String[][] newData = FinanceCommonService.getArrayDates(temp);
-
-        //3.使用类的反射机制把生成的二维数组转化成需要的bean列表，返回
-        int columnLen = FinanceCommonService.getColumnLens(stringList);
-        for (int i = 0; i < columnLen; i++) {
-            FinanceDataBean financeDataBean = new FinanceDataBean();
-            for (int h = 0; h < header.size(); h++) {
-                String s = header.get(h);
-                String s1 = ConstantBean.ZYCWZB_DIC.get(s);
-                ClassUtil.setFieldValueByFieldName(financeDataBean, s1, newData[i][h]);
-            }
-            ret.add(financeDataBean);
-
-        }
-        return ret;
-    }
-
 }

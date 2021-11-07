@@ -1,6 +1,7 @@
 package com.wy;
 
 import com.wy.bean.StockCodeBean;
+import com.wy.bean.StockCodeYmlBean;
 import com.wy.service.StockService;
 import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,8 @@ public class StockServiceTest {
     private StockService stockService;
     @Autowired
     private StockCodeBean stock;
+    @Autowired
+    StockCodeYmlBean stockCodeYmlBean;
 
     @Test
     @Ignore
@@ -27,13 +30,25 @@ public class StockServiceTest {
     @Test
     @Ignore
     void getCodeTest(){
-        System.out.println(stock.getShCode());
+        System.out.println(stock.getSzCode());
     }
 
     @Test
-//    @Ignore
+    @Ignore
+    void getaCodeTest(){
+        System.out.println(stockCodeYmlBean.getAcode().size());
+        stockCodeYmlBean.getAcode().entrySet().stream().forEach(System.out::println);
+    }
+
+    @Test
+    @Ignore
     void getFinanceDateByMonthTest(){
         System.out.println(stockService.FinanceDateByMonth("600519"));
     }
 
+    @Test
+//    @Ignore
+    void stockServiceTest(){
+        stockService.FinanceDateByMonth(null);
+    }
 }
