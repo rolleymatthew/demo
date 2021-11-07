@@ -25,8 +25,15 @@ public class StockServiceTest {
     }
 
     @Test
+    @Ignore
     void getCodeTest(){
         System.out.println(stock.getShCode());
+    }
+
+    @Test
+//    @Ignore
+    void getFinanceDateByMonthTest(){
+        System.out.println(stockService.FinanceDateByMonth("600519"));
     }
 
 }

@@ -35,8 +35,11 @@ public class FinanceDateWriteService {
 
     public static void getFinanceData(List<String> allCodes) {
         allCodes.parallelStream().forEach(x ->
-                getZYCWZBContent(StringUtils.trim(x)
-                        , FinanceCommonService.PATH_MAIN + File.separator + PATH_ZYCWZB_REPORT + File.separator + String.format(FILE_NAME_REPORT, StringUtils.trim(x))));
+                getBeansByCode(StringUtils.trim(x)));
+    }
+
+    public static void getBeansByCode(String stockCode) {
+        getZYCWZBContent(stockCode, FinanceCommonService.PATH_MAIN + File.separator + PATH_ZYCWZB_REPORT + File.separator + String.format(FILE_NAME_REPORT, StringUtils.trim(stockCode)));
     }
 
     private static void getZYCWZBContent(String stockCode, String fileName) {

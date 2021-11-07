@@ -30,10 +30,12 @@ public class FinanceProfitDateService {
 
     public static void getFinanceData(List<String> allCodes) {
         allCodes.parallelStream().forEach(x ->
-                getBeansByCode(StringUtils.trim(x),
-                        PATH + String.format(FILE_NAME_REPORT, StringUtils.trim(x))));
+                getBeansByCode(StringUtils.trim(x)));
     }
 
+    public static void getBeansByCode(String stockCode) {
+        getBeansByCode(stockCode, PATH + String.format(FILE_NAME_REPORT, StringUtils.trim(stockCode)));
+    }
     private static void getBeansByCode(String stockCode, String fileName) {
         //1.生成URL
         String urlformat = String.format(FinanceSpider.URL_DOMAIN + URL_LRB_REPORT, stockCode);

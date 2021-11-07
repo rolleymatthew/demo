@@ -91,10 +91,14 @@ public class StockServiceImpl implements StockService {
                 allCodes.add(code);
             }
             //获取财务数据
-            FinanceBalanceDateService.getFinanceData(allCodes);
-            FinanceCashFlowDateService.getFinanceData(allCodes);
-            FinanceProfitDateService.getFinanceData(allCodes);
-            FinanceDateWriteService.getFinanceData(allCodes);
+            allCodes.parallelStream().forEach(
+                 x->{
+                     FinanceBalanceDateService.getBeansByCode(x);
+                     FinanceCashFlowDateService.getBeansByCode(x);
+                     FinanceProfitDateService.getBeansByCode(x);
+                     FinanceDateWriteService.getBeansByCode(x);
+                 }
+            );
             flag.decrementAndGet();
         }else {
             return ResultVO.build(-1, "已经在运行抓取");

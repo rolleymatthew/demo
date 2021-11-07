@@ -17,7 +17,6 @@ spring:
       shcode,szcode,shkccode,allcode
 
 logging:
-  config: logback.xml
   level:
     .: error
     org.spring.framework: info
