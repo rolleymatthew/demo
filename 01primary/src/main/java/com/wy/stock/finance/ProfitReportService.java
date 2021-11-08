@@ -125,4 +125,21 @@ public class ProfitReportService {
         return NumUtils.stringToDouble(s.getOperatingCost());
     }
 
+    public static void main(String[] args) {
+        List<String> alCodes=new ArrayList<>();
+        alCodes.add("000001");
+        alCodes.add("000002");
+        //获取最近一年的数据
+        Map<String, List<ProfitDateBean>> financeListMap = FinanceCommonService.getFinanceListMap(alCodes)
+                .entrySet().stream().filter(x->x.getValue().size()>=5).collect(Collectors.toMap(s->s.getKey(),s->s.getValue()));;
+        //计算环比同比数据
+        financeListMap.entrySet().stream().forEach(s->{
+            String key = s.getKey();
+            List<ProfitDateBean> value = s.getValue();
+            value.stream().filter(x->StringUtils.equals(x.getReportDate(),DateUtil.fmtShortDate(DateUtil.getLastQuarterEndTime())))
+                    .collect(Collectors.toList());
+            ;
+        });
+    }
+
 }
