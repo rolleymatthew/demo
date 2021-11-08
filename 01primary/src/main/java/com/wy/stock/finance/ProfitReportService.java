@@ -27,49 +27,7 @@ import java.util.stream.Collectors;
 public class ProfitReportService {
     private static Logger logger = LoggerFactory.getLogger(ProfitReportService.class);
 
-    public static void main(String[] args) {
-        int[] counts = {1, 2, 3};
-        List<String> allCodes = FinanceCommonService.getAllCodes(false);
-        Map<String, List<ProfitDateBean>> dataMap = ProfitReportService.getFinanceListMap(allCodes);
-        countUpFinThreePer(counts, dataMap, null);
-
-    }
-
-    public static void countUpFinThreePer(int[] counts, Map<String, List<ProfitDateBean>> dataMap, Map<String, String> acode) {
-        //计算三率
-        Map<String, List<FinThreePerBean>> finPerMap = getFinPerMap(dataMap);
-
-        //填充三率变换
-        Map<String, List<FinThreePerBean>> threePerMap = fillFinPerMap(finPerMap);
-
-        //找到三率三升的并输出文件
-        outputUpFinThreePer(counts, threePerMap, acode);
-
-        //毛利率上升
-//        outputUpMaoLiPer(counts, threePerMap);
-        //报告期同比上升，环比也上升
-        //利润环比上升比例>营收环比上升比例
-    }
-
-    private static void outputUpMaoLiPer(int[] counts, Map<String, List<FinThreePerBean>> threePerMap) {
-        List<FinThreePerBean> finThreePerBeans = MaoLiUp(threePerMap, 1);
-
-    }
-
-    private static List<FinThreePerBean> MaoLiUp(Map<String, List<FinThreePerBean>> threePerMap, int i) {
-        List<FinThreePerBean> ret = new ArrayList<>();
-        for (Map.Entry<String, List<FinThreePerBean>> stringListEntry : threePerMap.entrySet()) {
-            List<FinThreePerBean> collect = stringListEntry.getValue().stream().limit(1).collect(Collectors.toList());
-            List<FinThreePerBean> collect1 = collect.stream()
-                    .filter(s -> s.getAddGrossProfit().doubleValue() > 0).collect(Collectors.toList());
-            if (collect1.size() == 1) {
-                ret.addAll(collect1);
-            }
-        }
-        return ret;
-    }
-
-    private static void outputUpFinThreePer(int[] counts, Map<String, List<FinThreePerBean>> threePerMap, Map<String, String> acode) {
+    public static void outputUpFinThreePer(int[] counts, Map<String, List<FinThreePerBean>> threePerMap, Map<String, String> acode) {
         ExcelWriter excelWriter = null;
         try {
             excelWriter = EasyExcel.write(FinanceCommonService.PATH_REPORT + File.separator
@@ -88,7 +46,7 @@ public class ProfitReportService {
         }
     }
 
-    private static List<FinThreePerBean> UpFinThreePerList(Map<String, List<FinThreePerBean>> threePerMap, int count, Map<String, String> acode) {
+    public static List<FinThreePerBean> UpFinThreePerList(Map<String, List<FinThreePerBean>> threePerMap, int count, Map<String, String> acode) {
         List<FinThreePerBean> collect = new ArrayList<>();
         for (Map.Entry<String, List<FinThreePerBean>> stringListEntry : threePerMap.entrySet()) {
             List<FinThreePerBean> value = stringListEntry.getValue().stream().limit(count).collect(Collectors.toList());
@@ -107,7 +65,7 @@ public class ProfitReportService {
         return collect;
     }
 
-    private static Map<String, List<FinThreePerBean>> fillFinPerMap(Map<String, List<FinThreePerBean>> finPerMap) {
+    public static Map<String, List<FinThreePerBean>> fillFinPerMap(Map<String, List<FinThreePerBean>> finPerMap) {
         Map<String, List<FinThreePerBean>> threePerMap = new ConcurrentHashMap<>();
         for (Map.Entry<String, List<FinThreePerBean>> stringListEntry : finPerMap.entrySet()) {
             String code = stringListEntry.getKey();
@@ -133,7 +91,7 @@ public class ProfitReportService {
         return threePerMap;
     }
 
-    private static Map<String, List<FinThreePerBean>> getFinPerMap(Map<String, List<ProfitDateBean>> dataMap) {
+    public static Map<String, List<FinThreePerBean>> getFinPerMap(Map<String, List<ProfitDateBean>> dataMap) {
         //计算所有的三率Map
         Map<String, List<FinThreePerBean>> finPerMap = dataMap.entrySet().stream().collect(Collectors.toMap(x -> x.getKey()
                 , x -> {
@@ -143,7 +101,7 @@ public class ProfitReportService {
                         Double mainBusiIncome = income(s);
                         Double cost = cost(s);
                         finThreePerBean.setReportData(s.getReportDate());
-                        finThreePerBean.setGrossProfit(NumUtils.roundDouble((mainBusiIncome-cost) / mainBusiIncome * 100));
+                        finThreePerBean.setGrossProfit(NumUtils.roundDouble((mainBusiIncome - cost) / mainBusiIncome * 100));
                         finThreePerBean.setOperatProfit(NumUtils.roundDouble(NumUtils.stringToDouble(s.getOperatingProfit()) / mainBusiIncome * 100));
                         finThreePerBean.setNetProfit(NumUtils.roundDouble(NumUtils.stringToDouble(s.getNetProfit()) / mainBusiIncome * 100));
                         return finThreePerBean;
@@ -167,25 +125,4 @@ public class ProfitReportService {
         return NumUtils.stringToDouble(s.getOperatingCost());
     }
 
-    /**
-     * 获取所有代码的主要财务数据
-     *
-     * @param allCodes 代码
-     * @return
-     */
-    public static Map<String, List<ProfitDateBean>> getFinanceListMap(List<String> allCodes) {
-        Map<String, List<ProfitDateBean>> dataMap = new ConcurrentHashMap<>();
-        allCodes.parallelStream().forEach(s -> {
-            EasyExcel.read(FinanceCommonService.PATH_MAIN + File.separator
-                            + FinanceProfitDateService.FILE_NAME_PRE + File.separator
-                            + String.format(FinanceProfitDateService.FILE_NAME_REPORT, StringUtils.trim(s)), ProfitDateBean.class
-                    , new PageReadListener<ProfitDateBean>(dataList -> {
-                        dataMap.put(s, dataList.stream()
-                                .filter(x -> StringUtils.isNotEmpty(x.getReportDate()))
-                                .sorted(Comparator.comparing(ProfitDateBean::getReportDate).reversed())
-                                .collect(Collectors.toList()));
-                    })).sheet(0).doRead();
-        });
-        return dataMap;
-    }
 }

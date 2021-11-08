@@ -1,8 +1,11 @@
 package com.wy.stock.finance;
 
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.read.listener.PageReadListener;
 import com.wy.bean.ConstantBean;
 import com.wy.bean.Contant;
 import com.wy.bean.FinanceDataBean;
+import com.wy.bean.ProfitDateBean;
 import com.wy.service.impl.StockServiceImpl;
 import com.wy.utils.AllStock;
 import com.wy.utils.ClassUtil;
@@ -12,10 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -213,4 +214,29 @@ public class FinanceCommonService {
                 .collect(Collectors.toMap(x -> StringUtils.substring(x, 0, StringUtils.indexOf(x, "|")).trim()
                         , x -> StringUtils.substring(x, StringUtils.indexOf(x, "|") + 1).trim()));
     }
+
+    /**
+     * 获取所有代码的主要财务数据
+     *
+     * @param allCodes 代码
+     * @return
+     */
+    public static Map<String, List<ProfitDateBean>> getFinanceListMap(List<String> allCodes) {
+        Map<String, List<ProfitDateBean>> dataMap = new ConcurrentHashMap<>();
+        allCodes.parallelStream().forEach(s -> {
+            String pathName = FinanceCommonService.PATH_MAIN + File.separator
+                    + FinanceProfitDateService.FILE_NAME_PRE + File.separator
+                    + String.format(FinanceProfitDateService.FILE_NAME_REPORT, StringUtils.trim(s));
+            EasyExcel.read(pathName, ProfitDateBean.class
+                    , new PageReadListener<ProfitDateBean>(dataList -> {
+                        dataMap.put(s, dataList.stream()
+                                .filter(x -> StringUtils.isNotEmpty(x.getReportDate()))
+                                .sorted(Comparator.comparing(ProfitDateBean::getReportDate).reversed())
+                                .collect(Collectors.toList()));
+                    })).sheet(0).doRead();
+        });
+        return dataMap;
+    }
+
+
 }

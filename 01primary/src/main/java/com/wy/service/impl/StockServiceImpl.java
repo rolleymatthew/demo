@@ -1,5 +1,6 @@
 package com.wy.service.impl;
 
+import com.wy.bean.FinThreePerBean;
 import com.wy.bean.ProfitDateBean;
 import com.wy.bean.ResultVO;
 import com.wy.bean.StockCodeYmlBean;
@@ -133,9 +134,18 @@ public class StockServiceImpl implements StockService {
         logger.info("start report {} finance .", allCodes.size());
         long start = System.currentTimeMillis();
         //读取文件
-        Map<String, List<ProfitDateBean>> dataMap = ProfitReportService.getFinanceListMap(allCodes);
-        //计算三率
-        ProfitReportService.countUpFinThreePer(counts, dataMap, stockCodeYmlBean.getAcode());
+        Map<String, List<ProfitDateBean>> dataMap = FinanceCommonService.getFinanceListMap(allCodes);
+        //计算毛利率、营业利润率、净利率
+        Map<String, List<FinThreePerBean>> finPerMap = ProfitReportService.getFinPerMap(dataMap);
+
+        //填充三率每个报告期增加减少
+        Map<String, List<FinThreePerBean>> threePerMap = ProfitReportService.fillFinPerMap(finPerMap);
+        //找到三率三升的并输出文件
+        ProfitReportService.outputUpFinThreePer(counts, threePerMap, stockCodeYmlBean.getAcode());
+
+        //利润环比上升比例>营收环比上升比例
+
+        //报告期同比上升，环比也上升
         logger.info("end finance report {}. {}s", allCodes.size(), (System.currentTimeMillis() - start) / 1000);
         return ResultVO.ok();
     }
