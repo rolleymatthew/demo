@@ -1,5 +1,6 @@
 package com.wy.service.impl;
 
+import com.wy.bean.ProfitDateBean;
 import com.wy.bean.ResultVO;
 import com.wy.bean.StockCodeYmlBean;
 import com.wy.service.StockService;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -130,7 +132,10 @@ public class StockServiceImpl implements StockService {
         }
         logger.info("start report {} finance .", allCodes.size());
         long start = System.currentTimeMillis();
-        FinanceDateReportService.countUpFinThreePer(counts, allCodes, stockCodeYmlBean.getAcode());
+        //读取文件
+        Map<String, List<ProfitDateBean>> dataMap = ProfitReportService.getFinanceListMap(allCodes);
+        //计算三率
+        ProfitReportService.countUpFinThreePer(counts, dataMap, stockCodeYmlBean.getAcode());
         logger.info("end finance report {}. {}s", allCodes.size(), (System.currentTimeMillis() - start) / 1000);
         return ResultVO.ok();
     }

@@ -24,20 +24,18 @@ import java.util.stream.Collectors;
  * @author yunwang
  * @Date 2021-10-27
  */
-public class FinanceDateReportService {
-    private static Logger logger = LoggerFactory.getLogger(FinanceDateReportService.class);
+public class ProfitReportService {
+    private static Logger logger = LoggerFactory.getLogger(ProfitReportService.class);
 
     public static void main(String[] args) {
         int[] counts = {1, 2, 3};
         List<String> allCodes = FinanceCommonService.getAllCodes(false);
-        countUpFinThreePer(counts, allCodes, null);
+        Map<String, List<ProfitDateBean>> dataMap = ProfitReportService.getFinanceListMap(allCodes);
+        countUpFinThreePer(counts, dataMap, null);
 
     }
 
-    public static void countUpFinThreePer(int[] counts, List<String> allCodes, Map<String, String> acode) {
-        //读取文件
-        Map<String, List<ProfitDateBean>> dataMap = getFinanceListMap(allCodes);
-
+    public static void countUpFinThreePer(int[] counts, Map<String, List<ProfitDateBean>> dataMap, Map<String, String> acode) {
         //计算三率
         Map<String, List<FinThreePerBean>> finPerMap = getFinPerMap(dataMap);
 
@@ -175,7 +173,7 @@ public class FinanceDateReportService {
      * @param allCodes 代码
      * @return
      */
-    private static Map<String, List<ProfitDateBean>> getFinanceListMap(List<String> allCodes) {
+    public static Map<String, List<ProfitDateBean>> getFinanceListMap(List<String> allCodes) {
         Map<String, List<ProfitDateBean>> dataMap = new ConcurrentHashMap<>();
         allCodes.parallelStream().forEach(s -> {
             EasyExcel.read(FinanceCommonService.PATH_MAIN + File.separator
@@ -190,5 +188,4 @@ public class FinanceDateReportService {
         });
         return dataMap;
     }
-
 }
