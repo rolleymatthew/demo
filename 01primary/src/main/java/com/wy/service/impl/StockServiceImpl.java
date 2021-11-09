@@ -82,6 +82,7 @@ public class StockServiceImpl implements StockService {
             int[] countUpZeroDays = {2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 30, 50};
             int[] ampTopDays = {3, 5, 10, 20, 30, 50};
             HSHStockReportService.getETFReport(countUpZeroDays, ampTopDays);
+            flag.decrementAndGet();
         } else {
             return ResultVO.build(-1, "已经在运行抓取");
         }
