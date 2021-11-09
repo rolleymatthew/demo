@@ -14,12 +14,12 @@ public class OperatProfitBean {
     @ExcelProperty("名称")
     private String securityName;
     @ExcelProperty("营业收入增加(同比)")
-    private String AddOperatingIncomeSame;
+    private Double AddOperatingIncomeSame;
     @ExcelProperty("营业收入增加(环比比)")
-    private String AddOperatingIncomeComp;
+    private Double AddOperatingIncomeComp;
     @ExcelProperty("净利润增加(同比)")
-    private String AddNetProfitSame;
+    private Double AddNetProfitSame;
     @ExcelProperty("净利润增加(环比)")
-    private String AddNetProfitComp;
+    private Double AddNetProfitComp;
 
 }

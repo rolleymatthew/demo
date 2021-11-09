@@ -140,6 +140,17 @@ public class DateUtil {
     }
 
     /**
+     * 前两个季度的最后一天
+     * @return
+     */
+    public static Date getLastTwoQuarterEndTime(){
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(getLastQuarterEndTime());
+        cal.add(Calendar.MONTH,-3);
+        return cal.getTime();
+    }
+
+    /**
      * 获取去年上一季度时间
      * @return
      */
@@ -155,5 +166,6 @@ public class DateUtil {
         System.out.println(fmtShortDate(currentQuarterEndTime));
         System.out.println(fmtShortDate(getLastQuarterEndTime()));
         System.out.println(fmtShortDate(getLastYearSameQuarterEndTime()));
+        System.out.println(fmtShortDate(getLastTwoQuarterEndTime()));
     }
 }

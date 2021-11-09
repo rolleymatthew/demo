@@ -30,6 +30,7 @@ public class FinanceCommonService {
     public static String PATH_MAIN = Contant.DIR + File.separator + "financeStock";
 
     public static String FILE_NAME_REPORT = "三率三升%s.xlsx";
+    public static String FILE_NAME_PER = "同比环比%s.xlsx";
 
     public static String PATH_REPORT = Contant.DIR + File.separator + "report";
 

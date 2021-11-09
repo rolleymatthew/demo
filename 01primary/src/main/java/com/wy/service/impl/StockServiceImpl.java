@@ -1,21 +1,24 @@
 package com.wy.service.impl;
 
-import com.wy.bean.FinThreePerBean;
-import com.wy.bean.ProfitDateBean;
-import com.wy.bean.ResultVO;
-import com.wy.bean.StockCodeYmlBean;
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.ExcelWriter;
+import com.alibaba.excel.write.metadata.WriteSheet;
+import com.wy.bean.*;
 import com.wy.service.StockService;
 import com.wy.stock.etf.ETFFundDataService;
 import com.wy.stock.etf.ETFFundReportService;
 import com.wy.stock.finance.*;
 import com.wy.stock.hszh.GetSHSZHKStockDateService;
 import com.wy.stock.hszh.HSHStockReportService;
+import com.wy.utils.DateUtil;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -144,6 +147,33 @@ public class StockServiceImpl implements StockService {
         ProfitReportService.outputUpFinThreePer(counts, threePerMap, stockCodeYmlBean.getAcode());
 
         //利润环比上升比例>营收环比上升比例
+        List<OperatProfitBean> operatProfitBeans = ProfitReportService.getOperatProfitBeans(dataMap, stockCodeYmlBean.getAcode());
+
+        ExcelWriter excelWriter = null;
+        try {
+            excelWriter = EasyExcel.write(FinanceCommonService.PATH_REPORT + File.separator
+                    + String.format(FinanceCommonService.FILE_NAME_PER, DateUtil.getCurrentDay()), OperatProfitBean.class).build();
+            int i = 0;
+            WriteSheet writeSheet = EasyExcel.writerSheet(i, "所有").build();
+            excelWriter.write(operatProfitBeans, writeSheet);
+            List<OperatProfitBean> collect = operatProfitBeans.stream().filter(s -> s.getAddNetProfitSame() > 0 && s.getAddNetProfitComp() > 0).collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(collect)) {
+                i++;
+                writeSheet = EasyExcel.writerSheet(i, "利润同比环比增加").build();
+                excelWriter.write(collect, writeSheet);
+            }
+            collect = operatProfitBeans.stream().filter(s -> s.getAddNetProfitComp() > s.getAddNetProfitSame()).collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(collect)) {
+                i++;
+                writeSheet = EasyExcel.writerSheet(i, "利润环比大于同比").build();
+                excelWriter.write(collect, writeSheet);
+            }
+        } finally {
+            // 千万别忘记finish 会帮忙关闭流
+            if (excelWriter != null) {
+                excelWriter.finish();
+            }
+        }
 
         //报告期同比上升，环比也上升
         logger.info("end finance report {}. {}s", allCodes.size(), (System.currentTimeMillis() - start) / 1000);
