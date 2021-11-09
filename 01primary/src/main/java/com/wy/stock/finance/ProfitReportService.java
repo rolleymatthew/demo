@@ -127,8 +127,7 @@ public class ProfitReportService {
 
     public static void main(String[] args) {
         List<String> alCodes = new ArrayList<>();
-        alCodes.add("000001");
-        alCodes.add("000002");
+        alCodes.add("688981");
         //获取最近一年的数据
         Map<String, List<ProfitDateBean>> financeListMap = FinanceCommonService.getFinanceListMap(alCodes)
                 .entrySet().stream().filter(x -> x.getValue().size() >= 5).collect(Collectors.toMap(s -> s.getKey(), s -> s.getValue()));
@@ -177,7 +176,9 @@ public class ProfitReportService {
                         / NumUtils.stringToDouble(profitLastTwoDateBean.getNetProfit()) * 100;
                 operatProfitBean.setAddNetProfitComp(NumUtils.roundDouble(adTemp));
             }
-            opeProlist.add(operatProfitBean);
+            if (CollectionUtils.isNotEmpty(lastQuarter)){
+                opeProlist.add(operatProfitBean);
+            }
         });
         return opeProlist;
     }
