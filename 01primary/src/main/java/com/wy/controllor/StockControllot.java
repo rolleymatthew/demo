@@ -44,4 +44,10 @@ public class StockControllot {
         ResultVO resultVO = stockService.FinanceDateByMonth(code);
         return resultVO;
     }
+
+    @GetMapping("/finRepert")
+    public ResultVO getFinanceReportData(@RequestParam(value = "code", required = false) String code) {
+        ResultVO resultVO = stockService.FinanceDateReport(code);
+        return resultVO;
+    }
 }
