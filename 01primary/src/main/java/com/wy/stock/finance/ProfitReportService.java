@@ -113,7 +113,8 @@ public class ProfitReportService {
 
     private static Double income(ProfitDateBean s) {
         if (StringUtils.equalsIgnoreCase(s.getOperatingIncome(), "--")) {
-            //金融企业计算方式
+            //金融企业计算方式：营业收入=营业总收入-其他收入
+            return  NumUtils.stringToDouble(s.getTotalOperatingIncome())-NumUtils.stringToDouble(s.getOtherBusinessIncome());
         }
         return NumUtils.stringToDouble(s.getOperatingIncome());
     }
@@ -121,6 +122,7 @@ public class ProfitReportService {
     private static Double cost(ProfitDateBean s) {
         if (StringUtils.equalsIgnoreCase(s.getOperatingCost(), "--")) {
             //金融企业计算方式
+            return NumUtils.stringToDouble(s.getTotalOperatingCost());
         }
         return NumUtils.stringToDouble(s.getOperatingCost());
     }

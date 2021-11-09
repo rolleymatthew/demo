@@ -168,6 +168,12 @@ public class StockServiceImpl implements StockService {
                 writeSheet = EasyExcel.writerSheet(i, "利润环比大于同比").build();
                 excelWriter.write(collect, writeSheet);
             }
+            collect = operatProfitBeans.stream().filter(s -> s.getAddNetProfitComp() > s.getAddOperatingIncomeComp()).collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(collect)) {
+                i++;
+                writeSheet = EasyExcel.writerSheet(i, "利润增速大于营收增速").build();
+                excelWriter.write(collect, writeSheet);
+            }
         } finally {
             // 千万别忘记finish 会帮忙关闭流
             if (excelWriter != null) {
