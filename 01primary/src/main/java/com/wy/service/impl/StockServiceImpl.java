@@ -19,10 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -156,24 +153,30 @@ public class StockServiceImpl implements StockService {
                     + String.format(FinanceCommonService.FILE_NAME_PER, DateUtil.getCurrentDay()), OperatProfitBean.class).build();
             int i = 0;
             WriteSheet writeSheet = EasyExcel.writerSheet(i, "所有").build();
-            excelWriter.write(operatProfitBeans, writeSheet);
+            excelWriter.write(operatProfitBeans.stream().sorted(Comparator.comparing(OperatProfitBean::getAddNetProfitComp).reversed()).collect(Collectors.toList()), writeSheet);
             List<OperatProfitBean> collect = operatProfitBeans.stream().filter(s -> s.getAddNetProfitSame() > 0 && s.getAddNetProfitComp() > 0).collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(collect)) {
                 i++;
                 writeSheet = EasyExcel.writerSheet(i, "利润同比环比增加").build();
-                excelWriter.write(collect, writeSheet);
+                excelWriter.write(collect.stream().sorted(Comparator.comparing(OperatProfitBean::getAddNetProfitComp).reversed()).collect(Collectors.toList()), writeSheet);
             }
             collect = operatProfitBeans.stream().filter(s -> s.getAddNetProfitComp() > s.getAddNetProfitSame()).collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(collect)) {
                 i++;
                 writeSheet = EasyExcel.writerSheet(i, "利润环比大于同比").build();
-                excelWriter.write(collect, writeSheet);
+                excelWriter.write(collect.stream().sorted(Comparator.comparing(OperatProfitBean::getAddNetProfitComp).reversed()).collect(Collectors.toList()), writeSheet);
             }
             collect = operatProfitBeans.stream().filter(s -> s.getAddNetProfitComp() > s.getAddOperatingIncomeComp()).collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(collect)) {
                 i++;
                 writeSheet = EasyExcel.writerSheet(i, "利润增速大于营收增速").build();
-                excelWriter.write(collect, writeSheet);
+                excelWriter.write(collect.stream().sorted(Comparator.comparing(OperatProfitBean::getAddNetProfitComp).reversed()).collect(Collectors.toList()), writeSheet);
+            }
+            collect = operatProfitBeans.stream().filter(s -> s.getAddNetProfitComp() >= 30 && s.getAddNetProfitSame() >= 20).collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(collect)) {
+                i++;
+                writeSheet = EasyExcel.writerSheet(i, "利润同比20以上,环比30以上").build();
+                excelWriter.write(collect.stream().sorted(Comparator.comparing(OperatProfitBean::getAddNetProfitComp).reversed()).collect(Collectors.toList()), writeSheet);
             }
         } finally {
             // 千万别忘记finish 会帮忙关闭流
