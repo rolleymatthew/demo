@@ -54,10 +54,16 @@ public class ProfitReportService {
                 writeSheet = EasyExcel.writerSheet(i, "利润增速大于营收增速").build();
                 excelWriter.write(collect.stream().sorted(Comparator.comparing(OperatProfitBean::getAddNetProfitComp).reversed()).collect(Collectors.toList()), writeSheet);
             }
-            collect = operatProfitBeans.stream().filter(s -> s.getAddNetProfitComp() >= 30 && s.getAddNetProfitSame() >= 20).collect(Collectors.toList());
+            collect = operatProfitBeans.stream().filter(s -> s.getAddNetProfitComp() >= 50 && s.getAddNetProfitSame() >= 30).collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(collect)) {
                 i++;
-                writeSheet = EasyExcel.writerSheet(i, "利润同比20以上,环比30以上").build();
+                writeSheet = EasyExcel.writerSheet(i, "利润同比30以上,环比50以上").build();
+                excelWriter.write(collect.stream().sorted(Comparator.comparing(OperatProfitBean::getAddNetProfitComp).reversed()).collect(Collectors.toList()), writeSheet);
+            }
+            collect = operatProfitBeans.stream().filter(s -> s.getAddNetProfitComp() >= 70 && s.getAddNetProfitSame() >= 30).collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(collect)) {
+                i++;
+                writeSheet = EasyExcel.writerSheet(i, "利润同比30以上,环比70以上").build();
                 excelWriter.write(collect.stream().sorted(Comparator.comparing(OperatProfitBean::getAddNetProfitComp).reversed()).collect(Collectors.toList()), writeSheet);
             }
         } finally {
