@@ -66,6 +66,12 @@ public class ProfitReportService {
                 writeSheet = EasyExcel.writerSheet(i, "利润同比30以上,环比70以上").build();
                 excelWriter.write(collect.stream().sorted(Comparator.comparing(OperatProfitBean::getAddNetProfitComp).reversed()).collect(Collectors.toList()), writeSheet);
             }
+            collect = operatProfitBeans.stream().filter(s -> s.getAddNetProfitComp() >= 80 && s.getAddNetProfitSame() >= 50).collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(collect)) {
+                i++;
+                writeSheet = EasyExcel.writerSheet(i, "利润同比50以上,环比80以上").build();
+                excelWriter.write(collect.stream().sorted(Comparator.comparing(OperatProfitBean::getAddNetProfitComp).reversed()).collect(Collectors.toList()), writeSheet);
+            }
         } finally {
             // 千万别忘记finish 会帮忙关闭流
             if (excelWriter != null) {
