@@ -9,7 +9,9 @@ import com.wy.bean.ProfitDateBean;
 import com.wy.service.impl.StockServiceImpl;
 import com.wy.utils.AllStock;
 import com.wy.utils.ClassUtil;
+import com.wy.utils.FilesUtil;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +40,7 @@ public class FinanceCommonService {
 
     public static Map<String, String> CashFlowDicMap = convertDicMap(ConstantBean.cashFlow);
 
+    public static List<String> noXlsxFileList=new ArrayList<>();
     /**
      * 把字符数据格式化成二维数组
      * 定义两个做行转列用的二维数组,把数据赋值到一个二维数组orgData里,用第二个二维数组newData实现行转列
@@ -228,14 +231,21 @@ public class FinanceCommonService {
             String pathName = FinanceCommonService.PATH_MAIN + File.separator
                     + FinanceProfitDateService.FILE_NAME_PRE + File.separator
                     + String.format(FinanceProfitDateService.FILE_NAME_REPORT, StringUtils.trim(s));
-            EasyExcel.read(pathName, ProfitDateBean.class
-                    , new PageReadListener<ProfitDateBean>(dataList -> {
-                        dataMap.put(s, dataList.stream()
-                                .filter(x -> StringUtils.isNotEmpty(x.getReportDate()))
-                                .sorted(Comparator.comparing(ProfitDateBean::getReportDate).reversed())
-                                .collect(Collectors.toList()));
-                    })).sheet(0).doRead();
+            if (!FilesUtil.existsAndIsFile(pathName)){
+                noXlsxFileList.add(s);
+            }else {
+                EasyExcel.read(pathName, ProfitDateBean.class
+                        , new PageReadListener<ProfitDateBean>(dataList -> {
+                            dataMap.put(s, dataList.stream()
+                                    .filter(x -> StringUtils.isNotEmpty(x.getReportDate()))
+                                    .sorted(Comparator.comparing(ProfitDateBean::getReportDate).reversed())
+                                    .collect(Collectors.toList()));
+                        })).sheet(0).doRead();
+            }
         });
+        if (CollectionUtils.isNotEmpty(noXlsxFileList)){
+            noXlsxFileList.stream().forEach(s->logger.info("{} {} file no exist",FinanceProfitDateService.FILE_NAME_PRE,s));
+        }
         return dataMap;
     }
 
