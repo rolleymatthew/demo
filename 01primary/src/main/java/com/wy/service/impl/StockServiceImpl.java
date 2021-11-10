@@ -144,49 +144,14 @@ public class StockServiceImpl implements StockService {
         //找到三率三升的并输出文件
         ProfitReportService.outputUpFinThreePer(counts, threePerMap, stockCodeYmlBean.getAcode());
 
-        //利润环比上升比例>营收环比上升比例
+        //计算营收和利润比例
         List<OperatProfitBean> operatProfitBeans = ProfitReportService.getOperatProfitBeans(dataMap, stockCodeYmlBean.getAcode());
 
-        ExcelWriter excelWriter = null;
-        try {
-            excelWriter = EasyExcel.write(FinanceCommonService.PATH_REPORT + File.separator
-                    + String.format(FinanceCommonService.FILE_NAME_PER, DateUtil.getCurrentDay()), OperatProfitBean.class).build();
-            int i = 0;
-            WriteSheet writeSheet = EasyExcel.writerSheet(i, "所有").build();
-            excelWriter.write(operatProfitBeans.stream().sorted(Comparator.comparing(OperatProfitBean::getAddNetProfitComp).reversed()).collect(Collectors.toList()), writeSheet);
-            List<OperatProfitBean> collect = operatProfitBeans.stream().filter(s -> s.getAddNetProfitSame() > 0 && s.getAddNetProfitComp() > 0).collect(Collectors.toList());
-            if (CollectionUtils.isNotEmpty(collect)) {
-                i++;
-                writeSheet = EasyExcel.writerSheet(i, "利润同比环比增加").build();
-                excelWriter.write(collect.stream().sorted(Comparator.comparing(OperatProfitBean::getAddNetProfitComp).reversed()).collect(Collectors.toList()), writeSheet);
-            }
-            collect = operatProfitBeans.stream().filter(s -> s.getAddNetProfitComp() > s.getAddNetProfitSame()).collect(Collectors.toList());
-            if (CollectionUtils.isNotEmpty(collect)) {
-                i++;
-                writeSheet = EasyExcel.writerSheet(i, "利润环比大于同比").build();
-                excelWriter.write(collect.stream().sorted(Comparator.comparing(OperatProfitBean::getAddNetProfitComp).reversed()).collect(Collectors.toList()), writeSheet);
-            }
-            collect = operatProfitBeans.stream().filter(s -> s.getAddNetProfitComp() > s.getAddOperatingIncomeComp()).collect(Collectors.toList());
-            if (CollectionUtils.isNotEmpty(collect)) {
-                i++;
-                writeSheet = EasyExcel.writerSheet(i, "利润增速大于营收增速").build();
-                excelWriter.write(collect.stream().sorted(Comparator.comparing(OperatProfitBean::getAddNetProfitComp).reversed()).collect(Collectors.toList()), writeSheet);
-            }
-            collect = operatProfitBeans.stream().filter(s -> s.getAddNetProfitComp() >= 30 && s.getAddNetProfitSame() >= 20).collect(Collectors.toList());
-            if (CollectionUtils.isNotEmpty(collect)) {
-                i++;
-                writeSheet = EasyExcel.writerSheet(i, "利润同比20以上,环比30以上").build();
-                excelWriter.write(collect.stream().sorted(Comparator.comparing(OperatProfitBean::getAddNetProfitComp).reversed()).collect(Collectors.toList()), writeSheet);
-            }
-        } finally {
-            // 千万别忘记finish 会帮忙关闭流
-            if (excelWriter != null) {
-                excelWriter.finish();
-            }
-        }
+        ProfitReportService.outputOpeProfitPer(operatProfitBeans);
 
         //报告期同比上升，环比也上升
         logger.info("end finance report {}. {}s", allCodes.size(), (System.currentTimeMillis() - start) / 1000);
         return ResultVO.ok();
     }
+
 }

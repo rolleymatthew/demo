@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,6 +27,46 @@ import java.util.stream.Collectors;
  */
 public class ProfitReportService {
     private static Logger logger = LoggerFactory.getLogger(ProfitReportService.class);
+
+    public static void outputOpeProfitPer(List<OperatProfitBean> operatProfitBeans) {
+        ExcelWriter excelWriter = null;
+        try {
+            excelWriter = EasyExcel.write(FinanceCommonService.PATH_REPORT + File.separator
+                    + String.format(FinanceCommonService.FILE_NAME_PER, DateUtil.getCurrentDay()), OperatProfitBean.class).build();
+            int i = 0;
+            WriteSheet writeSheet = EasyExcel.writerSheet(i, "所有").build();
+            excelWriter.write(operatProfitBeans.stream().sorted(Comparator.comparing(OperatProfitBean::getAddNetProfitComp).reversed()).collect(Collectors.toList()), writeSheet);
+            List<OperatProfitBean> collect = operatProfitBeans.stream().filter(s -> s.getAddNetProfitSame() > 0 && s.getAddNetProfitComp() > 0).collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(collect)) {
+                i++;
+                writeSheet = EasyExcel.writerSheet(i, "利润同比环比增加").build();
+                excelWriter.write(collect.stream().sorted(Comparator.comparing(OperatProfitBean::getAddNetProfitComp).reversed()).collect(Collectors.toList()), writeSheet);
+            }
+            collect = operatProfitBeans.stream().filter(s -> s.getAddNetProfitComp() > s.getAddNetProfitSame()).collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(collect)) {
+                i++;
+                writeSheet = EasyExcel.writerSheet(i, "利润环比大于同比").build();
+                excelWriter.write(collect.stream().sorted(Comparator.comparing(OperatProfitBean::getAddNetProfitComp).reversed()).collect(Collectors.toList()), writeSheet);
+            }
+            collect = operatProfitBeans.stream().filter(s -> s.getAddNetProfitComp() > s.getAddOperatingIncomeComp()).collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(collect)) {
+                i++;
+                writeSheet = EasyExcel.writerSheet(i, "利润增速大于营收增速").build();
+                excelWriter.write(collect.stream().sorted(Comparator.comparing(OperatProfitBean::getAddNetProfitComp).reversed()).collect(Collectors.toList()), writeSheet);
+            }
+            collect = operatProfitBeans.stream().filter(s -> s.getAddNetProfitComp() >= 30 && s.getAddNetProfitSame() >= 20).collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(collect)) {
+                i++;
+                writeSheet = EasyExcel.writerSheet(i, "利润同比20以上,环比30以上").build();
+                excelWriter.write(collect.stream().sorted(Comparator.comparing(OperatProfitBean::getAddNetProfitComp).reversed()).collect(Collectors.toList()), writeSheet);
+            }
+        } finally {
+            // 千万别忘记finish 会帮忙关闭流
+            if (excelWriter != null) {
+                excelWriter.finish();
+            }
+        }
+    }
 
     public static void outputUpFinThreePer(int[] counts, Map<String, List<FinThreePerBean>> threePerMap, Map<String, String> acode) {
         ExcelWriter excelWriter = null;
