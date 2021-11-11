@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
  */
 public class ProfitReportService {
     private static Logger logger = LoggerFactory.getLogger(ProfitReportService.class);
+    private static List<String> errorCode=new ArrayList<>();
 
     public static void outputOpeProfitPer(List<OperatProfitBean> operatProfitBeans) {
         ExcelWriter excelWriter = null;
@@ -294,10 +295,17 @@ public class ProfitReportService {
                 fi = acode.get(s.getKey());
             }
             String fileName = FinanceCommonService.PATH_ZQH + File.separator + String.format(FinanceCommonService.FILE_NAME_ZQH, s.getKey() + fi);
-            EasyExcel.write(fileName, ZQHFinBean.class)
-                    .sheet(s.getKey())
-                    .doWrite(s.getValue().stream().sorted(Comparator.comparing(ZQHFinBean::getReportDate).reversed()).collect(Collectors.toList()));
+            try{
+                EasyExcel.write(fileName, ZQHFinBean.class)
+                        .sheet(s.getKey())
+                        .doWrite(s.getValue().stream().sorted(Comparator.comparing(ZQHFinBean::getReportDate).reversed()).collect(Collectors.toList()));
+            }catch (Exception e){
+                errorCode.add(fileName);
+            }
         });
+        if (CollectionUtils.isNotEmpty(errorCode)){
+            errorCode.stream().forEach(s->logger.info("outPutZQHFile error : {}",s));
+        }
     }
 
     public static Map<String, List<ZQHFinBean>> getZqhBeanMap(Map<String, List<ProfitDateBean>> financeListMap, Map<String, List<BalanceDateBean>> balanceListMap, Map<String, List<CashFlowBean>> cashListMap) {
