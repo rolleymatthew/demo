@@ -279,17 +279,20 @@ public class ProfitReportService {
         Map<String, List<ZQHFinBean>> zqhBeanMap = getZqhBeanMap(profitListMap, balanceListMap, cashListMap);
 
         //输出文件
-        outPutZQHFile(zqhBeanMap);
+        outPutZQHFile(zqhBeanMap, null);
     }
 
-    public static void outPutZQHFile(Map<String, List<ZQHFinBean>> zqhBeanMap) {
+    public static void outPutZQHFile(Map<String, List<ZQHFinBean>> zqhBeanMap, Map<String, String> acode) {
         FilesUtil.existsAndIsFile(FinanceCommonService.PATH_ZQH);
         zqhBeanMap.entrySet().stream().forEach(s -> {
-            String fileName = FinanceCommonService.PATH_ZQH + File.separator + String.format(FinanceCommonService.FILE_NAME_ZQH, s.getKey());
+            String fi = "";
+            if (!acode.isEmpty() && acode.containsKey(s.getKey())) {
+                fi = acode.get(s.getKey());
+            }
+            String fileName = FinanceCommonService.PATH_ZQH + File.separator + String.format(FinanceCommonService.FILE_NAME_ZQH, s.getKey() + fi);
             EasyExcel.write(fileName, ZQHFinBean.class)
                     .sheet(s.getKey())
                     .doWrite(s.getValue().stream().sorted(Comparator.comparing(ZQHFinBean::getReportDate).reversed()).collect(Collectors.toList()));
-
         });
     }
 
@@ -307,7 +310,7 @@ public class ProfitReportService {
                         zqhFinBean.setNetInterestRate(getNetProfit(x));
                         zqhFinBean.setOperatingProfitMargin(getOperatProfit(x));
                         zqhFinBean.setNetOperatingCashFlow(getCashFlow(x, cashListMap.get(s.getKey())));
-                        zqhFinBean.setLongAndShortTermDebtRatio(getDebRatio(x, balanceListMap.get(s.getKey())));
+                        zqhFinBean.setLAndLiabRatioww(getDebRatio(x, balanceListMap.get(s.getKey())));
                         return zqhFinBean;
                     }).collect(Collectors.toList());
                     return collect;
@@ -331,7 +334,7 @@ public class ProfitReportService {
         List<CashFlowBean> collect = cashFlowBeans.stream().filter(x -> StringUtils.equals(x.getReportDate(), profitDateBean.getReportDate())).collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(collect)) {
             CashFlowBean cashFlowBean = collect.get(0);
-            return NumUtils.stringToDouble(cashFlowBean.getNetCashFlowFromOperatingActivities());
+            return NumUtils.roundDouble(NumUtils.stringToDouble(cashFlowBean.getNetCashFlowFromOperatingActivities()) / 10000);
         }
         return 0;
     }

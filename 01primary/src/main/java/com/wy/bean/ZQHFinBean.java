@@ -2,6 +2,7 @@ package com.wy.bean;
 
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.annotation.write.style.*;
+import com.alibaba.excel.enums.BooleanEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import sun.nio.ch.Net;
@@ -58,13 +59,13 @@ public class ZQHFinBean {
     @ContentFontStyle(color = 10)
     private double returnOnNetAssets;
     @ExcelProperty({"检视公司安全性指标", "经营现金流净额(亿元)"})
-    @ColumnWidth(25)
+    @ColumnWidth(20)
     @HeadFontStyle(color = 24)
     @ContentFontStyle(color = 24)
     private double netOperatingCashFlow;
     @ExcelProperty({"检视公司安全性指标", "长短期负债比"})
-    @ColumnWidth(25)
+    @ColumnWidth(15)
     @HeadFontStyle(color = 24)
-    @ContentFontStyle(color = 24)
-    private double LongAndShortTermDebtRatio;
+    @ContentFontStyle(color = 24,bold = BooleanEnum.TRUE)
+    private double lAndLiabRatioww;
 }

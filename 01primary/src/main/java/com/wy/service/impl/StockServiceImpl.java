@@ -128,10 +128,15 @@ public class StockServiceImpl implements StockService {
         }
         logger.info("start report {} finance .", allCodes.size());
         long start = System.currentTimeMillis();
-        //读取文件
-        Map<String, List<ProfitDateBean>> dataMap = FinanceCommonService.getProfitListMap(allCodes);
+        //读取文件三大报表
+        Map<String, List<ProfitDateBean>> profitListMap = FinanceCommonService.getProfitListMap(allCodes);
+        Map<String, List<BalanceDateBean>> balanceListMap = FinanceCommonService.getBalanceListMap(allCodes)
+                .entrySet().stream().collect(Collectors.toMap(s -> s.getKey(), s -> s.getValue()));
+        Map<String, List<CashFlowBean>> cashListMap = FinanceCommonService.getCashListMap(allCodes)
+                .entrySet().stream().collect(Collectors.toMap(s -> s.getKey(), s -> s.getValue()));
+
         //计算毛利率、营业利润率、净利率
-        Map<String, List<FinThreePerBean>> finPerMap = ProfitReportService.getFinPerMap(dataMap);
+        Map<String, List<FinThreePerBean>> finPerMap = ProfitReportService.getFinPerMap(profitListMap);
 
         //填充三率每个报告期增加减少
         Map<String, List<FinThreePerBean>> threePerMap = ProfitReportService.fillFinPerMap(finPerMap);
@@ -139,11 +144,14 @@ public class StockServiceImpl implements StockService {
         ProfitReportService.outputUpFinThreePer(counts, threePerMap, stockCodeYmlBean.getAcode());
 
         //计算营收和利润比例
-        List<OperatProfitBean> operatProfitBeans = ProfitReportService.getOperatProfitBeans(dataMap, stockCodeYmlBean.getAcode());
+        List<OperatProfitBean> operatProfitBeans = ProfitReportService.getOperatProfitBeans(profitListMap, stockCodeYmlBean.getAcode());
 
         ProfitReportService.outputOpeProfitPer(operatProfitBeans);
 
-        //报告期同比上升，环比也上升
+        Map<String, List<ZQHFinBean>> zqhBeanMap = ProfitReportService.getZqhBeanMap(profitListMap, balanceListMap, cashListMap);
+
+        //输出文件
+        ProfitReportService.outPutZQHFile(zqhBeanMap,stockCodeYmlBean.getAcode());
         logger.info("end finance report {}. {}s", allCodes.size(), (System.currentTimeMillis() - start) / 1000);
         return ResultVO.ok();
     }
