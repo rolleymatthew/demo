@@ -18,7 +18,11 @@ import java.util.List;
 public class WriteTest {
 
     public static void main(String[] args) {
-//        SingleWrite();
+        SingleWrite();
+//        multiWrite();
+    }
+
+    private static void multiWrite() {
         String fileName = "D:\\" + File.separator + "HSHStock2021-10-15.xlsx";
         ExcelWriter excelWriter = null;
         try {
@@ -42,7 +46,7 @@ public class WriteTest {
 
     private static void SingleWrite() {
         String fileName = "D:\\" + File.separator + "HSHStock2021-10-15.xlsx";
-        EasyExcel.write(fileName, DemoData.class)
+        EasyExcel.write(fileName, DemoStyleData.class)
                 .sheet("模板")
                 .doWrite(() -> {
                     // 分页查询数据

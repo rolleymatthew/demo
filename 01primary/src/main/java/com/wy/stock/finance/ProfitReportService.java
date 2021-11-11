@@ -6,8 +6,10 @@ import com.alibaba.excel.write.metadata.WriteSheet;
 import com.wy.bean.FinThreePerBean;
 import com.wy.bean.OperatProfitBean;
 import com.wy.bean.ProfitDateBean;
+import com.wy.bean.ZQHFinBean;
 import com.wy.utils.DateUtil;
 import com.wy.utils.NumUtils;
+import com.wy.utils.easyexcle.DemoStyleData;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -151,12 +153,10 @@ public class ProfitReportService {
                     List<ProfitDateBean> collect = x.getValue().stream().collect(Collectors.toList());
                     List<FinThreePerBean> threePerBeanList = collect.stream().map(s -> {
                         FinThreePerBean finThreePerBean = new FinThreePerBean();
-                        Double mainBusiIncome = income(s);
-                        Double cost = cost(s);
                         finThreePerBean.setReportData(s.getReportDate());
-                        finThreePerBean.setGrossProfit(NumUtils.roundDouble((mainBusiIncome - cost) / mainBusiIncome * 100));
-                        finThreePerBean.setOperatProfit(NumUtils.roundDouble(NumUtils.stringToDouble(s.getOperatingProfit()) / mainBusiIncome * 100));
-                        finThreePerBean.setNetProfit(NumUtils.roundDouble(NumUtils.stringToDouble(s.getNetProfit()) / mainBusiIncome * 100));
+                        finThreePerBean.setGrossProfit(getGrossProfit(s));
+                        finThreePerBean.setOperatProfit(getOperatProfit(s));
+                        finThreePerBean.setNetProfit(getNetProfit(s));
                         return finThreePerBean;
                     }).collect(Collectors.toList());
                     return threePerBeanList;
@@ -164,31 +164,62 @@ public class ProfitReportService {
         return finPerMap;
     }
 
+    /**
+     * 净利率
+     *
+     * @param s
+     * @return
+     */
+    private static Double getNetProfit(ProfitDateBean s) {
+        return NumUtils.roundDouble(NumUtils.stringToDouble(s.getNetProfit()) / income(s) * 100);
+    }
+
+    /**
+     * 毛利率
+     *
+     * @param s
+     * @return
+     */
+    private static Double getGrossProfit(ProfitDateBean s) {
+        return NumUtils.roundDouble((income(s) - cost(s)) / income(s) * 100);
+    }
+
+    /**
+     * 营业利润率
+     *
+     * @param s
+     * @return
+     */
+    private static Double getOperatProfit(ProfitDateBean s) {
+        return NumUtils.roundDouble(NumUtils.stringToDouble(s.getOperatingProfit()) / income(s) * 100);
+    }
+
+    /**
+     * 营业收入
+     *
+     * @param s
+     * @return
+     */
     private static Double income(ProfitDateBean s) {
         if (StringUtils.equalsIgnoreCase(s.getOperatingIncome(), "--")) {
             //金融企业计算方式：营业收入=营业总收入-其他收入
-            return  NumUtils.stringToDouble(s.getTotalOperatingIncome())-NumUtils.stringToDouble(s.getOtherBusinessIncome());
+            return NumUtils.stringToDouble(s.getTotalOperatingIncome()) - NumUtils.stringToDouble(s.getOtherBusinessIncome());
         }
         return NumUtils.stringToDouble(s.getOperatingIncome());
     }
 
+    /**
+     * 营业成本
+     *
+     * @param s
+     * @return
+     */
     private static Double cost(ProfitDateBean s) {
         if (StringUtils.equalsIgnoreCase(s.getOperatingCost(), "--")) {
             //金融企业计算方式
             return NumUtils.stringToDouble(s.getTotalOperatingCost());
         }
         return NumUtils.stringToDouble(s.getOperatingCost());
-    }
-
-    public static void main(String[] args) {
-        List<String> alCodes = new ArrayList<>();
-        alCodes.add("688981");
-        //获取最近一年的数据
-        Map<String, List<ProfitDateBean>> financeListMap = FinanceCommonService.getFinanceListMap(alCodes)
-                .entrySet().stream().filter(x -> x.getValue().size() >= 5).collect(Collectors.toMap(s -> s.getKey(), s -> s.getValue()));
-        ;
-        List<OperatProfitBean> opeProlist = getOperatProfitBeans(financeListMap, null);
-        System.out.println(opeProlist.size());
     }
 
     public static List<OperatProfitBean> getOperatProfitBeans(Map<String, List<ProfitDateBean>> financeListMap, Map<String, String> acode) {
@@ -231,11 +262,43 @@ public class ProfitReportService {
                         / NumUtils.stringToDouble(profitLastTwoDateBean.getNetProfit()) * 100;
                 operatProfitBean.setAddNetProfitComp(NumUtils.roundDouble(adTemp));
             }
-            if (CollectionUtils.isNotEmpty(lastQuarter)){
+            if (CollectionUtils.isNotEmpty(lastQuarter)) {
                 opeProlist.add(operatProfitBean);
             }
         });
         return opeProlist;
+    }
+
+    public static void main(String[] args) {
+        List<String> alCodes = new ArrayList<>();
+        alCodes.add("688981");
+        alCodes.add("600519");
+        //获取最近一年的数据
+        Map<String, List<ProfitDateBean>> financeListMap = FinanceCommonService.getFinanceListMap(alCodes)
+                .entrySet().stream().collect(Collectors.toMap(s -> s.getKey(), s -> s.getValue()));
+        Map<String, List<ZQHFinBean>> zqhBeanMap = financeListMap.entrySet().stream().collect(Collectors.toMap(s -> s.getKey(), s ->
+                {
+                    List<ProfitDateBean> value = s.getValue();
+                    List<ZQHFinBean> collect = value.stream().map(x -> {
+                        ZQHFinBean zqhFinBean = new ZQHFinBean();
+                        zqhFinBean.setReportDate(x.getReportDate());
+                        zqhFinBean.setOperatingIncome(income(x));
+                        zqhFinBean.setNetProfit(getNetProfit(x));
+                        zqhFinBean.setOperatingGrossProfitMargin(getGrossProfit(x));
+                        zqhFinBean.setNetInterestRate(getNetProfit(x));
+                        zqhFinBean.setOperatingProfitMargin(getOperatProfit(x));
+                        return zqhFinBean;
+                    }).collect(Collectors.toList());
+                    return collect;
+                }
+        ));
+        zqhBeanMap.entrySet().stream().forEach(s -> {
+            String fileName = "D:\\" + File.separator + "zqh" + s.getKey() + ".xlsx";
+            EasyExcel.write(fileName, ZQHFinBean.class)
+                    .sheet("模板")
+                    .doWrite(s.getValue());
+
+        });
     }
 
 }
