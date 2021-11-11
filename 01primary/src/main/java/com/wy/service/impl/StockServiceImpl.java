@@ -1,8 +1,5 @@
 package com.wy.service.impl;
 
-import com.alibaba.excel.EasyExcel;
-import com.alibaba.excel.ExcelWriter;
-import com.alibaba.excel.write.metadata.WriteSheet;
 import com.wy.bean.*;
 import com.wy.service.StockService;
 import com.wy.stock.etf.ETFFundDataService;
@@ -10,15 +7,12 @@ import com.wy.stock.etf.ETFFundReportService;
 import com.wy.stock.finance.*;
 import com.wy.stock.hszh.GetSHSZHKStockDateService;
 import com.wy.stock.hszh.HSHStockReportService;
-import com.wy.utils.DateUtil;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -135,7 +129,7 @@ public class StockServiceImpl implements StockService {
         logger.info("start report {} finance .", allCodes.size());
         long start = System.currentTimeMillis();
         //读取文件
-        Map<String, List<ProfitDateBean>> dataMap = FinanceCommonService.getFinanceListMap(allCodes);
+        Map<String, List<ProfitDateBean>> dataMap = FinanceCommonService.getProfitListMap(allCodes);
         //计算毛利率、营业利润率、净利率
         Map<String, List<FinThreePerBean>> finPerMap = ProfitReportService.getFinPerMap(dataMap);
 

@@ -3,13 +3,10 @@ package com.wy.stock.finance;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.write.metadata.WriteSheet;
-import com.wy.bean.FinThreePerBean;
-import com.wy.bean.OperatProfitBean;
-import com.wy.bean.ProfitDateBean;
-import com.wy.bean.ZQHFinBean;
+import com.wy.bean.*;
 import com.wy.utils.DateUtil;
+import com.wy.utils.FilesUtil;
 import com.wy.utils.NumUtils;
-import com.wy.utils.easyexcle.DemoStyleData;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -273,32 +270,70 @@ public class ProfitReportService {
         List<String> alCodes = new ArrayList<>();
         alCodes.add("688981");
         alCodes.add("600519");
-        //获取最近一年的数据
-        Map<String, List<ProfitDateBean>> financeListMap = FinanceCommonService.getFinanceListMap(alCodes)
+        Map<String, List<ProfitDateBean>> profitListMap = FinanceCommonService.getProfitListMap(alCodes)
                 .entrySet().stream().collect(Collectors.toMap(s -> s.getKey(), s -> s.getValue()));
+        Map<String, List<BalanceDateBean>> balanceListMap = FinanceCommonService.getBalanceListMap(alCodes)
+                .entrySet().stream().collect(Collectors.toMap(s -> s.getKey(), s -> s.getValue()));
+        Map<String, List<CashFlowBean>> cashListMap = FinanceCommonService.getCashListMap(alCodes)
+                .entrySet().stream().collect(Collectors.toMap(s -> s.getKey(), s -> s.getValue()));
+        Map<String, List<ZQHFinBean>> zqhBeanMap = getZqhBeanMap(profitListMap, balanceListMap, cashListMap);
+
+        //输出文件
+        outPutZQHFile(zqhBeanMap);
+    }
+
+    public static void outPutZQHFile(Map<String, List<ZQHFinBean>> zqhBeanMap) {
+        FilesUtil.existsAndIsFile(FinanceCommonService.PATH_ZQH);
+        zqhBeanMap.entrySet().stream().forEach(s -> {
+            String fileName = FinanceCommonService.PATH_ZQH + File.separator + String.format(FinanceCommonService.FILE_NAME_ZQH, s.getKey());
+            EasyExcel.write(fileName, ZQHFinBean.class)
+                    .sheet(s.getKey())
+                    .doWrite(s.getValue().stream().sorted(Comparator.comparing(ZQHFinBean::getReportDate).reversed()).collect(Collectors.toList()));
+
+        });
+    }
+
+    public static Map<String, List<ZQHFinBean>> getZqhBeanMap(Map<String, List<ProfitDateBean>> financeListMap, Map<String, List<BalanceDateBean>> balanceListMap, Map<String, List<CashFlowBean>> cashListMap) {
         Map<String, List<ZQHFinBean>> zqhBeanMap = financeListMap.entrySet().stream().collect(Collectors.toMap(s -> s.getKey(), s ->
                 {
                     List<ProfitDateBean> value = s.getValue();
                     List<ZQHFinBean> collect = value.stream().map(x -> {
                         ZQHFinBean zqhFinBean = new ZQHFinBean();
                         zqhFinBean.setReportDate(x.getReportDate());
-                        zqhFinBean.setOperatingIncome(income(x));
-                        zqhFinBean.setNetProfit(getNetProfit(x));
+                        zqhFinBean.setOperatingIncome(NumUtils.roundDouble(income(x) / 10000));
+                        zqhFinBean.setNetProfit(NumUtils.roundDouble(NumUtils.stringToDouble(x.getNetProfit()) / 10000));
+                        zqhFinBean.setNetInterestRate(getNetProfit(x));
                         zqhFinBean.setOperatingGrossProfitMargin(getGrossProfit(x));
                         zqhFinBean.setNetInterestRate(getNetProfit(x));
                         zqhFinBean.setOperatingProfitMargin(getOperatProfit(x));
+                        zqhFinBean.setNetOperatingCashFlow(getCashFlow(x, cashListMap.get(s.getKey())));
+                        zqhFinBean.setLongAndShortTermDebtRatio(getDebRatio(x, balanceListMap.get(s.getKey())));
                         return zqhFinBean;
                     }).collect(Collectors.toList());
                     return collect;
                 }
         ));
-        zqhBeanMap.entrySet().stream().forEach(s -> {
-            String fileName = "D:\\" + File.separator + "zqh" + s.getKey() + ".xlsx";
-            EasyExcel.write(fileName, ZQHFinBean.class)
-                    .sheet("模板")
-                    .doWrite(s.getValue());
+        return zqhBeanMap;
+    }
 
-        });
+    private static double getDebRatio(ProfitDateBean profitDateBean, List<BalanceDateBean> balanceDateBeans) {
+        List<BalanceDateBean> balanceDateBeanStream = balanceDateBeans.stream().filter(x -> StringUtils.equals(x.getReportDate(), profitDateBean.getReportDate())).collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(balanceDateBeanStream)) {
+            BalanceDateBean balanceDateBean = balanceDateBeanStream.get(0);
+            Double aDouble = NumUtils.stringToDouble(balanceDateBean.getTotalCurrentLiabilities());
+            Double aDouble1 = NumUtils.stringToDouble(balanceDateBean.getTotalNonCurrentLiabilities());
+            return NumUtils.roundDouble(aDouble1 / aDouble * 100);
+        }
+        return 0;
+    }
+
+    private static double getCashFlow(ProfitDateBean profitDateBean, List<CashFlowBean> cashFlowBeans) {
+        List<CashFlowBean> collect = cashFlowBeans.stream().filter(x -> StringUtils.equals(x.getReportDate(), profitDateBean.getReportDate())).collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(collect)) {
+            CashFlowBean cashFlowBean = collect.get(0);
+            return NumUtils.stringToDouble(cashFlowBean.getNetCashFlowFromOperatingActivities());
+        }
+        return 0;
     }
 
 }

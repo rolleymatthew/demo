@@ -2,10 +2,7 @@ package com.wy.stock.finance;
 
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.read.listener.PageReadListener;
-import com.wy.bean.ConstantBean;
-import com.wy.bean.Contant;
-import com.wy.bean.FinanceDataBean;
-import com.wy.bean.ProfitDateBean;
+import com.wy.bean.*;
 import com.wy.service.impl.StockServiceImpl;
 import com.wy.utils.AllStock;
 import com.wy.utils.ClassUtil;
@@ -33,8 +30,10 @@ public class FinanceCommonService {
 
     public static String FILE_NAME_REPORT = "三率三升%s.xlsx";
     public static String FILE_NAME_PER = "同比环比%s.xlsx";
+    public static String FILE_NAME_ZQH = "%s财务透视.xlsx";
 
     public static String PATH_REPORT = Contant.DIR + File.separator + "report";
+    public static String PATH_ZQH = Contant.DIR + File.separator + "ZQHFin";
 
     public static Map<String, String> BalanceDicMap = convertDicMap(ConstantBean.balance);
 
@@ -220,12 +219,12 @@ public class FinanceCommonService {
     }
 
     /**
-     * 获取所有代码的主要财务数据
+     * 获取所有代码的利润表
      *
      * @param allCodes 代码
      * @return
      */
-    public static Map<String, List<ProfitDateBean>> getFinanceListMap(List<String> allCodes) {
+    public static Map<String, List<ProfitDateBean>> getProfitListMap(List<String> allCodes) {
         Map<String, List<ProfitDateBean>> dataMap = new ConcurrentHashMap<>();
         allCodes.parallelStream().forEach(s -> {
             String pathName = FinanceCommonService.PATH_MAIN + File.separator
@@ -245,6 +244,64 @@ public class FinanceCommonService {
         });
         if (CollectionUtils.isNotEmpty(noXlsxFileList)){
             noXlsxFileList.stream().forEach(s->logger.info("{} {} file no exist",FinanceProfitDateService.FILE_NAME_PRE,s));
+        }
+        return dataMap;
+    }
+
+    /**
+     * 资产负债表
+     * @param allCodes
+     * @return
+     */
+    public static Map<String, List<BalanceDateBean>> getBalanceListMap(List<String> allCodes) {
+        Map<String, List<BalanceDateBean>> dataMap = new ConcurrentHashMap<>();
+        allCodes.parallelStream().forEach(s -> {
+            String pathName = FinanceCommonService.PATH_MAIN + File.separator
+                    + FinanceBalanceDateService.FILE_NAME_PRE + File.separator
+                    + String.format(FinanceBalanceDateService.FILE_NAME_REPORT, StringUtils.trim(s));
+            if (!FilesUtil.existsAndIsFile(pathName)){
+                noXlsxFileList.add(s);
+            }else {
+                EasyExcel.read(pathName, BalanceDateBean.class
+                        , new PageReadListener<BalanceDateBean>(dataList -> {
+                            dataMap.put(s, dataList.stream()
+                                    .filter(x -> StringUtils.isNotEmpty(x.getReportDate()))
+                                    .sorted(Comparator.comparing(BalanceDateBean::getReportDate).reversed())
+                                    .collect(Collectors.toList()));
+                        })).sheet(0).doRead();
+            }
+        });
+        if (CollectionUtils.isNotEmpty(noXlsxFileList)){
+            noXlsxFileList.stream().forEach(s->logger.info("{} {} file no exist",FinanceBalanceDateService.FILE_NAME_PRE,s));
+        }
+        return dataMap;
+    }
+
+    /**
+     * 现金流量表
+     * @param allCodes
+     * @return
+     */
+    public static Map<String, List<CashFlowBean>> getCashListMap(List<String> allCodes) {
+        Map<String, List<CashFlowBean>> dataMap = new ConcurrentHashMap<>();
+        allCodes.parallelStream().forEach(s -> {
+            String pathName = FinanceCommonService.PATH_MAIN + File.separator
+                    + FinanceCashFlowDateService.FILE_NAME_PRE + File.separator
+                    + String.format(FinanceCashFlowDateService.FILE_NAME_REPORT, StringUtils.trim(s));
+            if (!FilesUtil.existsAndIsFile(pathName)){
+                noXlsxFileList.add(s);
+            }else {
+                EasyExcel.read(pathName, CashFlowBean.class
+                        , new PageReadListener<CashFlowBean>(dataList -> {
+                            dataMap.put(s, dataList.stream()
+                                    .filter(x -> StringUtils.isNotEmpty(x.getReportDate()))
+                                    .sorted(Comparator.comparing(CashFlowBean::getReportDate).reversed())
+                                    .collect(Collectors.toList()));
+                        })).sheet(0).doRead();
+            }
+        });
+        if (CollectionUtils.isNotEmpty(noXlsxFileList)){
+            noXlsxFileList.stream().forEach(s->logger.info("{} {} file no exist",FinanceCashFlowDateService.FILE_NAME_PRE,s));
         }
         return dataMap;
     }
