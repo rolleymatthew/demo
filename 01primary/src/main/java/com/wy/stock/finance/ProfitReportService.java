@@ -170,9 +170,6 @@ public class ProfitReportService {
      * @return
      */
     private static Double getNetProfit(ProfitDateBean s) {
-        return NumUtils.roundDouble(NumUtils.stringToDouble(s.getNetProfitAttributable()) / income(s) * 100);
-    }
-    private static Double getNetProfitZQH(ProfitDateBean s) {
         return NumUtils.roundDouble(NumUtils.stringToDouble(s.getNetProfit()) / income(s) * 100);
     }
 
@@ -327,7 +324,7 @@ public class ProfitReportService {
                         zqhFinBean.setReportDate(x.getReportDate());
                         zqhFinBean.setOperatingIncome(NumUtils.roundDouble(incomeZQH(x) / 10000));
                         zqhFinBean.setNetProfit(NumUtils.roundDouble(NumUtils.stringToDouble(x.getNetProfitAttributable()) / 10000));
-                        zqhFinBean.setNetInterestRate(getNetProfitZQH(x));
+                        zqhFinBean.setNetInterestRate(getNetProfit(x));
                         zqhFinBean.setOperatingGrossProfitMargin(getGrossProfit(x));
                         zqhFinBean.setOperatingProfitMargin(getOperatProfit(x));
                         zqhFinBean.setNetOperatingCashFlow(getCashFlow(x, cashListMap.get(s.getKey())));
