@@ -160,6 +160,14 @@ public class DateUtil {
         cal.add(Calendar.YEAR,-1);
         return cal.getTime();
     }
+
+    public static String getLastYearSameQuarter(String date){
+        Date date1 = parseDate(date);
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date1);
+        cal.add(Calendar.YEAR,-1);
+        return fmtShortDate(cal.getTime());
+    }
     public static void main(String[] args) {
         Date currentQuarterEndTime = getCurrentQuarterEndTime();
         System.out.println(fmtShortDate(getCurrentQuarterStartTime()));
@@ -167,5 +175,6 @@ public class DateUtil {
         System.out.println(fmtShortDate(getLastQuarterEndTime()));
         System.out.println(fmtShortDate(getLastYearSameQuarterEndTime()));
         System.out.println(fmtShortDate(getLastTwoQuarterEndTime()));
+        System.out.println(getLastYearSameQuarter("2021-06-30"));
     }
 }

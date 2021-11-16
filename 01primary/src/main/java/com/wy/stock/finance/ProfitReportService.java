@@ -9,6 +9,7 @@ import com.wy.utils.FilesUtil;
 import com.wy.utils.NumUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +28,7 @@ import java.util.stream.Collectors;
  */
 public class ProfitReportService {
     private static Logger logger = LoggerFactory.getLogger(ProfitReportService.class);
-    private static List<String> errorCode=new ArrayList<>();
+    private static List<String> errorCode = new ArrayList<>();
 
     public static void outputOpeProfitPer(List<OperatProfitBean> operatProfitBeans) {
         ExcelWriter excelWriter = null;
@@ -199,13 +200,14 @@ public class ProfitReportService {
      * @param s
      * @return
      */
-    private static Double  income(ProfitDateBean s) {
+    private static Double income(ProfitDateBean s) {
         if (StringUtils.equalsIgnoreCase(s.getOperatingIncome(), "--")) {
             //金融企业计算方式：营业收入=营业总收入-其他收入
             return NumUtils.stringToDouble(s.getTotalOperatingIncome()) - NumUtils.stringToDouble(s.getOtherBusinessIncome());
         }
         return NumUtils.stringToDouble(s.getOperatingIncome());
     }
+
     private static Double incomeZQH(ProfitDateBean s) {
         if (StringUtils.equalsIgnoreCase(s.getOperatingIncome(), "--")) {
             //金融企业计算方式：营业收入=营业总收入-其他收入
@@ -233,21 +235,18 @@ public class ProfitReportService {
         List<OperatProfitBean> opeProlist = new ArrayList<>();
         financeListMap.entrySet().stream().forEach(s -> {
             List<ProfitDateBean> value = s.getValue();
-            //找到上一季度的报告
-            List<ProfitDateBean> lastQuarter = value.stream().filter(x -> StringUtils.equals(x.getReportDate(), DateUtil.fmtShortDate(DateUtil.getLastQuarterEndTime())))
-                    .collect(Collectors.toList());
-            //找到上两个季度的报告
-            List<ProfitDateBean> lastTwoQuarter = value.stream().filter(x -> StringUtils.equals(x.getReportDate(), DateUtil.fmtShortDate(DateUtil.getLastTwoQuarterEndTime())))
-                    .collect(Collectors.toList());
-            //找到去年同一个季度的报告
-            List<ProfitDateBean> lastYearQuarter = value.stream().filter(x -> StringUtils.equals(x.getReportDate(), DateUtil.fmtShortDate(DateUtil.getLastYearSameQuarterEndTime())))
-                    .collect(Collectors.toList());
-            //计算同比
             OperatProfitBean operatProfitBean = new OperatProfitBean();
             operatProfitBean.setSecurityCode(s.getKey());
             if (!acode.isEmpty() && acode.containsKey(s.getKey())) {
                 operatProfitBean.setSecurityName(acode.get(s.getKey()));
             }
+            //找到上一季度的报告
+            List<ProfitDateBean> lastQuarter = value.stream().filter(x -> StringUtils.equals(x.getReportDate(), DateUtil.fmtShortDate(DateUtil.getLastQuarterEndTime())))
+                    .collect(Collectors.toList());
+            //找到去年同一个季度的报告
+            List<ProfitDateBean> lastYearQuarter = value.stream().filter(x -> StringUtils.equals(x.getReportDate(), DateUtil.fmtShortDate(DateUtil.getLastYearSameQuarterEndTime())))
+                    .collect(Collectors.toList());
+            //计算同比
             if (CollectionUtils.isNotEmpty(lastQuarter) && CollectionUtils.isNotEmpty(lastYearQuarter)) {
                 ProfitDateBean profitLastDateBean = lastQuarter.get(0);
                 ProfitDateBean profitLastYearDateBean = lastYearQuarter.get(0);
@@ -255,10 +254,14 @@ public class ProfitReportService {
                 double adTemp = (income(profitLastDateBean) - income(profitLastYearDateBean)) / income(profitLastYearDateBean) * 100;
                 operatProfitBean.setAddOperatingIncomeSame(NumUtils.roundDouble(adTemp));
                 //净利润同比
-                adTemp = (NumUtils.stringToDouble(profitLastDateBean.getNetProfit()) - NumUtils.stringToDouble(profitLastYearDateBean.getNetProfit())) / NumUtils.stringToDouble(profitLastYearDateBean.getNetProfit()) * 100;
+                adTemp = (NumUtils.stringToDouble(profitLastDateBean.getNetProfitAttributable()) - NumUtils.stringToDouble(profitLastYearDateBean.getNetProfitAttributable())) / NumUtils.stringToDouble(profitLastYearDateBean.getNetProfitAttributable()) * 100;
                 operatProfitBean.setAddNetProfitSame(NumUtils.roundDouble(adTemp));
             }
+
             //计算环比
+            //找到上两个季度的报告
+            List<ProfitDateBean> lastTwoQuarter = value.stream().filter(x -> StringUtils.equals(x.getReportDate(), DateUtil.fmtShortDate(DateUtil.getLastTwoQuarterEndTime())))
+                    .collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(lastQuarter) && CollectionUtils.isNotEmpty(lastTwoQuarter)) {
                 ProfitDateBean profitLastDateBean = lastQuarter.get(0);
                 ProfitDateBean profitLastTwoDateBean = lastTwoQuarter.get(0);
@@ -302,16 +305,16 @@ public class ProfitReportService {
                 fi = acode.get(s.getKey());
             }
             String fileName = FinanceCommonService.PATH_ZQH + File.separator + String.format(FinanceCommonService.FILE_NAME_ZQH, s.getKey() + fi);
-            try{
+            try {
                 EasyExcel.write(fileName, ZQHFinBean.class)
                         .sheet(s.getKey())
                         .doWrite(s.getValue().stream().sorted(Comparator.comparing(ZQHFinBean::getReportDate).reversed()).collect(Collectors.toList()));
-            }catch (Exception e){
+            } catch (Exception e) {
                 errorCode.add(fileName);
             }
         });
-        if (CollectionUtils.isNotEmpty(errorCode)){
-            errorCode.stream().forEach(s->logger.info("outPutZQHFile error : {}",s));
+        if (CollectionUtils.isNotEmpty(errorCode)) {
+            errorCode.stream().forEach(s -> logger.info("outPutZQHFile error : {}", s));
         }
     }
 
@@ -329,12 +332,53 @@ public class ProfitReportService {
                         zqhFinBean.setOperatingProfitMargin(getOperatProfit(x));
                         zqhFinBean.setNetOperatingCashFlow(getCashFlow(x, cashListMap.get(s.getKey())));
                         zqhFinBean.setLAndLiabRatioww(getDebRatio(x, balanceListMap.get(s.getKey())));
+                        zqhFinBean.setNetProfitGrowthRate(getNetProfitGrowRate(x, s.getValue()));
+                        zqhFinBean.setRevenueGrowthRate(getRevenueGrowthRate(x, s.getValue()));
                         return zqhFinBean;
                     }).collect(Collectors.toList());
                     return collect;
                 }
         ));
         return zqhBeanMap;
+    }
+
+    /**
+     * 收入同比增长率
+     * @param curBean
+     * @param beanList
+     * @return
+     */
+    private static double getRevenueGrowthRate(ProfitDateBean curBean, List<ProfitDateBean> beanList) {
+        //找到同比的数据
+        String lastYearSameQuarter = DateUtil.getLastYearSameQuarter(curBean.getReportDate());
+        //计算同比数据，归母净利润同比增长
+        List<ProfitDateBean> collect = beanList.stream().filter(s -> StringUtils.equals(lastYearSameQuarter, s.getReportDate())).collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(collect)){
+            ProfitDateBean profitDateBean = collect.get(0);
+            double v = (NumUtils.stringToDouble(curBean.getOperatingIncome()) - NumUtils.stringToDouble(profitDateBean.getOperatingIncome())) / NumUtils.stringToDouble(profitDateBean.getOperatingIncome()) * 100;
+            return NumUtils.roundDouble(v);
+        }
+        return 0;
+    }
+
+    /**
+     * 净利润增长率(同比)
+     *
+     * @param curBean
+     * @param beanList
+     * @return
+     */
+    private static double getNetProfitGrowRate(ProfitDateBean curBean, List<ProfitDateBean> beanList) {
+        //找到同比的数据
+        String lastYearSameQuarter = DateUtil.getLastYearSameQuarter(curBean.getReportDate());
+        //计算同比数据，归母净利润同比增长
+        List<ProfitDateBean> collect = beanList.stream().filter(s -> StringUtils.equals(lastYearSameQuarter, s.getReportDate())).collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(collect)){
+            ProfitDateBean profitDateBean = collect.get(0);
+            double v = (NumUtils.stringToDouble(curBean.getNetProfitAttributable()) - NumUtils.stringToDouble(profitDateBean.getNetProfitAttributable())) / NumUtils.stringToDouble(profitDateBean.getNetProfitAttributable()) * 100;
+            return NumUtils.roundDouble(v);
+        }
+        return 0;
     }
 
     private static double getDebRatio(ProfitDateBean profitDateBean, List<BalanceDateBean> balanceDateBeans) {
