@@ -41,15 +41,15 @@ public class StockServiceTest {
     }
 
     @Test
-//    @Ignore
+    @Ignore
     void getFinanceDateByMonthTest(){
         System.out.println(stockService.FinanceDateByMonth("002455,002456,600830,600831,603993,603995"));
     }
 
     @Test
-    @Ignore
+//    @Ignore
     void stockReportServiceTest(){
-//        stockService.FinanceDateReport("000678,600519");
-        stockService.FinanceDateReport(null);
+        stockService.FinanceDateReport("000678,600519");
+//        stockService.FinanceDateReport(null);
     }
 }

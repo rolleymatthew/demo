@@ -170,6 +170,9 @@ public class ProfitReportService {
      * @return
      */
     private static Double getNetProfit(ProfitDateBean s) {
+        return NumUtils.roundDouble(NumUtils.stringToDouble(s.getNetProfitAttributable()) / income(s) * 100);
+    }
+    private static Double getNetProfitZQH(ProfitDateBean s) {
         return NumUtils.roundDouble(NumUtils.stringToDouble(s.getNetProfit()) / income(s) * 100);
     }
 
@@ -199,12 +202,19 @@ public class ProfitReportService {
      * @param s
      * @return
      */
-    private static Double income(ProfitDateBean s) {
+    private static Double  income(ProfitDateBean s) {
         if (StringUtils.equalsIgnoreCase(s.getOperatingIncome(), "--")) {
             //金融企业计算方式：营业收入=营业总收入-其他收入
             return NumUtils.stringToDouble(s.getTotalOperatingIncome()) - NumUtils.stringToDouble(s.getOtherBusinessIncome());
         }
         return NumUtils.stringToDouble(s.getOperatingIncome());
+    }
+    private static Double incomeZQH(ProfitDateBean s) {
+        if (StringUtils.equalsIgnoreCase(s.getOperatingIncome(), "--")) {
+            //金融企业计算方式：营业收入=营业总收入-其他收入
+            return NumUtils.stringToDouble(s.getTotalOperatingIncome()) - NumUtils.stringToDouble(s.getOtherBusinessIncome());
+        }
+        return NumUtils.stringToDouble(s.getTotalOperatingIncome());
     }
 
     /**
@@ -315,11 +325,10 @@ public class ProfitReportService {
                     List<ZQHFinBean> collect = value.stream().map(x -> {
                         ZQHFinBean zqhFinBean = new ZQHFinBean();
                         zqhFinBean.setReportDate(x.getReportDate());
-                        zqhFinBean.setOperatingIncome(NumUtils.roundDouble(income(x) / 10000));
-                        zqhFinBean.setNetProfit(NumUtils.roundDouble(NumUtils.stringToDouble(x.getNetProfit()) / 10000));
-                        zqhFinBean.setNetInterestRate(getNetProfit(x));
+                        zqhFinBean.setOperatingIncome(NumUtils.roundDouble(incomeZQH(x) / 10000));
+                        zqhFinBean.setNetProfit(NumUtils.roundDouble(NumUtils.stringToDouble(x.getNetProfitAttributable()) / 10000));
+                        zqhFinBean.setNetInterestRate(getNetProfitZQH(x));
                         zqhFinBean.setOperatingGrossProfitMargin(getGrossProfit(x));
-                        zqhFinBean.setNetInterestRate(getNetProfit(x));
                         zqhFinBean.setOperatingProfitMargin(getOperatProfit(x));
                         zqhFinBean.setNetOperatingCashFlow(getCashFlow(x, cashListMap.get(s.getKey())));
                         zqhFinBean.setLAndLiabRatioww(getDebRatio(x, balanceListMap.get(s.getKey())));
