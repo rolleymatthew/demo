@@ -49,31 +49,42 @@ public class FinanceCashFlowDateService {
     }
 
     private static void getBeansByCode(String stockCode, String fileName) {
+        List<CashFlowBean> cashFlowBeanList = getCashFlowBeanList(stockCode);
+        if (CollectionUtils.isEmpty(cashFlowBeanList)) return;
+
+        outputExcle(stockCode, fileName, cashFlowBeanList);
+    }
+
+    public static void outputExcle(String stockCode, String fileName, List<CashFlowBean> cashFlowBeanList) {
+        //保存文件
+        EasyExcel.write(fileName, CashFlowBean.class)
+                .sheet(stockCode)
+                .doWrite(cashFlowBeanList);
+    }
+
+    public static List<CashFlowBean> getCashFlowBeanList(String stockCode) {
         //1.生成URL
         String urlformat = String.format(FinanceSpider.URL_DOMAIN + URL_LRB_REPORT, stockCode);
         //2.获取数据
         String temp = FinanceSpider.getResultClasses(urlformat);
         if (StringUtils.isEmpty(temp)) {
             logger.info("cash flow error : {}", stockCode);
-            return;
+            return null;
         }
         //3.转成bean
         List<Object> beanList = FinanceCommonService.convertStringToBeans(temp, FinanceCommonService.CashFlowDicMap, CashFlowBean.class);
         if (CollectionUtils.isEmpty(beanList)) {
             logger.info("cash flow convertStringToBeans error : {}", stockCode);
-            return;
+            return null;
         }
+        //4.按照报告日期倒序放回数据列表
         List<CashFlowBean> profitDateBeanList = beanList.stream().map(x -> {
                     CashFlowBean profitDateBean = new CashFlowBean();
                     BeanUtils.copyProperties(x, profitDateBean);
                     return profitDateBean;
                 }).filter(f -> StringUtils.isNotEmpty(f.getReportDate())).sorted(Comparator.comparing(CashFlowBean::getReportDate).reversed())
                 .collect(Collectors.toList());
-
-        //4.保存文件
-        EasyExcel.write(fileName, CashFlowBean.class)
-                .sheet(stockCode)
-                .doWrite(profitDateBeanList);
+        return profitDateBeanList;
     }
 
 }

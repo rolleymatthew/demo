@@ -31,8 +31,10 @@ public class FinanceCommonService {
     public static String FILE_NAME_REPORT = "三率三升%s.xlsx";
     public static String FILE_NAME_PER = "同比环比%s.xlsx";
     public static String FILE_NAME_ZQH = "%s财务透视.xlsx";
+    public static String FILE_NAME_ALL = "all%s.xlsx";
 
     public static String PATH_REPORT = Contant.DIR + File.separator + "report";
+    public static String PATH_ALL = PATH_MAIN + File.separator + "all";
     public static String PATH_ZQH = Contant.DIR + File.separator + "ZQHFin";
 
     public static Map<String, String> BalanceDicMap = convertDicMap(ConstantBean.balance);

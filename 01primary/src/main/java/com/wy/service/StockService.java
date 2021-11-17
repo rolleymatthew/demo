@@ -12,5 +12,6 @@ public interface StockService {
     ResultVO hsshAndETFDataByDay(int dayCount);
     ResultVO hsshAndETFReport();
     ResultVO FinanceDateByMonth(String code);
+    ResultVO FinanceDateByAllOne(String code);
     ResultVO FinanceDateReport(String code);
 }

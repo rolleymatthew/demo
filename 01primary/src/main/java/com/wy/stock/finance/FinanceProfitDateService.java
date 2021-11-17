@@ -50,32 +50,43 @@ public class FinanceProfitDateService {
         getBeansByCode(stockCode, PATH + String.format(FILE_NAME_REPORT, StringUtils.trim(stockCode)));
     }
     private static void getBeansByCode(String stockCode, String fileName) {
+        List<ProfitDateBean> profitDateBeanList = getProfitDateBeanList(stockCode);
+        if (profitDateBeanList == null) return;
+
+        outputExcle(stockCode, fileName, profitDateBeanList);
+    }
+
+    public static void outputExcle(String stockCode, String fileName, List<ProfitDateBean> profitDateBeanList) {
+        //保存文件
+        EasyExcel.write(fileName, ProfitDateBean.class)
+                .sheet(stockCode)
+                .doWrite(profitDateBeanList);
+    }
+
+    public static List<ProfitDateBean> getProfitDateBeanList(String stockCode) {
         //1.生成URL
         String urlformat = String.format(FinanceSpider.URL_DOMAIN + URL_LRB_REPORT, stockCode);
         //2.获取数据
         String temp = FinanceSpider.getResultClasses(urlformat);
         if (StringUtils.isEmpty(temp)) {
-            logger.info("get profit url empty : {}"+stockCode);
-            return;
+            logger.info("get profit url empty : {}"+ stockCode);
+            return null;
         }
 
         //3.转成bean
         List<Object> beanList = FinanceCommonService.convertStringToBeans(temp, ConstantBean.LRB_DIC, ProfitDateBean.class);
         if (CollectionUtils.isEmpty(beanList)) {
             logger.info("profit convertStringToBeans error : {}" + stockCode);
-            return;
+            return null;
         }
 
+        //4.按照报告日期倒序返回列表
         List<ProfitDateBean> profitDateBeanList = beanList.stream().map(x -> {
                     ProfitDateBean profitDateBean = new ProfitDateBean();
                     BeanUtils.copyProperties(x, profitDateBean);
                     return profitDateBean;
                 }).filter(f -> StringUtils.isNotEmpty(f.getReportDate())).sorted(Comparator.comparing(ProfitDateBean::getReportDate).reversed())
                 .collect(Collectors.toList());
-
-        //4.保存文件
-        EasyExcel.write(fileName, ProfitDateBean.class)
-                .sheet(stockCode)
-                .doWrite(profitDateBeanList);
+        return profitDateBeanList;
     }
 }

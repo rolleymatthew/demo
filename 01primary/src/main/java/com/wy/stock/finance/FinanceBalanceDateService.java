@@ -50,13 +50,27 @@ public class FinanceBalanceDateService {
     }
 
     private static void getBeansByCode(String stockCode, String fileName) {
+        List<BalanceDateBean> profitDateBeanList = getBalanceDateBeanList(stockCode);
+        if (profitDateBeanList == null) return;
+
+        outputExcle(stockCode, fileName, profitDateBeanList);
+    }
+
+    public static void outputExcle(String stockCode, String fileName, List<BalanceDateBean> profitDateBeanList) {
+        //保存文件
+        EasyExcel.write(fileName, BalanceDateBean.class)
+                .sheet(stockCode)
+                .doWrite(profitDateBeanList);
+    }
+
+    public static List<BalanceDateBean> getBalanceDateBeanList(String stockCode) {
         //1.生成URL
         String urlformat = String.format(FinanceSpider.URL_DOMAIN + URL_LRB_REPORT, stockCode);
         //2.获取数据
         String temp = FinanceSpider.getResultClasses(urlformat);
         if (StringUtils.isEmpty(temp)) {
             logger.info("balance url empty error: {}", stockCode);
-            return;
+            return null;
         }
 
         //3.转成bean
@@ -64,17 +78,15 @@ public class FinanceBalanceDateService {
         if (CollectionUtils.isEmpty(beanList)) {
             logger.info("balance convertStringToBeans error : {}", stockCode);
         }
+
+        //4.按照报告日期倒序，返回数据列表
         List<BalanceDateBean> profitDateBeanList = beanList.stream().map(x -> {
                     BalanceDateBean profitDateBean = new BalanceDateBean();
                     BeanUtils.copyProperties(x, profitDateBean);
                     return profitDateBean;
                 }).filter(f -> StringUtils.isNotEmpty(f.getReportDate())).sorted(Comparator.comparing(BalanceDateBean::getReportDate).reversed())
                 .collect(Collectors.toList());
-
-        //4.保存文件
-        EasyExcel.write(fileName, BalanceDateBean.class)
-                .sheet(stockCode)
-                .doWrite(profitDateBeanList);
+        return profitDateBeanList;
     }
 
 }

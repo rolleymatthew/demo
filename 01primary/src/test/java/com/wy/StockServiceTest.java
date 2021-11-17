@@ -48,6 +48,12 @@ public class StockServiceTest {
 
     @Test
 //    @Ignore
+    void getFinanceDateAllOneTest(){
+        System.out.println(stockService.FinanceDateByAllOne("600519"));
+    }
+
+    @Test
+    @Ignore
     void stockReportServiceTest(){
         stockService.FinanceDateReport("000678,600519");
 //        stockService.FinanceDateReport(null);

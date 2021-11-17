@@ -54,6 +54,18 @@ public class FinanceDateWriteService {
     }
 
     private static void getZYCWZBContent(String stockCode, String fileName) {
+        List<FinanceDataBean> financeDataBeans = getFinanceDataBeanList(stockCode);
+        if (financeDataBeans == null) return;
+        outputExcle(stockCode, fileName, financeDataBeans);
+    }
+
+    public static void outputExcle(String stockCode, String fileName, List<FinanceDataBean> financeDataBeans) {
+        EasyExcel.write(fileName, FinanceDataBean.class)
+                .sheet(stockCode)
+                .doWrite(financeDataBeans);
+    }
+
+    public static List<FinanceDataBean> getFinanceDataBeanList(String stockCode) {
         //1.生成URL
         String urlformat = String.format(URL_DOMAIN + URL_ZYCWZB_REPORT, stockCode);
         //2.获取数据
@@ -61,7 +73,7 @@ public class FinanceDateWriteService {
         //3.保存文件
         if (StringUtils.isEmpty(temp)) {
             logger.info(stockCode + "数据库空");
-            return;
+            return null;
         }
 
         //读取行
@@ -69,7 +81,7 @@ public class FinanceDateWriteService {
         List<Object> beanList = FinanceCommonService.convertStringToBeans(temp, ConstantBean.ZYCWZB_DIC, FinanceDataBean.class);
         if (CollectionUtils.isEmpty(beanList)) {
             logger.info("getZYCWZBContent convertStringToBeans error : {}", stockCode);
-            return;
+            return null;
         }
         List<FinanceDataBean> financeDataBeans = beanList.stream().map(x -> {
                     FinanceDataBean financeDataBean = new FinanceDataBean();
@@ -77,8 +89,6 @@ public class FinanceDateWriteService {
                     return financeDataBean;
                 }).filter(s -> StringUtils.isNotEmpty(s.getReportDate())).sorted(Comparator.comparing(FinanceDataBean::getReportDate).reversed())
                 .collect(Collectors.toList());
-        EasyExcel.write(fileName, FinanceDataBean.class)
-                .sheet(stockCode)
-                .doWrite(financeDataBeans);
+        return financeDataBeans;
     }
 }
