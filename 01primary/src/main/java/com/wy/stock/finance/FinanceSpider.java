@@ -27,7 +27,11 @@ public class FinanceSpider {
         headerMap.put("Host", "quotes.money.163.com");
         headerMap.put("Referer", "http://quotes.money.163.com/f10/zycwzb_601816,season.html");
         headerMap.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36 SE 2.X MetaSr 1.0");
-        String ss = OkHttpUtil.doGet(url, headerMap, "GBK");
+        String ss = "";
+        try{
+            ss = OkHttpUtil.doGet(url, headerMap, "GBK");
+        }catch (Exception e){
+        }
         return ss;
     }
 

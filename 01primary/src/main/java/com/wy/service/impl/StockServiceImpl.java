@@ -148,12 +148,12 @@ public class StockServiceImpl implements StockService {
                             logger.info("stock code : " + x);
                             String fileName = path + String.format(FinanceCommonService.FILE_NAME_ALL, x);
                             excelWriter = EasyExcel.write(fileName).build();
-                            WriteSheet writeSheet = EasyExcel.writerSheet(0, "资产负债表").head(BalanceDateBean.class).build();
-                            excelWriter.write(FinanceBalanceDateService.getBalanceDateBeanList(x), writeSheet);
-                            WriteSheet writeSheet1 = EasyExcel.writerSheet(1, "现金流量表").head(CashFlowBean.class).build();
-                            excelWriter.write(FinanceCashFlowDateService.getCashFlowBeanList(x), writeSheet1);
-                            WriteSheet writeSheet2 = EasyExcel.writerSheet(2, "利润表").head(ProfitDateBean.class).build();
+                            WriteSheet writeSheet2 = EasyExcel.writerSheet(0, "利润表").head(ProfitDateBean.class).build();
                             excelWriter.write(FinanceProfitDateService.getProfitDateBeanList(x), writeSheet2);
+                            WriteSheet writeSheet = EasyExcel.writerSheet(1, "资产负债表").head(BalanceDateBean.class).build();
+                            excelWriter.write(FinanceBalanceDateService.getBalanceDateBeanList(x), writeSheet);
+                            WriteSheet writeSheet1 = EasyExcel.writerSheet(2, "现金流量表").head(CashFlowBean.class).build();
+                            excelWriter.write(FinanceCashFlowDateService.getCashFlowBeanList(x), writeSheet1);
                             WriteSheet writeSheet3 = EasyExcel.writerSheet(3, "主要财务数据").head(FinanceDataBean.class).build();
                             excelWriter.write(FinanceDateWriteService.getFinanceDataBeanList(x), writeSheet3);
                         } catch (Exception e) {

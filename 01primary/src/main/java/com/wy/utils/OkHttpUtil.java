@@ -60,7 +60,6 @@ public class OkHttpUtil {
                 builder.addHeader(e.getKey(),e.getValue());
             }
         }
-        logger.info(url);
         Request request = builder.url(url).build();
         Response response = null;
         try {
