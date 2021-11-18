@@ -53,7 +53,7 @@ public class StockControllot {
 
     @GetMapping("/finRepert")
     public ResultVO getFinanceReportData(@RequestParam(value = "code", required = false) String code) {
-        ResultVO resultVO = stockService.FinanceDateReport(code);
+        ResultVO resultVO = stockService.FinAllDateReport(code);
         return resultVO;
     }
 }
