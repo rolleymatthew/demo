@@ -368,9 +368,19 @@ public class FinanceCommonService {
                         excelReader.finish();
                     }
                 }
-                dataMap.put(f, stockFinDateBean);
+                if (CollectionUtils.isEmpty(stockFinDateBean.getProfitDateBean())
+                        || CollectionUtils.isEmpty(stockFinDateBean.getBalanceDateBean())
+                        || CollectionUtils.isEmpty(stockFinDateBean.getCashFlowBean())
+                        || CollectionUtils.isEmpty(stockFinDateBean.getFinanceDataBean())) {
+                    noXlsxFileList.add(f);
+                } else {
+                    dataMap.put(f, stockFinDateBean);
+                }
             }
         });
+        if (CollectionUtils.isNotEmpty(noXlsxFileList)) {
+            noXlsxFileList.stream().forEach(s -> logger.info("{} {} file no exist", "all", s));
+        }
         return dataMap;
     }
 }
