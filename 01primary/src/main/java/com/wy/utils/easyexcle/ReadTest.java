@@ -5,7 +5,9 @@ import com.alibaba.excel.ExcelReader;
 import com.alibaba.excel.read.listener.PageReadListener;
 import com.alibaba.excel.read.metadata.ReadSheet;
 import com.alibaba.fastjson.JSON;
+import com.wy.bean.BalanceDateBean;
 import com.wy.bean.EastMoneyBeab;
+import com.wy.bean.ProfitDateBean;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
@@ -21,17 +23,22 @@ public class ReadTest {
         EasyExcel.read(fileName, WriteTest.DemoData.class, new DemoDataListener()).doReadAll();
 
         // 读取部分sheet
-        fileName = "d:\\" + File.separator + "demo.xlsx";
+        fileName = "d:\\" + File.separator + "all600519.xlsx";
         ExcelReader excelReader = null;
         try {
             excelReader = EasyExcel.read(fileName).build();
 
             // 这里为了简单 所以注册了 同样的head 和Listener 自己使用功能必须不同的Listener
             ReadSheet readSheet1 =
-                    EasyExcel.readSheet(0).head(WriteTest.DemoData.class)
-                            .registerReadListener(new DemoDataListener()).build();
+                    EasyExcel.readSheet(0).head(ProfitDateBean.class)
+                            .registerReadListener(new PageReadListener<>(s->{
+                                System.out.println(s.toString());
+                            })).build();
             ReadSheet readSheet2 =
-                    EasyExcel.readSheet(1).head(WriteTest.DemoData.class).registerReadListener(new DemoDataListener()).build();
+                    EasyExcel.readSheet(1).head(BalanceDateBean.class)
+                            .registerReadListener(new PageReadListener<>(s->{
+                                System.out.println(s.toString());
+                            })).build();
             // 这里注意 一定要把sheet1 sheet2 一起传进去，不然有个问题就是03版的excel 会读取多次，浪费性能
             excelReader.read(readSheet1, readSheet2);
         } finally {
