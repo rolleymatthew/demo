@@ -1,7 +1,9 @@
 package com.wy.stock.finance;
 
 import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.ExcelReader;
 import com.alibaba.excel.read.listener.PageReadListener;
+import com.alibaba.excel.read.metadata.ReadSheet;
 import com.wy.bean.*;
 import com.wy.service.impl.StockServiceImpl;
 import com.wy.utils.AllStock;
@@ -41,7 +43,8 @@ public class FinanceCommonService {
 
     public static Map<String, String> CashFlowDicMap = convertDicMap(ConstantBean.cashFlow);
 
-    public static List<String> noXlsxFileList=new ArrayList<>();
+    public static List<String> noXlsxFileList = new ArrayList<>();
+
     /**
      * 把字符数据格式化成二维数组
      * 定义两个做行转列用的二维数组,把数据赋值到一个二维数组orgData里,用第二个二维数组newData实现行转列
@@ -232,9 +235,9 @@ public class FinanceCommonService {
             String pathName = FinanceCommonService.PATH_MAIN + File.separator
                     + FinanceProfitDateService.FILE_NAME_PRE + File.separator
                     + String.format(FinanceProfitDateService.FILE_NAME_REPORT, StringUtils.trim(s));
-            if (!FilesUtil.existsAndIsFile(pathName)){
+            if (!FilesUtil.existsAndIsFile(pathName)) {
                 noXlsxFileList.add(s);
-            }else {
+            } else {
                 EasyExcel.read(pathName, ProfitDateBean.class
                         , new PageReadListener<ProfitDateBean>(dataList -> {
                             dataMap.put(s, dataList.stream()
@@ -244,14 +247,15 @@ public class FinanceCommonService {
                         })).sheet(0).doRead();
             }
         });
-        if (CollectionUtils.isNotEmpty(noXlsxFileList)){
-            noXlsxFileList.stream().forEach(s->logger.info("{} {} file no exist",FinanceProfitDateService.FILE_NAME_PRE,s));
+        if (CollectionUtils.isNotEmpty(noXlsxFileList)) {
+            noXlsxFileList.stream().forEach(s -> logger.info("{} {} file no exist", FinanceProfitDateService.FILE_NAME_PRE, s));
         }
         return dataMap;
     }
 
     /**
      * 资产负债表
+     *
      * @param allCodes
      * @return
      */
@@ -261,9 +265,9 @@ public class FinanceCommonService {
             String pathName = FinanceCommonService.PATH_MAIN + File.separator
                     + FinanceBalanceDateService.FILE_NAME_PRE + File.separator
                     + String.format(FinanceBalanceDateService.FILE_NAME_REPORT, StringUtils.trim(s));
-            if (!FilesUtil.existsAndIsFile(pathName)){
+            if (!FilesUtil.existsAndIsFile(pathName)) {
                 noXlsxFileList.add(s);
-            }else {
+            } else {
                 EasyExcel.read(pathName, BalanceDateBean.class
                         , new PageReadListener<BalanceDateBean>(dataList -> {
                             dataMap.put(s, dataList.stream()
@@ -273,14 +277,15 @@ public class FinanceCommonService {
                         })).sheet(0).doRead();
             }
         });
-        if (CollectionUtils.isNotEmpty(noXlsxFileList)){
-            noXlsxFileList.stream().forEach(s->logger.info("{} {} file no exist",FinanceBalanceDateService.FILE_NAME_PRE,s));
+        if (CollectionUtils.isNotEmpty(noXlsxFileList)) {
+            noXlsxFileList.stream().forEach(s -> logger.info("{} {} file no exist", FinanceBalanceDateService.FILE_NAME_PRE, s));
         }
         return dataMap;
     }
 
     /**
      * 现金流量表
+     *
      * @param allCodes
      * @return
      */
@@ -290,9 +295,9 @@ public class FinanceCommonService {
             String pathName = FinanceCommonService.PATH_MAIN + File.separator
                     + FinanceCashFlowDateService.FILE_NAME_PRE + File.separator
                     + String.format(FinanceCashFlowDateService.FILE_NAME_REPORT, StringUtils.trim(s));
-            if (!FilesUtil.existsAndIsFile(pathName)){
+            if (!FilesUtil.existsAndIsFile(pathName)) {
                 noXlsxFileList.add(s);
-            }else {
+            } else {
                 EasyExcel.read(pathName, CashFlowBean.class
                         , new PageReadListener<CashFlowBean>(dataList -> {
                             dataMap.put(s, dataList.stream()
@@ -302,11 +307,70 @@ public class FinanceCommonService {
                         })).sheet(0).doRead();
             }
         });
-        if (CollectionUtils.isNotEmpty(noXlsxFileList)){
-            noXlsxFileList.stream().forEach(s->logger.info("{} {} file no exist",FinanceCashFlowDateService.FILE_NAME_PRE,s));
+        if (CollectionUtils.isNotEmpty(noXlsxFileList)) {
+            noXlsxFileList.stream().forEach(s -> logger.info("{} {} file no exist", FinanceCashFlowDateService.FILE_NAME_PRE, s));
         }
         return dataMap;
     }
 
+    /**
+     * 利润表、资产负债表、现金流表、主要财务指标
+     *
+     * @param allCodes
+     * @return
+     */
+    public static Map<String, StockFinDateBean> getStockFinDateMap(List<String> allCodes) {
+        Map<String, StockFinDateBean> dataMap = new ConcurrentHashMap<>();
+        allCodes.parallelStream().forEach(f -> {
+            String fileName = PATH_ALL + File.separator + File.separator
+                    + String.format(FILE_NAME_ALL, StringUtils.trim(f));
+            if (!FilesUtil.existsAndIsFile(fileName)) {
+                noXlsxFileList.add(f);
+            } else {
+                ExcelReader excelReader = null;
+                StockFinDateBean stockFinDateBean = new StockFinDateBean();
+                try {
+                    excelReader = EasyExcel.read(fileName).build();
 
+                    ReadSheet readSheet1 =
+                            EasyExcel.readSheet(0).head(ProfitDateBean.class)
+                                    .registerReadListener(new PageReadListener<ProfitDateBean>(s -> {
+                                        if (CollectionUtils.isNotEmpty(s)) {
+                                            stockFinDateBean.setProfitDateBean(s);
+                                        }
+                                    })).build();
+                    ReadSheet readSheet2 =
+                            EasyExcel.readSheet(1).head(BalanceDateBean.class)
+                                    .registerReadListener(new PageReadListener<BalanceDateBean>(s -> {
+                                        if (CollectionUtils.isNotEmpty(s)) {
+                                            stockFinDateBean.setBalanceDateBean(s);
+                                        }
+                                    })).build();
+                    ReadSheet readSheet3 =
+                            EasyExcel.readSheet(2).head(CashFlowBean.class)
+                                    .registerReadListener(new PageReadListener<CashFlowBean>(s -> {
+                                        if (CollectionUtils.isNotEmpty(s)) {
+                                            stockFinDateBean.setCashFlowBean(s);
+                                        }
+                                    })).build();
+                    ReadSheet readSheet4 =
+                            EasyExcel.readSheet(3).head(FinanceDataBean.class)
+                                    .registerReadListener(new PageReadListener<FinanceDataBean>(s -> {
+                                        if (CollectionUtils.isNotEmpty(s)) {
+                                            stockFinDateBean.setFinanceDataBean(s);
+                                        }
+                                    })).build();
+                    // 这里注意 一定要把sheet1 sheet2 一起传进去，不然有个问题就是03版的excel 会读取多次，浪费性能
+                    excelReader.read(readSheet1, readSheet2, readSheet3, readSheet4);
+                } finally {
+                    if (excelReader != null) {
+                        // 这里千万别忘记关闭，读的时候会创建临时文件，到时磁盘会崩的
+                        excelReader.finish();
+                    }
+                }
+                dataMap.put(f, stockFinDateBean);
+            }
+        });
+        return dataMap;
+    }
 }

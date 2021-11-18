@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -207,7 +206,49 @@ public class StockServiceImpl implements StockService {
 
         ProfitReportService.outputOpeProfitPer(operatProfitBeans);
 
-        Map<String, List<ZQHFinBean>> zqhBeanMap = ProfitReportService.getZqhBeanMap(profitListMap, balanceListMap, cashListMap);
+        Map<String, List<FinanceDataBean>> finListMap=new HashMap<>();
+        Map<String, List<ZQHFinBean>> zqhBeanMap = ProfitReportService.getZqhBeanMap(profitListMap, balanceListMap, cashListMap, finListMap);
+
+        //输出文件
+        ProfitReportService.outPutZQHFile(zqhBeanMap, stockCodeYmlBean.getAcode());
+        logger.info("end finance report {}. {}s", allCodes.size(), (System.currentTimeMillis() - start) / 1000);
+        return ResultVO.ok();
+    }
+
+    public ResultVO FinAllDateReport(String code) {
+        int[] counts = {1, 2, 3};
+        List<String> allCodes = new ArrayList<>();
+        if (StringUtils.isEmpty(code)) {
+            allCodes = stockCodeYmlBean.getAcode().entrySet().stream().map(x -> x.getKey()).collect(Collectors.toList());
+        } else if (StringUtils.isNotEmpty(code) && StringUtils.contains(code, ",")) {
+            allCodes = Stream.of(code).map(l -> l.split(",")).flatMap(Arrays::stream).collect(Collectors.toList());
+        } else {
+            allCodes.add(code);
+        }
+        logger.info("start report {} finance .", allCodes.size());
+        long start = System.currentTimeMillis();
+        //读取文件三大报表
+        Map<String, StockFinDateBean> stockFinDateMap = FinanceCommonService.getStockFinDateMap(allCodes);
+
+        Map<String, List<ProfitDateBean>> profitListMap = stockFinDateMap.entrySet().stream().collect(Collectors.toMap(s -> s.getKey(), s -> s.getValue().getProfitDateBean()));
+        Map<String, List<BalanceDateBean>> balanceListMap = stockFinDateMap.entrySet().stream().collect(Collectors.toMap(s -> s.getKey(), s -> s.getValue().getBalanceDateBean()));
+        Map<String, List<CashFlowBean>> cashListMap = stockFinDateMap.entrySet().stream().collect(Collectors.toMap(s -> s.getKey(), s -> s.getValue().getCashFlowBean()));
+        Map<String, List<FinanceDataBean>> finListMap = stockFinDateMap.entrySet().stream().collect(Collectors.toMap(s -> s.getKey(), s -> s.getValue().getFinanceDataBean()));
+
+        //计算毛利率、营业利润率、净利率
+        Map<String, List<FinThreePerBean>> finPerMap = ProfitReportService.getFinPerMap(profitListMap);
+
+        //填充三率每个报告期增加减少
+        Map<String, List<FinThreePerBean>> threePerMap = ProfitReportService.fillFinPerMap(finPerMap);
+        //找到三率三升的并输出文件
+        ProfitReportService.outputUpFinThreePer(counts, threePerMap, stockCodeYmlBean.getAcode());
+
+        //计算营收和利润比例
+        List<OperatProfitBean> operatProfitBeans = ProfitReportService.getOperatProfitBeans(profitListMap, stockCodeYmlBean.getAcode());
+
+        ProfitReportService.outputOpeProfitPer(operatProfitBeans);
+
+        Map<String, List<ZQHFinBean>> zqhBeanMap = ProfitReportService.getZqhBeanMap(profitListMap, balanceListMap, cashListMap,finListMap);
 
         //输出文件
         ProfitReportService.outPutZQHFile(zqhBeanMap, stockCodeYmlBean.getAcode());

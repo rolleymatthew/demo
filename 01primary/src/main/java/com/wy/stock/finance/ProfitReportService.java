@@ -9,16 +9,12 @@ import com.wy.utils.FilesUtil;
 import com.wy.utils.NumUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -288,7 +284,8 @@ public class ProfitReportService {
                 .entrySet().stream().collect(Collectors.toMap(s -> s.getKey(), s -> s.getValue()));
         Map<String, List<CashFlowBean>> cashListMap = FinanceCommonService.getCashListMap(alCodes)
                 .entrySet().stream().collect(Collectors.toMap(s -> s.getKey(), s -> s.getValue()));
-        Map<String, List<ZQHFinBean>> zqhBeanMap = getZqhBeanMap(profitListMap, balanceListMap, cashListMap);
+        Map<String, List<FinanceDataBean>> finListMap=new HashMap<>();
+        Map<String, List<ZQHFinBean>> zqhBeanMap = getZqhBeanMap(profitListMap, balanceListMap, cashListMap, finListMap);
 
         //输出文件
         outPutZQHFile(zqhBeanMap, null);
@@ -318,8 +315,8 @@ public class ProfitReportService {
         }
     }
 
-    public static Map<String, List<ZQHFinBean>> getZqhBeanMap(Map<String, List<ProfitDateBean>> financeListMap, Map<String, List<BalanceDateBean>> balanceListMap, Map<String, List<CashFlowBean>> cashListMap) {
-        Map<String, List<ZQHFinBean>> zqhBeanMap = financeListMap.entrySet().stream().collect(Collectors.toMap(s -> s.getKey(), s ->
+    public static Map<String, List<ZQHFinBean>> getZqhBeanMap(Map<String, List<ProfitDateBean>> profitListMap, Map<String, List<BalanceDateBean>> balanceListMap, Map<String, List<CashFlowBean>> cashListMap, Map<String, List<FinanceDataBean>> finListMap) {
+        Map<String, List<ZQHFinBean>> zqhBeanMap = profitListMap.entrySet().stream().collect(Collectors.toMap(s -> s.getKey(), s ->
                 {
                     List<ProfitDateBean> value = s.getValue();
                     List<ZQHFinBean> collect = value.stream().map(x -> {
@@ -334,6 +331,7 @@ public class ProfitReportService {
                         zqhFinBean.setLAndLiabRatioww(getDebRatio(x, balanceListMap.get(s.getKey())));
                         zqhFinBean.setNetProfitGrowthRate(getNetProfitGrowRate(x, s.getValue()));
                         zqhFinBean.setRevenueGrowthRate(getRevenueGrowthRate(x, s.getValue()));
+                        zqhFinBean.setReturnOnNetAssets(getReturnOnNetAssets(x, finListMap.get(s.getKey())));
                         return zqhFinBean;
                     }).collect(Collectors.toList());
                     return collect;
@@ -343,7 +341,24 @@ public class ProfitReportService {
     }
 
     /**
+     * ROE
+     *
+     * @param profitDateBean
+     * @param financeDataBeans
+     * @return
+     */
+    private static double getReturnOnNetAssets(ProfitDateBean profitDateBean, List<FinanceDataBean> financeDataBeans) {
+        List<FinanceDataBean> collect = financeDataBeans.stream().filter(s -> StringUtils.equals(s.getReportDate(), profitDateBean.getReportDate())).collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(collect)) {
+            FinanceDataBean financeDataBean = collect.get(0);
+            return NumUtils.stringToDouble(financeDataBean.getNetAssetsWeight());
+        }
+        return 0;
+    }
+
+    /**
      * 收入同比增长率
+     *
      * @param curBean
      * @param beanList
      * @return
@@ -353,7 +368,7 @@ public class ProfitReportService {
         String lastYearSameQuarter = DateUtil.getLastYearSameQuarter(curBean.getReportDate());
         //计算同比数据，归母净利润同比增长
         List<ProfitDateBean> collect = beanList.stream().filter(s -> StringUtils.equals(lastYearSameQuarter, s.getReportDate())).collect(Collectors.toList());
-        if (CollectionUtils.isNotEmpty(collect)){
+        if (CollectionUtils.isNotEmpty(collect)) {
             ProfitDateBean profitDateBean = collect.get(0);
             double v = (NumUtils.stringToDouble(curBean.getOperatingIncome()) - NumUtils.stringToDouble(profitDateBean.getOperatingIncome())) / NumUtils.stringToDouble(profitDateBean.getOperatingIncome()) * 100;
             return NumUtils.roundDouble(v);
@@ -373,7 +388,7 @@ public class ProfitReportService {
         String lastYearSameQuarter = DateUtil.getLastYearSameQuarter(curBean.getReportDate());
         //计算同比数据，归母净利润同比增长
         List<ProfitDateBean> collect = beanList.stream().filter(s -> StringUtils.equals(lastYearSameQuarter, s.getReportDate())).collect(Collectors.toList());
-        if (CollectionUtils.isNotEmpty(collect)){
+        if (CollectionUtils.isNotEmpty(collect)) {
             ProfitDateBean profitDateBean = collect.get(0);
             double v = (NumUtils.stringToDouble(curBean.getNetProfitAttributable()) - NumUtils.stringToDouble(profitDateBean.getNetProfitAttributable())) / NumUtils.stringToDouble(profitDateBean.getNetProfitAttributable()) * 100;
             return NumUtils.roundDouble(v);

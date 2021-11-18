@@ -14,4 +14,5 @@ public interface StockService {
     ResultVO FinanceDateByMonth(String code);
     ResultVO FinanceDateByAllOne(String code);
     ResultVO FinanceDateReport(String code);
+    ResultVO FinAllDateReport(String code);
 }
