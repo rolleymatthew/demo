@@ -4,6 +4,7 @@ import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.wy.bean.*;
+import com.wy.service.impl.YBFinBean;
 import com.wy.utils.DateUtil;
 import com.wy.utils.FilesUtil;
 import com.wy.utils.NumUtils;
@@ -284,7 +285,7 @@ public class ProfitReportService {
                 .entrySet().stream().collect(Collectors.toMap(s -> s.getKey(), s -> s.getValue()));
         Map<String, List<CashFlowBean>> cashListMap = FinanceCommonService.getCashListMap(alCodes)
                 .entrySet().stream().collect(Collectors.toMap(s -> s.getKey(), s -> s.getValue()));
-        Map<String, List<FinanceDataBean>> finListMap=new HashMap<>();
+        Map<String, List<FinanceDataBean>> finListMap = new HashMap<>();
         Map<String, List<ZQHFinBean>> zqhBeanMap = getZqhBeanMap(profitListMap, balanceListMap, cashListMap, finListMap);
 
         //输出文件
@@ -396,6 +397,13 @@ public class ProfitReportService {
         return 0;
     }
 
+    /**
+     * 长短负债比
+     *
+     * @param profitDateBean
+     * @param balanceDateBeans
+     * @return
+     */
     private static double getDebRatio(ProfitDateBean profitDateBean, List<BalanceDateBean> balanceDateBeans) {
         List<BalanceDateBean> balanceDateBeanStream = balanceDateBeans.stream().filter(x -> StringUtils.equals(x.getReportDate(), profitDateBean.getReportDate())).collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(balanceDateBeanStream)) {
@@ -407,6 +415,13 @@ public class ProfitReportService {
         return 0;
     }
 
+    /**
+     * 经营现金流
+     *
+     * @param profitDateBean
+     * @param cashFlowBeans
+     * @return
+     */
     private static double getCashFlow(ProfitDateBean profitDateBean, List<CashFlowBean> cashFlowBeans) {
         List<CashFlowBean> collect = cashFlowBeans.stream().filter(x -> StringUtils.equals(x.getReportDate(), profitDateBean.getReportDate())).collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(collect)) {
@@ -416,4 +431,49 @@ public class ProfitReportService {
         return 0;
     }
 
+    public static Map<String, List<YBFinBean>> getYBBeanMap(Map<String, List<ProfitDateBean>> profitListMap, Map<String, List<BalanceDateBean>> balanceListMap, Map<String, List<CashFlowBean>> cashListMap, Map<String, List<FinanceDataBean>> finListMap) {
+        Map<String, List<YBFinBean>> ret = profitListMap.entrySet().stream().collect(Collectors.toMap(s -> s.getKey(), s -> {
+                    List<YBFinBean> ybFinBeans = s.getValue().stream().map(x -> {
+                        YBFinBean ybFinBean = new YBFinBean();
+                        ybFinBean.setReportDate(x.getReportDate());
+                        ybFinBean.setSectorType(getSectorType(x));
+                        ybFinBean.setNetInterestRate(getNetProfit(x));
+                        ybFinBean.setOperatingGrossProfitMargin(getGrossProfit(x));
+                        ybFinBean.setOperatingProfitMargin(getOperatProfit(x));
+                        ybFinBean.setReturnOnNetAssets(getReturnOnNetAssets(x, finListMap.get(s.getKey())));
+                        ybFinBean.setOperatingGrossProfitMarginScore(getOpeProfitScore(x,balanceListMap.get(s.getKey()),getSectorType(x)));
+                        return ybFinBean;
+                    }).collect(Collectors.toList());
+                    return ybFinBeans;
+                }
+        ));
+
+        return ret;
+    }
+
+    private static Integer getOpeProfitScore(ProfitDateBean profitDateBean, List<BalanceDateBean> balanceDateBeans, boolean sectorType) {
+        List<BalanceDateBean> balanceDateBeanStream = balanceDateBeans.stream().filter(x -> StringUtils.equals(x.getReportDate(), profitDateBean.getReportDate())).collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(balanceDateBeanStream)) {
+            if (sectorType) {
+                //金融企业
+
+            }else {
+                //一般企业
+            }
+
+        }
+        return null;
+    }
+
+    /**
+     * 判断金融企业
+     * @param x
+     * @return true 金融企业,false 一般企业
+     */
+    private static boolean getSectorType(ProfitDateBean x) {
+        if (StringUtils.isEmpty(x.getOperatingIncome())){
+            return true;
+        }
+        return false;
+    }
 }

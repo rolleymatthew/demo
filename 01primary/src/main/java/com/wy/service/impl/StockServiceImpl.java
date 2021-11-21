@@ -252,6 +252,9 @@ public class StockServiceImpl implements StockService {
 
         //输出文件
         ProfitReportService.outPutZQHFile(zqhBeanMap, stockCodeYmlBean.getAcode());
+
+        Map<String, List<YBFinBean>> ybBeanMap = ProfitReportService.getYBBeanMap(profitListMap, balanceListMap, cashListMap,finListMap);
+        //输出文件
         logger.info("end finance report {}. {}s", allCodes.size(), (System.currentTimeMillis() - start) / 1000);
         return ResultVO.ok();
     }
