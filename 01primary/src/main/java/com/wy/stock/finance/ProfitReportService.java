@@ -10,6 +10,7 @@ import com.wy.utils.FilesUtil;
 import com.wy.utils.NumUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -279,17 +280,17 @@ public class ProfitReportService {
         List<String> alCodes = new ArrayList<>();
         alCodes.add("688981");
         alCodes.add("600519");
-        Map<String, List<ProfitDateBean>> profitListMap = FinanceCommonService.getProfitListMap(alCodes)
-                .entrySet().stream().collect(Collectors.toMap(s -> s.getKey(), s -> s.getValue()));
-        Map<String, List<BalanceDateBean>> balanceListMap = FinanceCommonService.getBalanceListMap(alCodes)
-                .entrySet().stream().collect(Collectors.toMap(s -> s.getKey(), s -> s.getValue()));
-        Map<String, List<CashFlowBean>> cashListMap = FinanceCommonService.getCashListMap(alCodes)
-                .entrySet().stream().collect(Collectors.toMap(s -> s.getKey(), s -> s.getValue()));
-        Map<String, List<FinanceDataBean>> finListMap = new HashMap<>();
-        Map<String, List<ZQHFinBean>> zqhBeanMap = getZqhBeanMap(profitListMap, balanceListMap, cashListMap, finListMap);
+        //读取文件三大报表
+        Map<String, StockFinDateBean> stockFinDateMap = FinanceCommonService.getStockFinDateMap(alCodes);
 
-        //输出文件
-        outPutZQHFile(zqhBeanMap, null);
+        Map<String, List<ProfitDateBean>> profitListMap = stockFinDateMap.entrySet().stream().collect(Collectors.toMap(s -> s.getKey(), s -> s.getValue().getProfitDateBean()));
+        Map<String, List<BalanceDateBean>> balanceListMap = stockFinDateMap.entrySet().stream().collect(Collectors.toMap(s -> s.getKey(), s -> s.getValue().getBalanceDateBean()));
+        Map<String, List<CashFlowBean>> cashListMap = stockFinDateMap.entrySet().stream().collect(Collectors.toMap(s -> s.getKey(), s -> s.getValue().getCashFlowBean()));
+        Map<String, List<FinanceDataBean>> finListMap = stockFinDateMap.entrySet().stream().collect(Collectors.toMap(s -> s.getKey(), s -> s.getValue().getFinanceDataBean()));
+        Map<String, List<YBFinBean>> ybBeanMap = getYBBeanMap(profitListMap, balanceListMap, cashListMap, finListMap);
+
+        System.out.println(ybBeanMap.size());
+
     }
 
     public static void outPutZQHFile(Map<String, List<ZQHFinBean>> zqhBeanMap, Map<String, String> acode) {
@@ -441,7 +442,7 @@ public class ProfitReportService {
                         ybFinBean.setOperatingGrossProfitMargin(getGrossProfit(x));
                         ybFinBean.setOperatingProfitMargin(getOperatProfit(x));
                         ybFinBean.setReturnOnNetAssets(getReturnOnNetAssets(x, finListMap.get(s.getKey())));
-                        ybFinBean.setOperatingGrossProfitMarginScore(getOpeProfitScore(x,balanceListMap.get(s.getKey()),getSectorType(x)));
+                        ybFinBean.setOperatingGrossProfitMarginScore(getOpeProfitScore(x, balanceListMap.get(s.getKey()), ybFinBean));
                         return ybFinBean;
                     }).collect(Collectors.toList());
                     return ybFinBeans;
@@ -451,27 +452,60 @@ public class ProfitReportService {
         return ret;
     }
 
-    private static Integer getOpeProfitScore(ProfitDateBean profitDateBean, List<BalanceDateBean> balanceDateBeans, boolean sectorType) {
+    private static Integer getOpeProfitScore(ProfitDateBean profitDateBean, List<BalanceDateBean> balanceDateBeans, YBFinBean ybFinBean) {
         List<BalanceDateBean> balanceDateBeanStream = balanceDateBeans.stream().filter(x -> StringUtils.equals(x.getReportDate(), profitDateBean.getReportDate())).collect(Collectors.toList());
+        int score = NumberUtils.INTEGER_ZERO;
         if (CollectionUtils.isNotEmpty(balanceDateBeanStream)) {
-            if (sectorType) {
+            if (ybFinBean.isSectorType()) {
                 //金融企业
+                if (ybFinBean.getOperatingGrossProfitMargin() >= 0.0 && ybFinBean.getOperatingGrossProfitMargin() < 20.0) {
+                    score = score + 6;
+                }
+                if (ybFinBean.getOperatingGrossProfitMargin() >= 20.0 && ybFinBean.getOperatingGrossProfitMargin() < 30.0) {
+                    score = score + 9;
+                }
+                if (ybFinBean.getOperatingGrossProfitMargin() >= 30.0 && ybFinBean.getOperatingGrossProfitMargin() < 40.0) {
+                    score = score + 10;
+                }
+                if (ybFinBean.getOperatingGrossProfitMargin() >= 40.0 && ybFinBean.getOperatingGrossProfitMargin() < 50.0) {
+                    score = score + 12;
+                }
+                if (ybFinBean.getOperatingGrossProfitMargin() >= 50.0) {
+                    score = score + 15;
+                }
 
-            }else {
+            } else {
                 //一般企业
+                if (ybFinBean.getOperatingGrossProfitMargin() >= 10.0 && ybFinBean.getOperatingGrossProfitMargin() < 20.0) {
+                    score = score + 3;
+                }
+                if (ybFinBean.getOperatingGrossProfitMargin() >= 20.0 && ybFinBean.getOperatingGrossProfitMargin() < 30.0) {
+                    score = score + 6;
+                }
+                if (ybFinBean.getOperatingGrossProfitMargin() >= 30.0 && ybFinBean.getOperatingGrossProfitMargin() < 40.0) {
+                    score = score + 9;
+                }
+                if (ybFinBean.getOperatingGrossProfitMargin() >= 40.0 && ybFinBean.getOperatingGrossProfitMargin() < 50.0) {
+                    score = score + 12;
+                }
+                if (ybFinBean.getOperatingGrossProfitMargin() >= 50.0) {
+                    score = score + 15;
+                }
+
             }
 
         }
-        return null;
+        return score;
     }
 
     /**
      * 判断金融企业
+     *
      * @param x
      * @return true 金融企业,false 一般企业
      */
     private static boolean getSectorType(ProfitDateBean x) {
-        if (StringUtils.isEmpty(x.getOperatingIncome())){
+        if (StringUtils.isEmpty(x.getOperatingIncome())) {
             return true;
         }
         return false;
