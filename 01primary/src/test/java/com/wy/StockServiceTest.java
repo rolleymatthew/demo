@@ -56,8 +56,8 @@ public class StockServiceTest {
 //    @Ignore
     void stockReportServiceTest(){
 //        stockService.FinanceDateReport("000678,600519");
-//        stockService.FinAllDateReport("000678,600519");
+        stockService.FinAllDateReport("000678,600519");
 //        stockService.FinanceDateReport(null);
-        stockService.FinAllDateReport(null);
+//        stockService.FinAllDateReport(null);
     }
 }
