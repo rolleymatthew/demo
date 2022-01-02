@@ -2,10 +2,13 @@ package com.wy.controllor;
 
 import com.wy.bean.Student;
 import com.wy.service.SomeService;
+import com.wy.utils.CookieUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Created by yunwang on 2021/5/19 9:51
@@ -42,5 +45,11 @@ public class SomeControllor {
     @GetMapping("/student")
     public String studentHandle() {
         return "student=" + student;
+    }
+
+    @GetMapping("/cookie")
+    public String cookieHandle(HttpServletRequest request) {
+        String voteUserPhone = CookieUtils.getCookieAttribute("stut", request);
+        return voteUserPhone;
     }
 }
