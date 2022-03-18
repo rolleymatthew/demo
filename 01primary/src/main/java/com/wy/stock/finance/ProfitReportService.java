@@ -199,7 +199,8 @@ public class ProfitReportService {
      * @return
      */
     private static Double income(ProfitDateBean s) {
-        if (StringUtils.equalsIgnoreCase(s.getOperatingIncome(), "--")) {
+        if (StringUtils.equalsIgnoreCase(s.getOperatingIncome(), "--")
+                || NumUtils.stringToDouble(s.getOperatingIncome()).equals(NumberUtils.DOUBLE_ZERO)) {
             //金融企业计算方式：营业收入=营业总收入-其他收入
             return NumUtils.stringToDouble(s.getTotalOperatingIncome()) - NumUtils.stringToDouble(s.getOtherBusinessIncome());
         }
@@ -305,10 +306,12 @@ public class ProfitReportService {
             }
             String fileName = FinanceCommonService.PATH_ZQH + File.separator + String.format(FinanceCommonService.FILE_NAME_ZQH, s.getKey() + fi);
             try {
+                List<ZQHFinBean> collect = s.getValue().stream().sorted(Comparator.comparing(ZQHFinBean::getReportDate).reversed()).collect(Collectors.toList());
                 EasyExcel.write(fileName, ZQHFinBean.class)
                         .sheet(s.getKey())
-                        .doWrite(s.getValue().stream().sorted(Comparator.comparing(ZQHFinBean::getReportDate).reversed()).collect(Collectors.toList()));
+                        .doWrite(collect);
             } catch (Exception e) {
+                e.printStackTrace();
                 errorCode.add(fileName);
             }
         });
@@ -372,7 +375,7 @@ public class ProfitReportService {
         List<ProfitDateBean> collect = beanList.stream().filter(s -> StringUtils.equals(lastYearSameQuarter, s.getReportDate())).collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(collect)) {
             ProfitDateBean profitDateBean = collect.get(0);
-            double v = (NumUtils.stringToDouble(curBean.getOperatingIncome()) - NumUtils.stringToDouble(profitDateBean.getOperatingIncome())) / NumUtils.stringToDouble(profitDateBean.getOperatingIncome()) * 100;
+            double v = (income(curBean) - income(profitDateBean)) / income(profitDateBean) * 100;
             return NumUtils.roundDouble(v);
         }
         return 0;
@@ -411,6 +414,9 @@ public class ProfitReportService {
             BalanceDateBean balanceDateBean = balanceDateBeanStream.get(0);
             Double aDouble = NumUtils.stringToDouble(balanceDateBean.getTotalCurrentLiabilities());
             Double aDouble1 = NumUtils.stringToDouble(balanceDateBean.getTotalNonCurrentLiabilities());
+            if (aDouble.equals(NumberUtils.DOUBLE_ZERO)) {
+                return NumberUtils.DOUBLE_ZERO;
+            }
             return NumUtils.roundDouble(aDouble1 / aDouble * 100);
         }
         return 0;
