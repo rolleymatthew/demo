@@ -8,6 +8,7 @@ import com.wy.service.impl.YBFinBean;
 import com.wy.utils.DateUtil;
 import com.wy.utils.FilesUtil;
 import com.wy.utils.NumUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
  * @author yunwang
  * @Date 2021-10-27
  */
+@Slf4j
 public class ProfitReportService {
     private static Logger logger = LoggerFactory.getLogger(ProfitReportService.class);
     private static List<String> errorCode = new ArrayList<>();
@@ -317,6 +319,12 @@ public class ProfitReportService {
         });
         if (CollectionUtils.isNotEmpty(errorCode)) {
             errorCode.stream().forEach(s -> logger.info("outPutZQHFile error : {}", s));
+            try {
+                FilesUtil.writeFile(FinanceCommonService.PATH_ZQH, "error.txt", com.wy.utils.StringUtils.parsStringListToStr(errorCode, ","));
+            } catch (IOException e) {
+                log.error(e.toString());
+            }
+
         }
     }
 
