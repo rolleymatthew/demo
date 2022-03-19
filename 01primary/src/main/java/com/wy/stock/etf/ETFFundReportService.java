@@ -9,6 +9,7 @@ import com.wy.bean.ETFBean;
 import com.wy.bean.ETFCompVoBean;
 import com.wy.utils.DateUtil;
 import com.wy.utils.FilesUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 /**
  * Created by yunwang on 2021/10/29 13:53
  */
+@Slf4j
 public class ETFFundReportService {
     private static String PATH = Contant.REPORT_PATH;
 

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * 字符串工具类
@@ -400,6 +401,15 @@ public final class StringUtils extends org.apache.commons.lang3.StringUtils {
 		m = p.matcher(phoneNumber);
 		b = m.matches();
 		return b;
+	}
+
+	/**
+	 * 字符List转特殊符号分割的字符串
+	 * @param list
+	 * @return
+	 */
+	public static String parsStringListToStr(List<String> list,String delimiter){
+		return list.stream().map(String::valueOf).collect(Collectors.joining(delimiter));
 	}
 
 	public static void main(String[] args) {
