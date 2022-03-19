@@ -171,6 +171,9 @@ public class ProfitReportService {
      * @return
      */
     private static Double getNetProfit(ProfitDateBean s) {
+        if (income(s).equals(NumberUtils.DOUBLE_ZERO)) {
+            return NumberUtils.DOUBLE_ZERO;
+        }
         return NumUtils.roundDouble(NumUtils.stringToDouble(s.getNetProfit()) / income(s) * 100);
     }
 
@@ -181,6 +184,9 @@ public class ProfitReportService {
      * @return
      */
     private static Double getGrossProfit(ProfitDateBean s) {
+        if (income(s).equals(NumberUtils.DOUBLE_ZERO)) {
+            return 0.0;
+        }
         return NumUtils.roundDouble((income(s) - cost(s)) / income(s) * 100);
     }
 
@@ -191,6 +197,9 @@ public class ProfitReportService {
      * @return
      */
     private static Double getOperatProfit(ProfitDateBean s) {
+        if (income(s).equals(NumberUtils.DOUBLE_ZERO)) {
+            return NumberUtils.DOUBLE_ZERO;
+        }
         return NumUtils.roundDouble(NumUtils.stringToDouble(s.getOperatingProfit()) / income(s) * 100);
     }
 
@@ -403,6 +412,9 @@ public class ProfitReportService {
         List<ProfitDateBean> collect = beanList.stream().filter(s -> StringUtils.equals(lastYearSameQuarter, s.getReportDate())).collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(collect)) {
             ProfitDateBean profitDateBean = collect.get(0);
+            if (NumUtils.stringToDouble(profitDateBean.getNetProfitAttributable()).equals(NumberUtils.DOUBLE_ZERO)) {
+                return NumberUtils.DOUBLE_ZERO;
+            }
             double v = (NumUtils.stringToDouble(curBean.getNetProfitAttributable()) - NumUtils.stringToDouble(profitDateBean.getNetProfitAttributable())) / NumUtils.stringToDouble(profitDateBean.getNetProfitAttributable()) * 100;
             return NumUtils.roundDouble(v);
         }
