@@ -171,57 +171,10 @@ public class StockServiceImpl implements StockService {
             );
 
             //输出获取失败代码到文件
-            try {
-                FilesUtil.writeFile(path, "error.txt", com.wy.utils.StringUtils.parsStringListToStr(errorCodes, ","));
-            } catch (IOException e) {
-                log.error(e.toString());
-            }
             flag.decrementAndGet();
         } else {
             return ResultVO.build(-1, "已经在运行抓取");
         }
-        return ResultVO.ok();
-    }
-
-    @Override
-    public ResultVO FinanceDateReport(String code) {
-        int[] counts = {1, 2, 3};
-        List<String> allCodes = new ArrayList<>();
-        if (StringUtils.isEmpty(code)) {
-            allCodes = stockCodeYmlBean.getAcode().entrySet().stream().map(x -> x.getKey()).collect(Collectors.toList());
-        } else if (StringUtils.isNotEmpty(code) && StringUtils.contains(code, ",")) {
-            allCodes = Stream.of(code).map(l -> l.split(",")).flatMap(Arrays::stream).collect(Collectors.toList());
-        } else {
-            allCodes.add(code);
-        }
-        log.info("start report {} finance .", allCodes.size());
-        long start = System.currentTimeMillis();
-        //读取文件三大报表
-        Map<String, List<ProfitDateBean>> profitListMap = FinanceCommonService.getProfitListMap(allCodes);
-        Map<String, List<BalanceDateBean>> balanceListMap = FinanceCommonService.getBalanceListMap(allCodes)
-                .entrySet().stream().collect(Collectors.toMap(s -> s.getKey(), s -> s.getValue()));
-        Map<String, List<CashFlowBean>> cashListMap = FinanceCommonService.getCashListMap(allCodes)
-                .entrySet().stream().collect(Collectors.toMap(s -> s.getKey(), s -> s.getValue()));
-
-        //计算毛利率、营业利润率、净利率
-        Map<String, List<FinThreePerBean>> finPerMap = ProfitReportService.getFinPerMap(profitListMap);
-
-        //填充三率每个报告期增加减少
-        Map<String, List<FinThreePerBean>> threePerMap = ProfitReportService.fillFinPerMap(finPerMap);
-        //找到三率三升的并输出文件
-        ProfitReportService.outputUpFinThreePer(counts, threePerMap, stockCodeYmlBean.getAcode());
-
-        //计算营收和利润比例
-        List<OperatProfitBean> operatProfitBeans = ProfitReportService.getOperatProfitBeans(profitListMap, stockCodeYmlBean.getAcode());
-
-        ProfitReportService.outputOpeProfitPer(operatProfitBeans);
-
-        Map<String, List<FinanceDataBean>> finListMap = new HashMap<>();
-        Map<String, List<ZQHFinBean>> zqhBeanMap = ProfitReportService.getZqhBeanMap(profitListMap, balanceListMap, cashListMap, finListMap);
-
-        //输出文件
-        ProfitReportService.outPutZQHFile(zqhBeanMap, stockCodeYmlBean.getAcode());
-        log.info("end finance report {}. {}s", allCodes.size(), (System.currentTimeMillis() - start) / 1000);
         return ResultVO.ok();
     }
 

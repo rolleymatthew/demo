@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ProfitReportService {
     private static Logger logger = LoggerFactory.getLogger(ProfitReportService.class);
-    private static List<String> errorCode = new ArrayList<>();
 
     public static void outputOpeProfitPer(List<OperatProfitBean> operatProfitBeans) {
         ExcelWriter excelWriter = null;
@@ -171,7 +170,7 @@ public class ProfitReportService {
      * @return
      */
     private static Double getNetProfit(ProfitDateBean s) {
-        if (income(s).equals(NumberUtils.DOUBLE_ZERO)) {
+        if (Math.abs(income(s)) == NumberUtils.DOUBLE_ZERO) {
             return NumberUtils.DOUBLE_ZERO;
         }
         return NumUtils.roundDouble(NumUtils.stringToDouble(s.getNetProfit()) / income(s) * 100);
@@ -184,8 +183,11 @@ public class ProfitReportService {
      * @return
      */
     private static Double getGrossProfit(ProfitDateBean s) {
-        if (income(s).equals(NumberUtils.DOUBLE_ZERO)) {
-            return 0.0;
+        if (s.getReportDate().equals("2015-06-30")) {
+            System.out.println(income(s));
+        }
+        if (Math.abs(income(s)) == NumberUtils.DOUBLE_ZERO) {
+            return NumberUtils.DOUBLE_ZERO;
         }
         return NumUtils.roundDouble((income(s) - cost(s)) / income(s) * 100);
     }
@@ -197,7 +199,7 @@ public class ProfitReportService {
      * @return
      */
     private static Double getOperatProfit(ProfitDateBean s) {
-        if (income(s).equals(NumberUtils.DOUBLE_ZERO)) {
+        if (Math.abs(income(s)) == NumberUtils.DOUBLE_ZERO) {
             return NumberUtils.DOUBLE_ZERO;
         }
         return NumUtils.roundDouble(NumUtils.stringToDouble(s.getOperatingProfit()) / income(s) * 100);
@@ -211,7 +213,7 @@ public class ProfitReportService {
      */
     private static Double income(ProfitDateBean s) {
         if (StringUtils.equalsIgnoreCase(s.getOperatingIncome(), "--")
-                || NumUtils.stringToDouble(s.getOperatingIncome()).equals(NumberUtils.DOUBLE_ZERO)) {
+                || Math.abs(NumUtils.stringToDouble(s.getOperatingIncome())) == NumberUtils.DOUBLE_ZERO) {
             //金融企业计算方式：营业收入=营业总收入-其他收入
             return NumUtils.stringToDouble(s.getTotalOperatingIncome()) - NumUtils.stringToDouble(s.getOtherBusinessIncome());
         }
@@ -310,6 +312,7 @@ public class ProfitReportService {
             FilesUtil.mkdirs(FinanceCommonService.PATH_ZQH);
         } catch (IOException e) {
         }
+        List<String> errorCode = new ArrayList<>();
         zqhBeanMap.entrySet().stream().forEach(s -> {
             String fi = "";
             if (!acode.isEmpty() && acode.containsKey(s.getKey())) {
@@ -322,18 +325,11 @@ public class ProfitReportService {
                         .sheet(s.getKey())
                         .doWrite(collect);
             } catch (Exception e) {
-                e.printStackTrace();
                 errorCode.add(fileName);
             }
         });
         if (CollectionUtils.isNotEmpty(errorCode)) {
             errorCode.stream().forEach(s -> logger.info("outPutZQHFile error : {}", s));
-            try {
-                FilesUtil.writeFile(FinanceCommonService.PATH_ZQH, "error.txt", com.wy.utils.StringUtils.parsStringListToStr(errorCode, ","));
-            } catch (IOException e) {
-                log.error(e.toString());
-            }
-
         }
     }
 
@@ -392,6 +388,9 @@ public class ProfitReportService {
         List<ProfitDateBean> collect = beanList.stream().filter(s -> StringUtils.equals(lastYearSameQuarter, s.getReportDate())).collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(collect)) {
             ProfitDateBean profitDateBean = collect.get(0);
+            if (Math.abs(income(profitDateBean)) == NumberUtils.DOUBLE_ZERO) {
+                return NumberUtils.DOUBLE_ZERO;
+            }
             double v = (income(curBean) - income(profitDateBean)) / income(profitDateBean) * 100;
             return NumUtils.roundDouble(v);
         }
@@ -412,7 +411,7 @@ public class ProfitReportService {
         List<ProfitDateBean> collect = beanList.stream().filter(s -> StringUtils.equals(lastYearSameQuarter, s.getReportDate())).collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(collect)) {
             ProfitDateBean profitDateBean = collect.get(0);
-            if (NumUtils.stringToDouble(profitDateBean.getNetProfitAttributable()).equals(NumberUtils.DOUBLE_ZERO)) {
+            if (Math.abs(NumUtils.stringToDouble(profitDateBean.getNetProfitAttributable())) == NumberUtils.DOUBLE_ZERO) {
                 return NumberUtils.DOUBLE_ZERO;
             }
             double v = (NumUtils.stringToDouble(curBean.getNetProfitAttributable()) - NumUtils.stringToDouble(profitDateBean.getNetProfitAttributable())) / NumUtils.stringToDouble(profitDateBean.getNetProfitAttributable()) * 100;
@@ -434,7 +433,7 @@ public class ProfitReportService {
             BalanceDateBean balanceDateBean = balanceDateBeanStream.get(0);
             Double aDouble = NumUtils.stringToDouble(balanceDateBean.getTotalCurrentLiabilities());
             Double aDouble1 = NumUtils.stringToDouble(balanceDateBean.getTotalNonCurrentLiabilities());
-            if (aDouble.equals(NumberUtils.DOUBLE_ZERO)) {
+            if (Math.abs(aDouble) == NumberUtils.DOUBLE_ZERO) {
                 return NumberUtils.DOUBLE_ZERO;
             }
             return NumUtils.roundDouble(aDouble1 / aDouble * 100);
