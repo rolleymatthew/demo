@@ -183,9 +183,6 @@ public class ProfitReportService {
      * @return
      */
     private static Double getGrossProfit(ProfitDateBean s) {
-        if (s.getReportDate().equals("2015-06-30")) {
-            System.out.println(income(s));
-        }
         if (Math.abs(income(s)) == NumberUtils.DOUBLE_ZERO) {
             return NumberUtils.DOUBLE_ZERO;
         }
