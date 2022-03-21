@@ -5,6 +5,7 @@ import com.wy.bean.StockCodeYmlBean;
 import com.wy.service.KLineService;
 import com.wy.service.StockService;
 import com.wy.stock.kline.KLineDataEntity;
+import com.wy.stock.kline.KLineYBDatasDTO;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -57,8 +58,9 @@ public class StockServiceTest {
     void kLindServiceTest() {
 //        kLineService.storeKLineExcle("601318");
 //        kLineService.storeKLineExcle();
-        KLineDataEntity kLineByCode = kLineService.findKLineByCode("601318");
-        System.out.println(kLineByCode.toString());
+//        KLineDataEntity kLineByCode = kLineService.findKLineByCode("601318");
+//        System.out.println(kLineByCode.toString());
+        KLineYBDatasDTO lastOneQuarterKlines = kLineService.findLastOneQuarterKlines("601318");
 
     }
 }

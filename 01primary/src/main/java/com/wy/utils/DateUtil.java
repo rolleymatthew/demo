@@ -140,6 +140,17 @@ public class DateUtil {
     }
 
     /**
+     * 上一季度开始第一天
+     * @return
+     */
+    public static Date getLastQuarterStartTime(){
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(getCurrentQuarterStartTime());
+        cal.set(Calendar.MONTH,-3);
+        return cal.getTime();
+    }
+
+    /**
      * 前两个季度的最后一天
      * @return
      */
@@ -169,12 +180,19 @@ public class DateUtil {
         return fmtShortDate(cal.getTime());
     }
     public static void main(String[] args) {
-        Date currentQuarterEndTime = getCurrentQuarterEndTime();
-        System.out.println(fmtShortDate(getCurrentQuarterStartTime()));
-        System.out.println(fmtShortDate(currentQuarterEndTime));
-        System.out.println(fmtShortDate(getLastQuarterEndTime()));
-        System.out.println(fmtShortDate(getLastYearSameQuarterEndTime()));
-        System.out.println(fmtShortDate(getLastTwoQuarterEndTime()));
-        System.out.println(getLastYearSameQuarter("2021-06-30"));
+//        Date currentQuarterEndTime = getCurrentQuarterEndTime();
+//        System.out.println(fmtShortDate(getCurrentQuarterStartTime()));
+//        System.out.println(fmtShortDate(currentQuarterEndTime));
+//        System.out.println(fmtShortDate(getLastQuarterEndTime()));
+//        System.out.println(fmtShortDate(getLastYearSameQuarterEndTime()));
+//        System.out.println(fmtShortDate(getLastTwoQuarterEndTime()));
+//        System.out.println(getLastYearSameQuarter("2021-06-30"));
+        Date lastQuarterEndTime = DateUtil.getLastQuarterEndTime();
+        System.out.println(lastQuarterEndTime);
+        Date date = DateUtil.parseDate("2021-06-30");
+        boolean before = lastQuarterEndTime.before(date);
+        boolean after = lastQuarterEndTime.after(date);
+        System.out.println(before);
+        System.out.println(after);
     }
 }

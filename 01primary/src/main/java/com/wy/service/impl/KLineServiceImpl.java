@@ -8,12 +8,13 @@ import com.wy.bean.ProfitDateBean;
 import com.wy.bean.StockCodeYmlBean;
 import com.wy.service.KLineService;
 import com.wy.stock.finance.FinanceCommonService;
-import com.wy.stock.kline.KLineDataEntity;
-import com.wy.stock.kline.KLineEntity;
-import com.wy.stock.kline.KLineSpider;
+import com.wy.stock.kline.*;
+import com.wy.utils.DateUtil;
 import com.wy.utils.FilesUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -99,5 +101,30 @@ public class KLineServiceImpl implements KLineService {
                 .name(stockCodeYmlBean.getAcode().get(code))
                 .build();
         return kLineDataEntity;
+    }
+
+    @Override
+    public KLineYBDatasDTO findLastOneQuarterKlines(String code) {
+        KLineDataEntity kLineByCode = findKLineByCode(code);
+        List<KLineEntity> klines = kLineByCode.getKlines();
+        //1.最近一季度的K线
+        Date lastQuarterEndTime = DateUtil.getLastQuarterEndTime();
+        Date lastQuarterStartTime = DateUtil.getLastQuarterStartTime();
+        List<KLineEntityDTO> collect = klines.stream()
+                .filter(x -> lastQuarterEndTime.after(DateUtil.parseDate(x.getDate())) && lastQuarterStartTime.before(DateUtil.parseDate(x.getDate())))
+                .map(ff -> {
+                    return KLineEntityDTO.builder()
+                            .date(ff.getDate())
+                            .close(NumberUtils.toDouble(ff.getClose()))
+                            .build();
+                })
+                .collect(Collectors.toList());
+        Double min = collect.stream().mapToDouble(KLineEntityDTO::getClose).min().getAsDouble();
+        Double max = collect.stream().mapToDouble(KLineEntityDTO::getClose).max().getAsDouble();
+        Double average = collect.stream().mapToDouble(KLineEntityDTO::getClose).average().getAsDouble();
+        System.out.println(min);
+        System.out.println(max);
+        System.out.println(average);
+        return null;
     }
 }

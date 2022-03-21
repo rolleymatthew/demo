@@ -2,6 +2,9 @@ package com.wy.service;
 
 import com.wy.stock.kline.KLineDataEntity;
 import com.wy.stock.kline.KLineEntity;
+import com.wy.stock.kline.KLineYBDatasDTO;
+
+import java.util.List;
 
 /**
  * @Author: yunwang
@@ -21,4 +24,11 @@ public interface KLineService {
      * @return
      */
     KLineDataEntity findKLineByCode(String code);
+
+    /**
+     * 读取需要的数据
+     * @param code
+     * @return
+     */
+    KLineYBDatasDTO findLastOneQuarterKlines(String code);
 }
