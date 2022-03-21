@@ -1,7 +1,9 @@
 package com.wy.service.impl;
 
 import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.read.listener.PageReadListener;
 import com.wy.bean.Contant;
+import com.wy.bean.ETFBean;
 import com.wy.bean.ProfitDateBean;
 import com.wy.bean.StockCodeYmlBean;
 import com.wy.service.KLineService;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,33 +43,33 @@ public class KLineServiceImpl implements KLineService {
 
         allCodes.parallelStream().forEach(
                 x -> {
-                    storeKLineExcle(x,"1");
+                    storeKLineExcle(x, "1");
                 }
         );
 
         allCodes = stockCodeYmlBean.getSz().entrySet().stream().map(x -> x.getKey()).collect(Collectors.toList());
         allCodes.parallelStream().forEach(
                 x -> {
-                    storeKLineExcle(x,"0");
+                    storeKLineExcle(x, "0");
                 }
         );
 
         allCodes = stockCodeYmlBean.getKc().entrySet().stream().map(x -> x.getKey()).collect(Collectors.toList());
         allCodes.parallelStream().forEach(
                 x -> {
-                    storeKLineExcle(x,"1");
+                    storeKLineExcle(x, "1");
                 }
         );
 
     }
 
     @Override
-    public void storeKLineExcle(String code,String exchange) {
+    public void storeKLineExcle(String code, String exchange) {
 
         log.info("storeKLineExcle:" + code);
         List<String> errorCode = new ArrayList<String>();
         //1.爬虫爬
-        KLineDataEntity kLineDataEntity = KLineSpider.getkLineDataEntity(exchange,code, "0");
+        KLineDataEntity kLineDataEntity = KLineSpider.getkLineDataEntity(exchange, code, "0");
         if (null == kLineDataEntity || CollectionUtils.isEmpty(kLineDataEntity.getKlines())) {
             errorCode.add(code);
         }
@@ -84,6 +87,17 @@ public class KLineServiceImpl implements KLineService {
 
     @Override
     public KLineDataEntity findKLineByCode(String code) {
-        return null;
+        String fileName = PATH_MAIN + String.format(FILE_NAME, code);
+        List<KLineEntity> allFundDataList = new ArrayList<KLineEntity>();
+        EasyExcel.read(fileName, KLineEntity.class
+                , new PageReadListener<KLineEntity>(dataList -> {
+                    allFundDataList.addAll(dataList);
+                })).sheet(0).doRead();
+        KLineDataEntity kLineDataEntity = KLineDataEntity.builder()
+                .code(code)
+                .klines(allFundDataList)
+                .name(stockCodeYmlBean.getAcode().get(code))
+                .build();
+        return kLineDataEntity;
     }
 }

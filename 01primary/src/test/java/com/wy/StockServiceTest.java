@@ -4,6 +4,7 @@ import com.wy.bean.StockCodeBean;
 import com.wy.bean.StockCodeYmlBean;
 import com.wy.service.KLineService;
 import com.wy.service.StockService;
+import com.wy.stock.kline.KLineDataEntity;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,23 +30,23 @@ public class StockServiceTest {
     }
 
     @Test
-    void getCodeTest(){
+    void getCodeTest() {
         System.out.println(stock.getSzCode());
     }
 
     @Test
-    void getaCodeTest(){
+    void getaCodeTest() {
         System.out.println(stockCodeYmlBean.getAcode().size());
         stockCodeYmlBean.getAcode().entrySet().stream().forEach(System.out::println);
     }
 
     @Test
-    void getFinanceDateAllOneTest(){
+    void getFinanceDateAllOneTest() {
         System.out.println(stockService.FinanceDateByAllOne("600519"));
     }
 
     @Test
-    void stockReportServiceTest(){
+    void stockReportServiceTest() {
 //        stockService.FinanceDateReport("000678,600519");
         stockService.FinAllDateReport("000678,600519");
 //        stockService.FinanceDateReport(null);
@@ -53,9 +54,11 @@ public class StockServiceTest {
     }
 
     @Test
-    void kLindServiceTest(){
+    void kLindServiceTest() {
 //        kLineService.storeKLineExcle("601318");
-        kLineService.storeKLineExcle();
+//        kLineService.storeKLineExcle();
+        KLineDataEntity kLineByCode = kLineService.findKLineByCode("601318");
+        System.out.println(kLineByCode.toString());
 
     }
 }
