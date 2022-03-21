@@ -49,7 +49,7 @@ public class StockServiceTest {
     @Test
     void stockReportServiceTest() {
 //        stockService.FinanceDateReport("000678,600519");
-        stockService.FinAllDateReport("000678,600519");
+        stockService.FinAllDateReport("300131,300125,300069,002978,002765,002709,002597,002469,002407,002379,002245,002237,002188");
 //        stockService.FinanceDateReport(null);
 //        stockService.FinAllDateReport(null);
     }

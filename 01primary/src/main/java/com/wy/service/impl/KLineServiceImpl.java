@@ -116,15 +116,18 @@ public class KLineServiceImpl implements KLineService {
                     return KLineEntityDTO.builder()
                             .date(ff.getDate())
                             .close(NumberUtils.toDouble(ff.getClose()))
+                            .higher(NumberUtils.toDouble(ff.getHigher()))
+                            .lower(NumberUtils.toDouble(ff.getLower()))
                             .build();
                 })
                 .collect(Collectors.toList());
-        Double min = collect.stream().mapToDouble(KLineEntityDTO::getClose).min().getAsDouble();
-        Double max = collect.stream().mapToDouble(KLineEntityDTO::getClose).max().getAsDouble();
-        Double average = collect.stream().mapToDouble(KLineEntityDTO::getClose).average().getAsDouble();
+        //当季最低价
+        Double min = collect.stream().mapToDouble(KLineEntityDTO::getLower).min().getAsDouble();
+        //当季最高价
+        Double max = collect.stream().mapToDouble(KLineEntityDTO::getHigher).max().getAsDouble();
         System.out.println(min);
         System.out.println(max);
-        System.out.println(average);
+        //每周周末收盘平均价
         return null;
     }
 }
