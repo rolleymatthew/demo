@@ -39,12 +39,6 @@ public class StockControllot {
         return resultVO;
     }
 
-    @GetMapping("/fin")
-    public ResultVO getFinanceData(@RequestParam(value = "code", required = false) String code) {
-        ResultVO resultVO = stockService.FinanceDateByMonth(code);
-        return resultVO;
-    }
-
     @GetMapping("/finall")
     public ResultVO getFinanceDataAllOne(@RequestParam(value = "code", required = false) String code) {
         ResultVO resultVO = stockService.FinanceDateByAllOne(code);

@@ -89,41 +89,6 @@ public class StockServiceImpl implements StockService {
     }
 
     @Override
-    public ResultVO FinanceDateByMonth(String code) {
-        //获取所有公司代码
-        if (flag.incrementAndGet() == 1) {
-            List<String> allCodes = new ArrayList<String>();
-            if (StringUtils.isEmpty(code)) {
-                allCodes = stockCodeYmlBean.getAcode().entrySet().stream().map(x -> x.getKey()).collect(Collectors.toList());
-            } else if (StringUtils.indexOf(code, ",") > -1) {
-                allCodes = Stream.of(code).map(f -> f.split(",")).flatMap(Arrays::stream).collect(Collectors.toList());
-            } else {
-                allCodes.add(code);
-            }
-
-            log.info("StockCode count: {}", allCodes.size());
-            //获取财务数据
-            allCodes.parallelStream().forEach(
-                    x -> {
-                        try {
-                            log.info("stock code : " + x);
-                            FinanceBalanceDateService.getBeansByCode(x);
-                            FinanceCashFlowDateService.getBeansByCode(x);
-                            FinanceProfitDateService.getBeansByCode(x);
-                            FinanceDateWriteService.getBeansByCode(x);
-                        } catch (Exception e) {
-                            log.error("stock {} error : {}", x, e.toString());
-                        }
-                    }
-            );
-            flag.decrementAndGet();
-        } else {
-            return ResultVO.build(-1, "已经在运行抓取");
-        }
-        return ResultVO.ok();
-    }
-
-    @Override
     public ResultVO FinanceDateByAllOne(String code) {
         if (flag.incrementAndGet() == 1) {
             List<String> allCodes = new ArrayList<String>();

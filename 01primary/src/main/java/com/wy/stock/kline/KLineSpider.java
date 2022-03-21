@@ -9,6 +9,7 @@ import com.wy.utils.OkHttpUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -22,14 +23,26 @@ public class KLineSpider {
     private static String url = "http://push2his.eastmoney.com/api/qt/stock/kline/get?fields1=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&beg=0&end=20500101&ut=fa5fd1943c7b386f172d6893dbfba10b&rtntype=6&secid=1.%s&klt=101&fqt=%s";
 
     public static void main(String[] args) {
-        String kLineUrl = String.format(url, 601318, 0);
-        String s = OkHttpUtil.doGet(kLineUrl);
+        KLineDataEntity kLineDataEntity = getkLineDataEntity("601318", "0");
+        System.out.println(kLineDataEntity.toString());
+    }
+
+    public static KLineDataEntity getkLineDataEntity(String code, String type) {
+        String kLineUrl = String.format(url, code, type);
+        String s = "";
+        try {
+            s = OkHttpUtil.doGet(kLineUrl);
+        } catch (Exception e) {
+        }
+        if (StringUtils.isEmpty(s)) {
+            return null;
+        }
         KLineBean kLineBean = JSON.parseObject(s, KLineBean.class);
         KLineDataEntity kLineDataEntity = KLineDataEntity.builder()
                 .code(kLineBean.getData().getCode())
                 .klines(getKLine(kLineBean.getData().getKlines()))
                 .build();
-        System.out.println(kLineDataEntity.toString());
+        return kLineDataEntity;
     }
 
     private static List<KLineEntity> getKLine(List<String> klines) {
@@ -45,7 +58,7 @@ public class KLineSpider {
                     }
                     return kLineEntity;
                 }
-        ).collect(Collectors.toList());
+        ).sorted(Comparator.comparing(KLineEntity::getDate).reversed()).collect(Collectors.toList());
         return collect;
     }
 }

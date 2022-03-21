@@ -2,6 +2,7 @@ package com.wy;
 
 import com.wy.bean.StockCodeBean;
 import com.wy.bean.StockCodeYmlBean;
+import com.wy.service.KLineService;
 import com.wy.service.StockService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,8 @@ public class StockServiceTest {
     private StockCodeBean stock;
     @Autowired
     StockCodeYmlBean stockCodeYmlBean;
+    @Autowired
+    KLineService kLineService;
 
     @Test
     void Test() {
@@ -37,11 +40,6 @@ public class StockServiceTest {
     }
 
     @Test
-    void getFinanceDateByMonthTest(){
-        System.out.println(stockService.FinanceDateByMonth("002455,002456,600830,600831,603993,603995"));
-    }
-
-    @Test
     void getFinanceDateAllOneTest(){
         System.out.println(stockService.FinanceDateByAllOne("600519"));
     }
@@ -52,5 +50,12 @@ public class StockServiceTest {
         stockService.FinAllDateReport("000678,600519");
 //        stockService.FinanceDateReport(null);
 //        stockService.FinAllDateReport(null);
+    }
+
+    @Test
+    void kLindServiceTest(){
+        kLineService.storeKLineExcle("601318");
+//        kLineService.storeKLineExcle();
+
     }
 }
