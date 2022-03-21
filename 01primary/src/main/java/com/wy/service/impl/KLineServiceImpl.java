@@ -10,6 +10,7 @@ import com.wy.stock.kline.KLineDataEntity;
 import com.wy.stock.kline.KLineEntity;
 import com.wy.stock.kline.KLineSpider;
 import com.wy.utils.FilesUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 /**
  * @Author: yunwang
  */
+@Slf4j
 @Service("kLineService")
 public class KLineServiceImpl implements KLineService {
 
@@ -34,20 +36,37 @@ public class KLineServiceImpl implements KLineService {
 
     @Override
     public void storeKLineExcle() {
-        List<String> allCodes = stockCodeYmlBean.getAcode().entrySet().stream().map(x -> x.getKey()).collect(Collectors.toList());
+        List<String> allCodes = stockCodeYmlBean.getSh().entrySet().stream().map(x -> x.getKey()).collect(Collectors.toList());
 
         allCodes.parallelStream().forEach(
                 x -> {
-                    storeKLineExcle(x);
+                    storeKLineExcle(x,"0");
                 }
         );
+
+        allCodes = stockCodeYmlBean.getSz().entrySet().stream().map(x -> x.getKey()).collect(Collectors.toList());
+        allCodes.parallelStream().forEach(
+                x -> {
+                    storeKLineExcle(x,"1");
+                }
+        );
+
+        allCodes = stockCodeYmlBean.getKc().entrySet().stream().map(x -> x.getKey()).collect(Collectors.toList());
+        allCodes.parallelStream().forEach(
+                x -> {
+                    storeKLineExcle(x,"1");
+                }
+        );
+
     }
 
     @Override
-    public void storeKLineExcle(String code) {
+    public void storeKLineExcle(String code,String exchange) {
+
+        log.info("storeKLineExcle:" + code);
         List<String> errorCode = new ArrayList<String>();
         //1.爬虫爬
-        KLineDataEntity kLineDataEntity = KLineSpider.getkLineDataEntity(code, "0");
+        KLineDataEntity kLineDataEntity = KLineSpider.getkLineDataEntity(exchange,code, "0");
         if (null == kLineDataEntity || CollectionUtils.isEmpty(kLineDataEntity.getKlines())) {
             errorCode.add(code);
         }

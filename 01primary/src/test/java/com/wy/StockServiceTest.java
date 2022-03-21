@@ -54,8 +54,8 @@ public class StockServiceTest {
 
     @Test
     void kLindServiceTest(){
-        kLineService.storeKLineExcle("601318");
-//        kLineService.storeKLineExcle();
+//        kLineService.storeKLineExcle("601318");
+        kLineService.storeKLineExcle();
 
     }
 }
