@@ -2,9 +2,7 @@ package com.wy.utils;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
+import java.util.*;
 
 /**
  * Created by yunwang on 2021/10/18 15:55
@@ -179,6 +177,30 @@ public class DateUtil {
         cal.add(Calendar.YEAR,-1);
         return fmtShortDate(cal.getTime());
     }
+
+    /**
+     * 获取当月的所有周六
+     * @param year
+     * @param month
+     * @return
+     */
+    public static List<String> getWeekendInMonth(int year, int month) {
+        List<String> list = new ArrayList();
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.YEAR, year);// 不设置的话默认为当年
+        calendar.set(Calendar.MONTH, month - 1);// 设置月份
+        calendar.set(Calendar.DAY_OF_MONTH, 1);// 设置为当月第一天
+        int daySize = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);// 当月最大天数
+        for (int i = 0; i < daySize-1; i++) {
+            calendar.add(Calendar.DATE, 1);//在第一天的基础上加1
+            int week = calendar.get(Calendar.DAY_OF_WEEK);
+            if (week == Calendar.SATURDAY ) {// 1代表周日，7代表周六 判断这是一个星期的第几天从而判断是否是周末
+                list.add(year+"-"+month+"-"+calendar.get(Calendar.DAY_OF_MONTH));// 得到当天是一个月的第几天
+            }
+        }
+        return list;
+    }
+
     public static void main(String[] args) {
 //        Date currentQuarterEndTime = getCurrentQuarterEndTime();
 //        System.out.println(fmtShortDate(getCurrentQuarterStartTime()));
@@ -187,12 +209,7 @@ public class DateUtil {
 //        System.out.println(fmtShortDate(getLastYearSameQuarterEndTime()));
 //        System.out.println(fmtShortDate(getLastTwoQuarterEndTime()));
 //        System.out.println(getLastYearSameQuarter("2021-06-30"));
-        Date lastQuarterEndTime = DateUtil.getLastQuarterEndTime();
-        System.out.println(lastQuarterEndTime);
-        Date date = DateUtil.parseDate("2021-06-30");
-        boolean before = lastQuarterEndTime.before(date);
-        boolean after = lastQuarterEndTime.after(date);
-        System.out.println(before);
-        System.out.println(after);
+        List<String> weekendInMonth = getWeekendInMonth(2022, 3);
+        weekendInMonth.stream().forEach(System.out::println);
     }
 }
