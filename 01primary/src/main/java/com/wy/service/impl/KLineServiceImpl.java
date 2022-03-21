@@ -40,14 +40,14 @@ public class KLineServiceImpl implements KLineService {
 
         allCodes.parallelStream().forEach(
                 x -> {
-                    storeKLineExcle(x,"0");
+                    storeKLineExcle(x,"1");
                 }
         );
 
         allCodes = stockCodeYmlBean.getSz().entrySet().stream().map(x -> x.getKey()).collect(Collectors.toList());
         allCodes.parallelStream().forEach(
                 x -> {
-                    storeKLineExcle(x,"1");
+                    storeKLineExcle(x,"0");
                 }
         );
 
