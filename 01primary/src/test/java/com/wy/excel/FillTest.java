@@ -14,6 +14,7 @@ import com.alibaba.excel.util.MapUtils;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.excel.write.metadata.fill.FillConfig;
 import com.alibaba.excel.write.metadata.fill.FillWrapper;
+import com.wy.utils.easyexcle.FillData;
 import org.junit.jupiter.api.Test;
 
 public class FillTest {
