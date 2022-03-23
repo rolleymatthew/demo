@@ -293,15 +293,59 @@ public class DateUtil {
         return cal.get(Calendar.MONTH) + 1;
     }
 
+    /**
+     * 获取指定日期的开始年份，不满当年的按照前一年度算
+     *
+     * @param date
+     * @return
+     */
+    public static Date getOneYearStartTime(Date date) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        int currentMonth = c.get(Calendar.MONTH) + 1;
+        SimpleDateFormat longSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat shortSdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date now = null;
+        try {
+            if (currentMonth != 12) {
+                c.add(Calendar.YEAR, -1);
+            }
+            c.set(Calendar.MONTH, 0);
+            c.set(Calendar.DAY_OF_MONTH, c.getActualMinimum(Calendar.DAY_OF_MONTH));// 获取当前月第一天
+            c.set(Calendar.HOUR_OF_DAY, 0);
+            c.set(Calendar.MINUTE, 0);
+            c.set(Calendar.SECOND, 0);
+            c.set(Calendar.MILLISECOND, 0);
+            now = longSdf.parse(shortSdf.format(c.getTime()) + " 00:00:00");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return now;
+    }
+
+    public static Date getOneYearEndTime(Date date) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(getOneYearStartTime(date));
+        c.add(Calendar.MONTH, 12);
+        c.set(Calendar.DAY_OF_MONTH, c.getActualMaximum(Calendar.DAY_OF_MONTH));// 获取当前月第一天
+        c.set(Calendar.HOUR_OF_DAY, 23);
+        c.set(Calendar.MINUTE, 59);
+        c.set(Calendar.SECOND, 59);
+        c.set(Calendar.MILLISECOND, 999);
+        return c.getTime();
+    }
+
     public static void main(String[] args) {
 //        System.out.println(fmtShortDate(getSelectedQuarterStartTime(parseDate("2021-12-31"))));
-        System.out.println(fmtShortDate(getOneQuarterStartTime(parseDate("2021-12-31"))));
-        System.out.println(fmtShortDate(getOneQuarterEndTime(parseDate("2021-12-31"))));
-        System.out.println(fmtShortDate(getTwoQuarterStartTime(parseDate("2021-12-31"))));
-        System.out.println(fmtShortDate(getTwoQuarterEndTime(parseDate("2021-12-31"))));
-        System.out.println(fmtShortDate(getThreeQuarterStartTime(parseDate("2021-12-31"))));
-        System.out.println(fmtShortDate(getThreeQuarterEndTime(parseDate("2021-12-31"))));
-        System.out.println(fmtShortDate(getFourQuarterStartTime(parseDate("2021-12-31"))));
-        System.out.println(fmtShortDate(getFourQuarterEndTime(parseDate("2021-12-31"))));
+//        System.out.println(fmtShortDate(getOneQuarterStartTime(parseDate("2021-12-31"))));
+//        System.out.println(fmtShortDate(getOneQuarterEndTime(parseDate("2021-12-31"))));
+//        System.out.println(fmtShortDate(getTwoQuarterStartTime(parseDate("2021-12-31"))));
+//        System.out.println(fmtShortDate(getTwoQuarterEndTime(parseDate("2021-12-31"))));
+//        System.out.println(fmtShortDate(getThreeQuarterStartTime(parseDate("2021-12-31"))));
+//        System.out.println(fmtShortDate(getThreeQuarterEndTime(parseDate("2021-12-31"))));
+//        System.out.println(fmtShortDate(getFourQuarterStartTime(parseDate("2021-12-31"))));
+//        System.out.println(fmtShortDate(getFourQuarterEndTime(parseDate("2021-12-31"))));
+        System.out.println(fmtShortDate(getOneYearStartTime(parseDate("2021-11-29"))));
+        System.out.println(fmtShortDate(getOneYearEndTime(parseDate("2021-11-29"))));
     }
 }
