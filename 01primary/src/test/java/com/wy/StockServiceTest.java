@@ -4,7 +4,6 @@ import com.wy.bean.StockCodeBean;
 import com.wy.bean.StockCodeYmlBean;
 import com.wy.service.KLineService;
 import com.wy.service.StockService;
-import com.wy.stock.kline.KLineDataEntity;
 import com.wy.stock.kline.KLineYBDatasDTO;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +57,7 @@ public class StockServiceTest {
 //        kLineService.storeKLineExcle();
 //        KLineDataEntity kLineByCode = kLineService.findKLineByCode("601318");
 //        System.out.println(kLineByCode.toString());
-        KLineYBDatasDTO lastOneQuarterKlines = kLineService.findLastOneQuarterKlines("601318");
+        KLineYBDatasDTO lastOneQuarterKlines = kLineService.findSelectedQuarterKlines("601318","2021-12-31");
 
     }
 }

@@ -88,8 +88,14 @@ public class DateUtil {
         }
     }
 
-    public static Date getCurrentQuarterStartTime() {
+    /**
+     * 指定日期的季度开始时间
+     * @param date
+     * @return
+     */
+    public static Date getSelectedQuarterStartTime(Date date) {
         Calendar c = Calendar.getInstance();
+        c.setTime(date);
         int currentMonth = c.get(Calendar.MONTH) + 1;
         SimpleDateFormat longSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         SimpleDateFormat shortSdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -112,11 +118,11 @@ public class DateUtil {
     }
 
     /**
-     * 当前季度的结束时间，即2012-03-31 23:59:59
+     * 指定日期的季度的结束时间，即2012-03-31 23:59:59
      */
-    public static Date getCurrentQuarterEndTime() {
+    public static Date getSelectedQuarterEndTime(Date date) {
         Calendar cal = Calendar.getInstance();
-        cal.setTime(getCurrentQuarterStartTime());
+        cal.setTime(getSelectedQuarterStartTime(date));
         cal.add(Calendar.MONTH, 2);
         cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));// 获取当前月最后一天
         cal.set(Calendar.HOUR_OF_DAY, 23);
@@ -128,93 +134,90 @@ public class DateUtil {
     }
 
     /**
-     * 得到上一季度的最后一天
+     * 指定日期的季度的上一季度的最后一天
      *
      * @return
      */
-    public static Date getLastQuarterEndTime() {
+    public static Date getOneQuarterEndTime(Date date) {
         Calendar cal = Calendar.getInstance();
-        cal.setTime(getCurrentQuarterStartTime());
-        cal.set(Calendar.DATE, 0);
-        return cal.getTime();
-    }
-
-    /**
-     * 上一季度开始第一天
-     *
-     * @return
-     */
-    public static Date getLastQuarterStartTime() {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(getCurrentQuarterStartTime());
+        cal.setTime(getSelectedQuarterStartTime(date));
         cal.set(Calendar.MONTH, -3);
         return cal.getTime();
     }
 
     /**
-     * 前两个季度的最后一天
+     * 指定日期的季度的上一季度开始第一天
      *
      * @return
      */
-    public static Date getLastTwoQuarterEndTime() {
+    public static Date getOneQuarterStartTime(Date date) {
+        return getSelectedQuarterStartTime(date);
+    }
+
+    /**
+     * 指定日期的季度的前两个季度的最后一天
+     *
+     * @return
+     */
+    public static Date getTwoQuarterEndTime(Date date) {
         Calendar cal = Calendar.getInstance();
-        cal.setTime(getLastQuarterEndTime());
+        cal.setTime(getSelectedQuarterStartTime(date));
         cal.add(Calendar.MONTH, -3);
         return cal.getTime();
     }
 
     /**
-     * 前两个季度的第一天
+     * 指定日期的前两个季度的第一天
      * @return
      */
-    public static Date getLastTwoQuarterStartTime() {
+    public static Date getTwoQuarterStartTime(Date date) {
         Calendar cal = Calendar.getInstance();
-        cal.setTime(getCurrentQuarterStartTime());
+        cal.setTime(getSelectedQuarterStartTime(date));
         cal.add(Calendar.MONTH, -6);
         return cal.getTime();
     }
 
     /**
-     * 前三个季度的最后一天
+     * 指定日期的前三个季度的最后一天
      *
      * @return
      */
-    public static Date getLastThreeQuarterEndTime() {
+    public static Date getThreeQuarterEndTime(Date date) {
         Calendar cal = Calendar.getInstance();
-        cal.setTime(getLastQuarterEndTime());
+        cal.setTime(getOneQuarterEndTime(date));
         cal.add(Calendar.MONTH, -6);
         return cal.getTime();
     }
 
     /**
-     * 前三个季度的第一天
+     * 指定日期的前三个季度的第一天
      * @return
      */
-    public static Date getLastThreeQuarterStartTime() {
+    public static Date getThreeQuarterStartTime(Date date) {
         Calendar cal = Calendar.getInstance();
-        cal.setTime(getCurrentQuarterStartTime());
+        cal.setTime(getSelectedQuarterStartTime(date));
         cal.add(Calendar.MONTH, -9);
         return cal.getTime();
     }
     /**
-     * 前四个季度的最后一天
+     * 指定日期的前四个季度的最后一天
      *
      * @return
      */
-    public static Date getLastFourQuarterEndTime() {
+    public static Date getFourQuarterEndTime(Date date) {
         Calendar cal = Calendar.getInstance();
-        cal.setTime(getLastQuarterEndTime());
+        cal.setTime(getOneQuarterEndTime(date));
         cal.add(Calendar.MONTH, -9);
         return cal.getTime();
     }
 
     /**
-     * 前四个季度的第一天
+     * 指定日期的前四个季度的第一天
      * @return
      */
-    public static Date getLastFourQuarterStartTime() {
+    public static Date getFourQuarterStartTime(Date date) {
         Calendar cal = Calendar.getInstance();
-        cal.setTime(getCurrentQuarterStartTime());
+        cal.setTime(getSelectedQuarterStartTime(date));
         cal.add(Calendar.MONTH, -12);
         return cal.getTime();
     }
@@ -226,7 +229,7 @@ public class DateUtil {
      */
     public static Date getLastYearSameQuarterEndTime() {
         Calendar cal = Calendar.getInstance();
-        cal.setTime(getLastQuarterEndTime());
+        cal.setTime(getOneQuarterEndTime(new Date()));
         cal.add(Calendar.YEAR, -1);
         return cal.getTime();
     }
@@ -289,21 +292,14 @@ public class DateUtil {
     }
 
     public static void main(String[] args) {
-//        Date currentQuarterEndTime = getCurrentQuarterEndTime();
-//        System.out.println(fmtShortDate(getCurrentQuarterStartTime()));
-//        System.out.println(fmtShortDate(currentQuarterEndTime));
-//        System.out.println(fmtShortDate(getLastQuarterEndTime()));
-//        System.out.println(fmtShortDate(getLastYearSameQuarterEndTime()));
-//        System.out.println(fmtShortDate(getLastTwoQuarterEndTime()));
-//        System.out.println(getLastYearSameQuarter("2021-06-30"));
-//        List<String> weekendInMonth = getWeekendInMonth(2022, 3);
-//        weekendInMonth.stream().forEach(System.out::println);
-//        System.out.println(getWeekNumber(parseDate("2021-12-20")));
-        System.out.println(getLastTwoQuarterEndTime());
-        System.out.println(getLastTwoQuarterStartTime());
-        System.out.println(getLastThreeQuarterEndTime());
-        System.out.println(getLastThreeQuarterStartTime());
-        System.out.println(getLastFourQuarterEndTime());
-        System.out.println(getLastFourQuarterStartTime());
+//        System.out.println(fmtShortDate(getSelectedQuarterStartTime(parseDate("2021-12-31"))));
+        System.out.println(fmtShortDate(getOneQuarterStartTime(parseDate("2021-12-31"))));
+        System.out.println(fmtShortDate(getOneQuarterEndTime(parseDate("2021-12-31"))));
+        System.out.println(fmtShortDate(getTwoQuarterStartTime(parseDate("2021-12-31"))));
+        System.out.println(fmtShortDate(getTwoQuarterEndTime(parseDate("2021-12-31"))));
+        System.out.println(fmtShortDate(getThreeQuarterStartTime(parseDate("2021-12-31"))));
+        System.out.println(fmtShortDate(getThreeQuarterEndTime(parseDate("2021-12-31"))));
+        System.out.println(fmtShortDate(getFourQuarterStartTime(parseDate("2021-12-31"))));
+        System.out.println(fmtShortDate(getFourQuarterEndTime(parseDate("2021-12-31"))));
     }
 }

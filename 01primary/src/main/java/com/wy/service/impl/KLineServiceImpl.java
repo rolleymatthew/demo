@@ -99,46 +99,46 @@ public class KLineServiceImpl implements KLineService {
     }
 
     @Override
-    public KLineYBDatasDTO findLastOneQuarterKlines(String code) {
+    public KLineYBDatasDTO findSelectedQuarterKlines(String code, String SelectedDate) {
         KLineDataEntity kLineByCode = findKLineByCode(code);
         List<KLineEntity> klines = kLineByCode.getKlines();
-        //1.最近一季度的K线
-        KLineYBDatasDTO kLineYBDatasDTO = getkLineYBLastQuarterDatasDTO(klines);
-        //2.二季度
-        kLineYBDatasDTO =getkLineYBTwoQuarterDatasDTO(kLineYBDatasDTO,klines);
-        //3.三季度
-        kLineYBDatasDTO =getkLineYBThreeQuarterDatasDTO(kLineYBDatasDTO,klines);
-        //4.四季度
-        kLineYBDatasDTO =getkLineYBFourQuarterDatasDTO(kLineYBDatasDTO,klines);
+        //1.本季度的K线
+        KLineYBDatasDTO kLineYBDatasDTO = getkLineYBOneQuarterDatasDTO(klines, DateUtil.parseDate(SelectedDate));
+        //2.往前推一个季度
+        kLineYBDatasDTO = getkLineYBTwoQuarterDatasDTO(kLineYBDatasDTO, klines, DateUtil.parseDate(SelectedDate));
+        //3.往前推两个季度
+        kLineYBDatasDTO = getkLineYBThreeQuarterDatasDTO(kLineYBDatasDTO, klines, DateUtil.parseDate(SelectedDate));
+        //4.往前推三个季度
+        kLineYBDatasDTO = getkLineYBFourQuarterDatasDTO(kLineYBDatasDTO, klines, DateUtil.parseDate(SelectedDate));
         return kLineYBDatasDTO;
     }
 
-    private KLineYBDatasDTO getkLineYBFourQuarterDatasDTO(KLineYBDatasDTO kLineYBDatasDTO, List<KLineEntity> klines) {
-        List<KLineEntityDTO> kLinePart = getkLinePartS(klines, DateUtil.getLastFourQuarterEndTime(), DateUtil.getLastFourQuarterStartTime());
+    private KLineYBDatasDTO getkLineYBFourQuarterDatasDTO(KLineYBDatasDTO kLineYBDatasDTO, List<KLineEntity> klines, Date date) {
+        List<KLineEntityDTO> kLinePart = getkLinePartS(klines, DateUtil.getFourQuarterEndTime(date), DateUtil.getFourQuarterStartTime(date));
         kLineYBDatasDTO.setLastFourQuarterHigher(getHiger(kLinePart));
         kLineYBDatasDTO.setLastFourQuarterLower(getLower(kLinePart));
         kLineYBDatasDTO.setLastFourQuarterAverage(getQuartorAvarage(kLinePart));
         return kLineYBDatasDTO;
     }
 
-    private KLineYBDatasDTO getkLineYBThreeQuarterDatasDTO(KLineYBDatasDTO kLineYBDatasDTO, List<KLineEntity> klines) {
-        List<KLineEntityDTO> kLinePart = getkLinePartS(klines, DateUtil.getLastThreeQuarterEndTime(), DateUtil.getLastThreeQuarterStartTime());
+    private KLineYBDatasDTO getkLineYBThreeQuarterDatasDTO(KLineYBDatasDTO kLineYBDatasDTO, List<KLineEntity> klines, Date date) {
+        List<KLineEntityDTO> kLinePart = getkLinePartS(klines, DateUtil.getThreeQuarterEndTime(date), DateUtil.getThreeQuarterStartTime(date));
         kLineYBDatasDTO.setLastThreeQuarterHigher(getHiger(kLinePart));
         kLineYBDatasDTO.setLastThreeQuarterLower(getLower(kLinePart));
         kLineYBDatasDTO.setLastThreeQuarterAverage(getQuartorAvarage(kLinePart));
         return kLineYBDatasDTO;
     }
 
-    private KLineYBDatasDTO getkLineYBTwoQuarterDatasDTO(KLineYBDatasDTO kLineYBDatasDTO, List<KLineEntity> klines) {
-        List<KLineEntityDTO> kLinePart = getkLinePartS(klines, DateUtil.getLastTwoQuarterEndTime(), DateUtil.getLastTwoQuarterStartTime());
+    private KLineYBDatasDTO getkLineYBTwoQuarterDatasDTO(KLineYBDatasDTO kLineYBDatasDTO, List<KLineEntity> klines, Date date) {
+        List<KLineEntityDTO> kLinePart = getkLinePartS(klines, DateUtil.getTwoQuarterEndTime(date), DateUtil.getTwoQuarterStartTime(date));
         kLineYBDatasDTO.setLastTwoQuarterHigher(getHiger(kLinePart));
         kLineYBDatasDTO.setLastTwoQuarterLower(getLower(kLinePart));
         kLineYBDatasDTO.setLastTwoQuarterAverage(getQuartorAvarage(kLinePart));
         return kLineYBDatasDTO;
     }
 
-    private KLineYBDatasDTO getkLineYBLastQuarterDatasDTO(List<KLineEntity> klines) {
-        List<KLineEntityDTO> kLinePart = getkLinePartS(klines, DateUtil.getLastQuarterEndTime(), DateUtil.getLastQuarterStartTime());
+    private KLineYBDatasDTO getkLineYBOneQuarterDatasDTO(List<KLineEntity> klines, Date date) {
+        List<KLineEntityDTO> kLinePart = getkLinePartS(klines, DateUtil.getOneQuarterEndTime(date), DateUtil.getOneQuarterStartTime(date));
         KLineYBDatasDTO kLineYBDatasDTO = KLineYBDatasDTO.builder()
                 .LastOneQuarterHigher(getHiger(kLinePart))
                 .LastOneQuarterLower(getLower(kLinePart))
@@ -155,7 +155,7 @@ public class KLineServiceImpl implements KLineService {
 
     private BigDecimal getHiger(List<KLineEntityDTO> kLinePart) {
         double asDouble = kLinePart.stream().mapToDouble(KLineEntityDTO::getHigher).max().getAsDouble();
-        return new BigDecimal(asDouble).setScale(2,RoundingMode.HALF_UP);
+        return new BigDecimal(asDouble).setScale(2, RoundingMode.HALF_UP);
     }
 
     private BigDecimal getQuartorAvarage(List<KLineEntityDTO> kLinePart) {

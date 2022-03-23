@@ -250,7 +250,7 @@ public class ProfitReportService {
                 operatProfitBean.setSecurityName(acode.get(s.getKey()));
             }
             //找到上一季度的报告
-            List<ProfitDateBean> lastQuarter = value.stream().filter(x -> StringUtils.equals(x.getReportDate(), DateUtil.fmtShortDate(DateUtil.getLastQuarterEndTime())))
+            List<ProfitDateBean> lastQuarter = value.stream().filter(x -> StringUtils.equals(x.getReportDate(), DateUtil.fmtShortDate(DateUtil.getOneQuarterEndTime(new Date()))))
                     .collect(Collectors.toList());
             //找到去年同一个季度的报告
             List<ProfitDateBean> lastYearQuarter = value.stream().filter(x -> StringUtils.equals(x.getReportDate(), DateUtil.fmtShortDate(DateUtil.getLastYearSameQuarterEndTime())))
@@ -269,7 +269,7 @@ public class ProfitReportService {
 
             //计算环比
             //找到上两个季度的报告
-            List<ProfitDateBean> lastTwoQuarter = value.stream().filter(x -> StringUtils.equals(x.getReportDate(), DateUtil.fmtShortDate(DateUtil.getLastTwoQuarterEndTime())))
+            List<ProfitDateBean> lastTwoQuarter = value.stream().filter(x -> StringUtils.equals(x.getReportDate(), DateUtil.fmtShortDate(DateUtil.getTwoQuarterEndTime(new Date()))))
                     .collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(lastQuarter) && CollectionUtils.isNotEmpty(lastTwoQuarter)) {
                 ProfitDateBean profitLastDateBean = lastQuarter.get(0);
