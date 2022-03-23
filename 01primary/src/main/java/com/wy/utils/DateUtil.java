@@ -175,6 +175,51 @@ public class DateUtil {
     }
 
     /**
+     * 前三个季度的最后一天
+     *
+     * @return
+     */
+    public static Date getLastThreeQuarterEndTime() {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(getLastQuarterEndTime());
+        cal.add(Calendar.MONTH, -6);
+        return cal.getTime();
+    }
+
+    /**
+     * 前三个季度的第一天
+     * @return
+     */
+    public static Date getLastThreeQuarterStartTime() {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(getCurrentQuarterStartTime());
+        cal.add(Calendar.MONTH, -9);
+        return cal.getTime();
+    }
+    /**
+     * 前四个季度的最后一天
+     *
+     * @return
+     */
+    public static Date getLastFourQuarterEndTime() {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(getLastQuarterEndTime());
+        cal.add(Calendar.MONTH, -9);
+        return cal.getTime();
+    }
+
+    /**
+     * 前四个季度的第一天
+     * @return
+     */
+    public static Date getLastFourQuarterStartTime() {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(getCurrentQuarterStartTime());
+        cal.add(Calendar.MONTH, -12);
+        return cal.getTime();
+    }
+
+    /**
      * 获取去年上一季度时间
      *
      * @return
@@ -253,6 +298,12 @@ public class DateUtil {
 //        System.out.println(getLastYearSameQuarter("2021-06-30"));
 //        List<String> weekendInMonth = getWeekendInMonth(2022, 3);
 //        weekendInMonth.stream().forEach(System.out::println);
-        System.out.println(getWeekNumber(parseDate("2021-12-20")));
+//        System.out.println(getWeekNumber(parseDate("2021-12-20")));
+        System.out.println(getLastTwoQuarterEndTime());
+        System.out.println(getLastTwoQuarterStartTime());
+        System.out.println(getLastThreeQuarterEndTime());
+        System.out.println(getLastThreeQuarterStartTime());
+        System.out.println(getLastFourQuarterEndTime());
+        System.out.println(getLastFourQuarterStartTime());
     }
 }
