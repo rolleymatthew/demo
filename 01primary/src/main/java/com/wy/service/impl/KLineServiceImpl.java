@@ -3,27 +3,22 @@ package com.wy.service.impl;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.read.listener.PageReadListener;
 import com.wy.bean.Contant;
-import com.wy.bean.ETFBean;
-import com.wy.bean.ProfitDateBean;
 import com.wy.bean.StockCodeYmlBean;
 import com.wy.service.KLineService;
-import com.wy.stock.finance.FinanceCommonService;
 import com.wy.stock.kline.*;
 import com.wy.utils.DateUtil;
 import com.wy.utils.FilesUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -108,26 +103,85 @@ public class KLineServiceImpl implements KLineService {
         KLineDataEntity kLineByCode = findKLineByCode(code);
         List<KLineEntity> klines = kLineByCode.getKlines();
         //1.最近一季度的K线
-        Date lastQuarterEndTime = DateUtil.getLastQuarterEndTime();
-        Date lastQuarterStartTime = DateUtil.getLastQuarterStartTime();
-        List<KLineEntityDTO> collect = klines.stream()
-                .filter(x -> lastQuarterEndTime.after(DateUtil.parseDate(x.getDate())) && lastQuarterStartTime.before(DateUtil.parseDate(x.getDate())))
+        KLineYBDatasDTO kLineYBDatasDTO = getkLineYBLastQuarterDatasDTO(klines);
+        //2.二季度
+        kLineYBDatasDTO =getkLineYBTwoQuarterDatasDTO(kLineYBDatasDTO,klines);
+        //3.三季度
+        kLineYBDatasDTO =getkLineYBThreeQuarterDatasDTO(kLineYBDatasDTO,klines);
+        //4.四季度
+        kLineYBDatasDTO =getkLineYBFourQuarterDatasDTO(kLineYBDatasDTO,klines);
+        return kLineYBDatasDTO;
+    }
+
+    private KLineYBDatasDTO getkLineYBFourQuarterDatasDTO(KLineYBDatasDTO kLineYBDatasDTO, List<KLineEntity> klines) {
+        List<KLineEntityDTO> kLinePart = getkLinePartS(klines, DateUtil.getLastTwoQuarterEndTime(), DateUtil.getLastTwoQuarterStartTime());
+        kLineYBDatasDTO.setLastFourQuarterHigher(getHiger(kLinePart));
+        kLineYBDatasDTO.setLastFourQuarterLower(getLower(kLinePart));
+        kLineYBDatasDTO.setLastFourQuarterAverage(getQuartorAvarage(kLinePart));
+        return kLineYBDatasDTO;
+    }
+
+    private KLineYBDatasDTO getkLineYBThreeQuarterDatasDTO(KLineYBDatasDTO kLineYBDatasDTO, List<KLineEntity> klines) {
+        List<KLineEntityDTO> kLinePart = getkLinePartS(klines, DateUtil.getLastTwoQuarterEndTime(), DateUtil.getLastTwoQuarterStartTime());
+        kLineYBDatasDTO.setLastThreeQuarterHigher(getHiger(kLinePart));
+        kLineYBDatasDTO.setLastThreeQuarterLower(getLower(kLinePart));
+        kLineYBDatasDTO.setLastThreeQuarterAverage(getQuartorAvarage(kLinePart));
+        return kLineYBDatasDTO;
+    }
+
+    private KLineYBDatasDTO getkLineYBTwoQuarterDatasDTO(KLineYBDatasDTO kLineYBDatasDTO, List<KLineEntity> klines) {
+        List<KLineEntityDTO> kLinePart = getkLinePartS(klines, DateUtil.getLastTwoQuarterEndTime(), DateUtil.getLastTwoQuarterStartTime());
+        kLineYBDatasDTO.setLastTwoQuarterHigher(getHiger(kLinePart));
+        kLineYBDatasDTO.setLastTwoQuarterLower(getLower(kLinePart));
+        kLineYBDatasDTO.setLastTwoQuarterAverage(getQuartorAvarage(kLinePart));
+        return kLineYBDatasDTO;
+    }
+
+    private KLineYBDatasDTO getkLineYBLastQuarterDatasDTO(List<KLineEntity> klines) {
+        List<KLineEntityDTO> kLinePart = getkLinePartS(klines, DateUtil.getLastQuarterEndTime(), DateUtil.getLastQuarterStartTime());
+        KLineYBDatasDTO kLineYBDatasDTO = KLineYBDatasDTO.builder()
+                .LastOneQuarterHigher(getHiger(kLinePart))
+                .LastOneQuarterLower(getLower(kLinePart))
+                .build();
+        //每周周末收盘平均价
+        kLineYBDatasDTO.setLastOneQuarterAverage(getQuartorAvarage(kLinePart));
+        return kLineYBDatasDTO;
+    }
+
+    private BigDecimal getLower(List<KLineEntityDTO> kLinePart) {
+        double asDouble = kLinePart.stream().mapToDouble(KLineEntityDTO::getLower).min().getAsDouble();
+        return new BigDecimal(asDouble).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private BigDecimal getHiger(List<KLineEntityDTO> kLinePart) {
+        double asDouble = kLinePart.stream().mapToDouble(KLineEntityDTO::getHigher).max().getAsDouble();
+        return new BigDecimal(asDouble).setScale(2,RoundingMode.HALF_UP);
+    }
+
+    private BigDecimal getQuartorAvarage(List<KLineEntityDTO> kLinePart) {
+        Map<Integer, List<KLineEntityDTO>> weekPartMap = kLinePart.stream().sorted(Comparator.comparing(KLineEntityDTO::getDate).reversed()).collect(Collectors.groupingBy(x -> x.getWeekNumber()));
+        List<KLineEntityDTO> weekendInMonth = weekPartMap.entrySet().stream().map(s -> {
+            KLineEntityDTO kLineEntityDTO = s.getValue().stream().findFirst().get();
+            return kLineEntityDTO;
+        }).sorted(Comparator.comparing(KLineEntityDTO::getDate)).collect(Collectors.toList());
+        double asDouble = weekendInMonth.stream().mapToDouble(KLineEntityDTO::getClose).average().getAsDouble();
+        return new BigDecimal(asDouble).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private List<KLineEntityDTO> getkLinePartS(List<KLineEntity> klines, Date endTime, Date startTime) {
+        List<KLineEntityDTO> kLinePart = klines.stream()
+                .filter(x -> endTime.after(DateUtil.parseDate(x.getDate())) && startTime.before(DateUtil.parseDate(x.getDate())))
                 .map(ff -> {
                     return KLineEntityDTO.builder()
                             .date(ff.getDate())
                             .close(NumberUtils.toDouble(ff.getClose()))
                             .higher(NumberUtils.toDouble(ff.getHigher()))
                             .lower(NumberUtils.toDouble(ff.getLower()))
+                            .weekNumber(DateUtil.getWeekNumber(DateUtil.parseDate(ff.getDate())))
+                            .monthNumber(DateUtil.getMonthNumber(DateUtil.parseDate(ff.getDate())))
                             .build();
                 })
                 .collect(Collectors.toList());
-        //当季最低价
-        Double min = collect.stream().mapToDouble(KLineEntityDTO::getLower).min().getAsDouble();
-        //当季最高价
-        Double max = collect.stream().mapToDouble(KLineEntityDTO::getHigher).max().getAsDouble();
-        System.out.println(min);
-        System.out.println(max);
-        //每周周末收盘平均价
-        return null;
+        return kLinePart;
     }
 }

@@ -25,9 +25,10 @@ public class DateUtil {
 
     /**
      * 获取当天日期
+     *
      * @return
      */
-    public static String getCurrentDay(){
+    public static String getCurrentDay() {
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date date = new Date();
         return dateFormat.format(date);
@@ -128,58 +129,74 @@ public class DateUtil {
 
     /**
      * 得到上一季度的最后一天
+     *
      * @return
      */
-    public static Date getLastQuarterEndTime(){
+    public static Date getLastQuarterEndTime() {
         Calendar cal = Calendar.getInstance();
         cal.setTime(getCurrentQuarterStartTime());
-        cal.set(Calendar.DATE,0);
+        cal.set(Calendar.DATE, 0);
         return cal.getTime();
     }
 
     /**
      * 上一季度开始第一天
+     *
      * @return
      */
-    public static Date getLastQuarterStartTime(){
+    public static Date getLastQuarterStartTime() {
         Calendar cal = Calendar.getInstance();
         cal.setTime(getCurrentQuarterStartTime());
-        cal.set(Calendar.MONTH,-3);
+        cal.set(Calendar.MONTH, -3);
         return cal.getTime();
     }
 
     /**
      * 前两个季度的最后一天
+     *
      * @return
      */
-    public static Date getLastTwoQuarterEndTime(){
+    public static Date getLastTwoQuarterEndTime() {
         Calendar cal = Calendar.getInstance();
         cal.setTime(getLastQuarterEndTime());
-        cal.add(Calendar.MONTH,-3);
+        cal.add(Calendar.MONTH, -3);
+        return cal.getTime();
+    }
+
+    /**
+     * 前两个季度的第一天
+     * @return
+     */
+    public static Date getLastTwoQuarterStartTime() {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(getCurrentQuarterStartTime());
+        cal.add(Calendar.MONTH, -6);
         return cal.getTime();
     }
 
     /**
      * 获取去年上一季度时间
+     *
      * @return
      */
-    public static Date getLastYearSameQuarterEndTime(){
+    public static Date getLastYearSameQuarterEndTime() {
         Calendar cal = Calendar.getInstance();
         cal.setTime(getLastQuarterEndTime());
-        cal.add(Calendar.YEAR,-1);
+        cal.add(Calendar.YEAR, -1);
         return cal.getTime();
     }
 
-    public static String getLastYearSameQuarter(String date){
+    public static String getLastYearSameQuarter(String date) {
         Date date1 = parseDate(date);
         Calendar cal = Calendar.getInstance();
         cal.setTime(date1);
-        cal.add(Calendar.YEAR,-1);
+        cal.add(Calendar.YEAR, -1);
         return fmtShortDate(cal.getTime());
     }
 
     /**
      * 获取当月的所有周六
+     *
      * @param year
      * @param month
      * @return
@@ -191,14 +208,39 @@ public class DateUtil {
         calendar.set(Calendar.MONTH, month - 1);// 设置月份
         calendar.set(Calendar.DAY_OF_MONTH, 1);// 设置为当月第一天
         int daySize = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);// 当月最大天数
-        for (int i = 0; i < daySize-1; i++) {
+        for (int i = 0; i < daySize - 1; i++) {
             calendar.add(Calendar.DATE, 1);//在第一天的基础上加1
             int week = calendar.get(Calendar.DAY_OF_WEEK);
-            if (week == Calendar.SATURDAY ) {// 1代表周日，7代表周六 判断这是一个星期的第几天从而判断是否是周末
-                list.add(year+"-"+month+"-"+calendar.get(Calendar.DAY_OF_MONTH));// 得到当天是一个月的第几天
+            if (week == Calendar.SATURDAY) {// 1代表周日，7代表周六 判断这是一个星期的第几天从而判断是否是周末
+                list.add(year + "-" + month + "-" + calendar.get(Calendar.DAY_OF_MONTH));// 得到当天是一个月的第几天
             }
         }
         return list;
+    }
+
+    /**
+     * 周数
+     *
+     * @param date
+     * @return
+     */
+    public static int getWeekNumber(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setFirstDayOfWeek(Calendar.MONTH);
+        cal.setTime(date);
+        return cal.get(Calendar.WEEK_OF_YEAR);
+    }
+
+    /**
+     * 月份
+     *
+     * @param date
+     * @return
+     */
+    public static int getMonthNumber(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        return cal.get(Calendar.MONTH) + 1;
     }
 
     public static void main(String[] args) {
@@ -209,7 +251,8 @@ public class DateUtil {
 //        System.out.println(fmtShortDate(getLastYearSameQuarterEndTime()));
 //        System.out.println(fmtShortDate(getLastTwoQuarterEndTime()));
 //        System.out.println(getLastYearSameQuarter("2021-06-30"));
-        List<String> weekendInMonth = getWeekendInMonth(2022, 3);
-        weekendInMonth.stream().forEach(System.out::println);
+//        List<String> weekendInMonth = getWeekendInMonth(2022, 3);
+//        weekendInMonth.stream().forEach(System.out::println);
+        System.out.println(getWeekNumber(parseDate("2021-12-20")));
     }
 }

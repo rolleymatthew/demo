@@ -20,6 +20,14 @@ public class KLineEntityDTO {
      */
     private String date;
     /**
+     * 周数
+     */
+    private int weekNumber;
+    /**
+     * 月数
+     */
+    private int monthNumber;
+    /**
      * 收盘价
      */
     private Double close;
