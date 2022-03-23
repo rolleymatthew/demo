@@ -90,6 +90,7 @@ public class DateUtil {
 
     /**
      * 指定日期的季度开始时间
+     *
      * @param date
      * @return
      */
@@ -139,10 +140,7 @@ public class DateUtil {
      * @return
      */
     public static Date getOneQuarterEndTime(Date date) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(getSelectedQuarterStartTime(date));
-        cal.set(Calendar.MONTH, -3);
-        return cal.getTime();
+        return getSelectedQuarterEndTime(date);
     }
 
     /**
@@ -161,19 +159,20 @@ public class DateUtil {
      */
     public static Date getTwoQuarterEndTime(Date date) {
         Calendar cal = Calendar.getInstance();
-        cal.setTime(getSelectedQuarterStartTime(date));
+        cal.setTime(getOneQuarterEndTime(date));
         cal.add(Calendar.MONTH, -3);
         return cal.getTime();
     }
 
     /**
      * 指定日期的前两个季度的第一天
+     *
      * @return
      */
     public static Date getTwoQuarterStartTime(Date date) {
         Calendar cal = Calendar.getInstance();
-        cal.setTime(getSelectedQuarterStartTime(date));
-        cal.add(Calendar.MONTH, -6);
+        cal.setTime(getOneQuarterStartTime(date));
+        cal.add(Calendar.MONTH, -3);
         return cal.getTime();
     }
 
@@ -191,14 +190,16 @@ public class DateUtil {
 
     /**
      * 指定日期的前三个季度的第一天
+     *
      * @return
      */
     public static Date getThreeQuarterStartTime(Date date) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(getSelectedQuarterStartTime(date));
-        cal.add(Calendar.MONTH, -9);
+        cal.add(Calendar.MONTH, -6);
         return cal.getTime();
     }
+
     /**
      * 指定日期的前四个季度的最后一天
      *
@@ -213,12 +214,13 @@ public class DateUtil {
 
     /**
      * 指定日期的前四个季度的第一天
+     *
      * @return
      */
     public static Date getFourQuarterStartTime(Date date) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(getSelectedQuarterStartTime(date));
-        cal.add(Calendar.MONTH, -12);
+        cal.add(Calendar.MONTH, -9);
         return cal.getTime();
     }
 
