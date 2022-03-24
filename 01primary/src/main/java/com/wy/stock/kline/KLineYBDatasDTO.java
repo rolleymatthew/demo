@@ -1,12 +1,12 @@
 package com.wy.stock.kline;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 /**
  * @Author: yunwang
@@ -19,25 +19,42 @@ public class KLineYBDatasDTO {
     /**
      * 往前一个季度的最高价、最低价、每周末平均价
      */
-    private BigDecimal LastOneQuarterHigher;
-    private BigDecimal LastOneQuarterAverage;
-    private BigDecimal LastOneQuarterLower;
+    private BigDecimal lastonequarterhigher;
+    private BigDecimal lastonequarteraverage;
+    private BigDecimal lastonequarterlower;
     /**
      * 往前二个季度的最高价、最低价、每周末平均价
      */
-    private BigDecimal LastTwoQuarterHigher;
-    private BigDecimal LastTwoQuarterAverage;
-    private BigDecimal LastTwoQuarterLower;
+    private BigDecimal lasttwoquarterhigher;
+    private BigDecimal lasttwoquarteraverage;
+    private BigDecimal lasttwoquarterlower;
     /**
      * 往前三个季度的最高价、最低价、每周末平均价
      */
-    private BigDecimal LastThreeQuarterHigher;
-    private BigDecimal LastThreeQuarterAverage;
-    private BigDecimal LastThreeQuarterLower;
+    private BigDecimal lastthreequarterhigher;
+    private BigDecimal lastthreequarteraverage;
+    private BigDecimal lastthreequarterlower;
     /**
      * 往前四个季度的最高价、最低价、每周末平均价
      */
-    private BigDecimal LastFourQuarterHigher;
-    private BigDecimal LastFourQuarterAverage;
-    private BigDecimal LastFourQuarterLower;
+    private BigDecimal lastfourquarterhigher;
+    private BigDecimal lastfourquarteraverage;
+    private BigDecimal lastfourquarterlower;
+
+
+    private BigDecimal lastoneyearhigher;
+    private BigDecimal lastoneyearaverage;
+    private BigDecimal lastoneyearlower;
+
+    private BigDecimal lasttwoyearhigher;
+    private BigDecimal lasttwoyearaverage;
+    private BigDecimal lasttwoyearlower;
+
+    private BigDecimal lastthreeyearhigher;
+    private BigDecimal lastthreeyearaverage;
+    private BigDecimal lastthreeyearlower;
+
+    private BigDecimal lastfouryearhigher;
+    private BigDecimal lastfouryearaverage;
+    private BigDecimal lastfouryearlower;
 }

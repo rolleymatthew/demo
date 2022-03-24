@@ -143,6 +143,7 @@ public class StockServiceImpl implements StockService {
         return ResultVO.ok();
     }
 
+    @Override
     public ResultVO FinAllDateReport(String code) {
         int[] counts = {1, 2, 3};
         List<String> allCodes = new ArrayList<>();

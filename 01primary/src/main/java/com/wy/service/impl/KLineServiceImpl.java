@@ -99,52 +99,96 @@ public class KLineServiceImpl implements KLineService {
     }
 
     @Override
-    public KLineYBDatasDTO findSelectedQuarterKlines(String code, String SelectedDate) {
+    public KLineYBDatasDTO findSelectedQuarterKlines(String code, String selectedDate) {
         KLineDataEntity kLineByCode = findKLineByCode(code);
         List<KLineEntity> klines = kLineByCode.getKlines();
         //1.本季度的K线
-        KLineYBDatasDTO kLineYBDatasDTO = getkLineYBOneQuarterDatasDTO(klines, DateUtil.parseDate(SelectedDate));
+        KLineYBDatasDTO kLineYBDatasDTO = getkLineYBOneQuarterDatasDTO(klines, DateUtil.parseDate(selectedDate));
         //2.往前推一个季度
-        kLineYBDatasDTO = getkLineYBTwoQuarterDatasDTO(kLineYBDatasDTO, klines, DateUtil.parseDate(SelectedDate));
+        kLineYBDatasDTO = getkLineYBTwoQuarterDatasDTO(kLineYBDatasDTO, klines, DateUtil.parseDate(selectedDate));
         //3.往前推两个季度
-        kLineYBDatasDTO = getkLineYBThreeQuarterDatasDTO(kLineYBDatasDTO, klines, DateUtil.parseDate(SelectedDate));
+        kLineYBDatasDTO = getkLineYBThreeQuarterDatasDTO(kLineYBDatasDTO, klines, DateUtil.parseDate(selectedDate));
         //4.往前推三个季度
-        kLineYBDatasDTO = getkLineYBFourQuarterDatasDTO(kLineYBDatasDTO, klines, DateUtil.parseDate(SelectedDate));
+        kLineYBDatasDTO = getkLineYBFourQuarterDatasDTO(kLineYBDatasDTO, klines, DateUtil.parseDate(selectedDate));
+        //5.年度的k线
+        kLineYBDatasDTO = getkLineYBOneYearDatasDTO(kLineYBDatasDTO, klines, DateUtil.parseDate(selectedDate));
+        kLineYBDatasDTO = getkLineYBTwoYearDatasDTO(kLineYBDatasDTO, klines, DateUtil.parseDate(selectedDate));
+        kLineYBDatasDTO = getkLineYBThreeYearDatasDTO(kLineYBDatasDTO, klines, DateUtil.parseDate(selectedDate));
+        kLineYBDatasDTO = getkLineYBFourYearDatasDTO(kLineYBDatasDTO, klines, DateUtil.parseDate(selectedDate));
+
+
         return kLineYBDatasDTO;
+    }
+
+    private KLineYBDatasDTO getkLineYBFourYearDatasDTO(KLineYBDatasDTO kLineYBDatasDTO, List<KLineEntity> klines, Date date) {
+        List<KLineEntityDTO> kLinePart = getkLinePartS(klines, DateUtil.getFourYearEndDate(date), DateUtil.getFourYearStartDate(date));
+        kLineYBDatasDTO.setLastfouryearhigher(getHiger(kLinePart));
+        kLineYBDatasDTO.setLastfouryearlower(getLower(kLinePart));
+        kLineYBDatasDTO.setLastfouryearaverage(getYearAvarage(kLinePart));
+        return kLineYBDatasDTO;
+    }
+
+    private KLineYBDatasDTO getkLineYBThreeYearDatasDTO(KLineYBDatasDTO kLineYBDatasDTO, List<KLineEntity> klines, Date date) {
+        List<KLineEntityDTO> kLinePart = getkLinePartS(klines, DateUtil.getThreeYearEndDate(date), DateUtil.getThreeYearStartDate(date));
+        kLineYBDatasDTO.setLastthreeyearhigher(getHiger(kLinePart));
+        kLineYBDatasDTO.setLastthreeyearlower(getLower(kLinePart));
+        kLineYBDatasDTO.setLastthreeyearaverage(getYearAvarage(kLinePart));
+        return kLineYBDatasDTO;
+    }
+
+    private KLineYBDatasDTO getkLineYBTwoYearDatasDTO(KLineYBDatasDTO kLineYBDatasDTO, List<KLineEntity> klines, Date date) {
+        List<KLineEntityDTO> kLinePart = getkLinePartS(klines, DateUtil.getTwoYearEndDate(date), DateUtil.getTwoYearStartDate(date));
+        kLineYBDatasDTO.setLasttwoyearhigher(getHiger(kLinePart));
+        kLineYBDatasDTO.setLasttwoyearlower(getLower(kLinePart));
+        kLineYBDatasDTO.setLasttwoyearaverage(getYearAvarage(kLinePart));
+        return kLineYBDatasDTO;
+    }
+
+    private KLineYBDatasDTO getkLineYBOneYearDatasDTO(KLineYBDatasDTO kLineYBDatasDTO, List<KLineEntity> klines, Date date) {
+        List<KLineEntityDTO> kLinePart = getkLinePartS(klines, DateUtil.getOneYearEndTime(date), DateUtil.getOneYearStartTime(date));
+        kLineYBDatasDTO.setLastoneyearhigher(getHiger(kLinePart));
+        kLineYBDatasDTO.setLastoneyearlower(getLower(kLinePart));
+        kLineYBDatasDTO.setLastoneyearaverage(getYearAvarage(kLinePart));
+        return kLineYBDatasDTO;
+    }
+
+    private BigDecimal getYearAvarage(List<KLineEntityDTO> kLinePart) {
+        Map<Integer, List<KLineEntityDTO>> monthPartMap = kLinePart.stream().sorted(Comparator.comparing(KLineEntityDTO::getDate).reversed()).collect(Collectors.groupingBy(x -> x.getMonthNumber()));
+        return new BigDecimal(getAvarage(monthPartMap)).setScale(2, RoundingMode.HALF_UP);
     }
 
     private KLineYBDatasDTO getkLineYBFourQuarterDatasDTO(KLineYBDatasDTO kLineYBDatasDTO, List<KLineEntity> klines, Date date) {
         List<KLineEntityDTO> kLinePart = getkLinePartS(klines, DateUtil.getFourQuarterEndTime(date), DateUtil.getFourQuarterStartTime(date));
-        kLineYBDatasDTO.setLastFourQuarterHigher(getHiger(kLinePart));
-        kLineYBDatasDTO.setLastFourQuarterLower(getLower(kLinePart));
-        kLineYBDatasDTO.setLastFourQuarterAverage(getQuartorAvarage(kLinePart));
+        kLineYBDatasDTO.setLastfourquarterhigher(getHiger(kLinePart));
+        kLineYBDatasDTO.setLastfourquarterlower(getLower(kLinePart));
+        kLineYBDatasDTO.setLastfourquarteraverage(getQuartorAvarage(kLinePart));
         return kLineYBDatasDTO;
     }
 
     private KLineYBDatasDTO getkLineYBThreeQuarterDatasDTO(KLineYBDatasDTO kLineYBDatasDTO, List<KLineEntity> klines, Date date) {
         List<KLineEntityDTO> kLinePart = getkLinePartS(klines, DateUtil.getThreeQuarterEndTime(date), DateUtil.getThreeQuarterStartTime(date));
-        kLineYBDatasDTO.setLastThreeQuarterHigher(getHiger(kLinePart));
-        kLineYBDatasDTO.setLastThreeQuarterLower(getLower(kLinePart));
-        kLineYBDatasDTO.setLastThreeQuarterAverage(getQuartorAvarage(kLinePart));
+        kLineYBDatasDTO.setLastthreequarterhigher(getHiger(kLinePart));
+        kLineYBDatasDTO.setLastthreequarterlower(getLower(kLinePart));
+        kLineYBDatasDTO.setLastthreequarteraverage(getQuartorAvarage(kLinePart));
         return kLineYBDatasDTO;
     }
 
     private KLineYBDatasDTO getkLineYBTwoQuarterDatasDTO(KLineYBDatasDTO kLineYBDatasDTO, List<KLineEntity> klines, Date date) {
         List<KLineEntityDTO> kLinePart = getkLinePartS(klines, DateUtil.getTwoQuarterEndTime(date), DateUtil.getTwoQuarterStartTime(date));
-        kLineYBDatasDTO.setLastTwoQuarterHigher(getHiger(kLinePart));
-        kLineYBDatasDTO.setLastTwoQuarterLower(getLower(kLinePart));
-        kLineYBDatasDTO.setLastTwoQuarterAverage(getQuartorAvarage(kLinePart));
+        kLineYBDatasDTO.setLasttwoquarterhigher(getHiger(kLinePart));
+        kLineYBDatasDTO.setLasttwoquarterlower(getLower(kLinePart));
+        kLineYBDatasDTO.setLasttwoquarteraverage(getQuartorAvarage(kLinePart));
         return kLineYBDatasDTO;
     }
 
     private KLineYBDatasDTO getkLineYBOneQuarterDatasDTO(List<KLineEntity> klines, Date date) {
         List<KLineEntityDTO> kLinePart = getkLinePartS(klines, DateUtil.getOneQuarterEndTime(date), DateUtil.getOneQuarterStartTime(date));
         KLineYBDatasDTO kLineYBDatasDTO = KLineYBDatasDTO.builder()
-                .LastOneQuarterHigher(getHiger(kLinePart))
-                .LastOneQuarterLower(getLower(kLinePart))
+                .lastonequarterhigher(getHiger(kLinePart))
+                .lastonequarterlower(getLower(kLinePart))
                 .build();
         //每周周末收盘平均价
-        kLineYBDatasDTO.setLastOneQuarterAverage(getQuartorAvarage(kLinePart));
+        kLineYBDatasDTO.setLastonequarteraverage(getQuartorAvarage(kLinePart));
         return kLineYBDatasDTO;
     }
 
@@ -160,12 +204,16 @@ public class KLineServiceImpl implements KLineService {
 
     private BigDecimal getQuartorAvarage(List<KLineEntityDTO> kLinePart) {
         Map<Integer, List<KLineEntityDTO>> weekPartMap = kLinePart.stream().sorted(Comparator.comparing(KLineEntityDTO::getDate).reversed()).collect(Collectors.groupingBy(x -> x.getWeekNumber()));
-        List<KLineEntityDTO> weekendInMonth = weekPartMap.entrySet().stream().map(s -> {
+        return new BigDecimal(getAvarage(weekPartMap)).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private double getAvarage(Map<Integer, List<KLineEntityDTO>> partMap) {
+        List<KLineEntityDTO> kLineInPart = partMap.entrySet().stream().map(s -> {
             KLineEntityDTO kLineEntityDTO = s.getValue().stream().findFirst().get();
             return kLineEntityDTO;
         }).sorted(Comparator.comparing(KLineEntityDTO::getDate)).collect(Collectors.toList());
-        double asDouble = weekendInMonth.stream().mapToDouble(KLineEntityDTO::getClose).average().getAsDouble();
-        return new BigDecimal(asDouble).setScale(2, RoundingMode.HALF_UP);
+        double asDouble = kLineInPart.stream().mapToDouble(KLineEntityDTO::getClose).average().getAsDouble();
+        return asDouble;
     }
 
     private List<KLineEntityDTO> getkLinePartS(List<KLineEntity> klines, Date endTime, Date startTime) {

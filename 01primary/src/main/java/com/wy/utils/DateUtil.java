@@ -325,6 +325,7 @@ public class DateUtil {
 
     /**
      * 计算年度，12月按照当年算，不满12月按照去年算
+     *
      * @param date
      * @return
      */
@@ -342,10 +343,11 @@ public class DateUtil {
 
     /**
      * 计算前两年的日期
+     *
      * @param date
      * @return
      */
-    public static Date getTwoYearStartDate(Date date){
+    public static Date getTwoYearStartDate(Date date) {
         Calendar c = Calendar.getInstance();
         c.setTime(getOneYearStartTime(date));
         c.add(Calendar.MONTH, -12);
@@ -354,37 +356,39 @@ public class DateUtil {
 
     /**
      * 计算前两年的日期
+     *
      * @param date
      * @return
      */
-    public static Date getTwoYearEndDate(Date date){
+    public static Date getTwoYearEndDate(Date date) {
         Calendar c = Calendar.getInstance();
         c.setTime(getOneYearEndTime(date));
         c.add(Calendar.MONTH, -12);
         return c.getTime();
     }
 
-    public static Date getThreeYearStartDate(Date date){
+    public static Date getThreeYearStartDate(Date date) {
         Calendar c = Calendar.getInstance();
         c.setTime(getOneYearStartTime(date));
         c.add(Calendar.MONTH, -24);
         return c.getTime();
     }
 
-    public static Date getThreeYearEndDate(Date date){
+    public static Date getThreeYearEndDate(Date date) {
         Calendar c = Calendar.getInstance();
         c.setTime(getOneYearEndTime(date));
         c.add(Calendar.MONTH, -24);
         return c.getTime();
     }
-    public static Date getFourYearStartDate(Date date){
+
+    public static Date getFourYearStartDate(Date date) {
         Calendar c = Calendar.getInstance();
         c.setTime(getOneYearStartTime(date));
         c.add(Calendar.MONTH, -36);
         return c.getTime();
     }
 
-    public static Date getFourYearEndDate(Date date){
+    public static Date getFourYearEndDate(Date date) {
         Calendar c = Calendar.getInstance();
         c.setTime(getOneYearEndTime(date));
         c.add(Calendar.MONTH, -36);
@@ -410,4 +414,5 @@ public class DateUtil {
         System.out.println(fmtShortDate(getFourYearStartDate(parseDate("2021-10-29"))));
         System.out.println(fmtShortDate(getFourYearEndDate(parseDate("2021-10-29"))));
     }
+
 }

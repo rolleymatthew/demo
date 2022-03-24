@@ -21,7 +21,11 @@ public class FillWrite {
         FillData fillData = new FillData();
         fillData.setName("张三");
         fillData.setNumber(5.2);
-        EasyExcel.write(fileName).withTemplate(templateFileName).sheet().doFill(fillData);
+//        EasyExcel.write(fileName).withTemplate(templateFileName).sheet().doFill(fillData);
 
+        templateFileName =
+                "d:\\stock\\demo" + File.separator + "pe.xlsx";
+        fileName = "d:\\stock\\demo" + File.separator + "pe601318.xlsx";
+        EasyExcel.write(fileName).withTemplate(templateFileName).sheet().doFill(fillData);
     }
 }
