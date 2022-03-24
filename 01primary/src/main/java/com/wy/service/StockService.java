@@ -1,6 +1,7 @@
 package com.wy.service;
 
 import com.wy.bean.ResultVO;
+import com.wy.stock.kline.KLineYBDatasDTO;
 
 /**
  * Stock数据抓取产生
@@ -13,4 +14,6 @@ public interface StockService {
     ResultVO hsshAndETFReport();
     ResultVO FinanceDateByAllOne(String code);
     ResultVO FinAllDateReport(String code);
+    ResultVO FinYBDateReport(String code);
+
 }

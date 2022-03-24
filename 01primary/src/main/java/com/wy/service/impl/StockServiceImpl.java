@@ -4,12 +4,16 @@ import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.wy.bean.*;
+import com.wy.service.KLineService;
 import com.wy.service.StockService;
 import com.wy.stock.etf.ETFFundDataService;
 import com.wy.stock.etf.ETFFundReportService;
 import com.wy.stock.finance.*;
 import com.wy.stock.hszh.GetSHSZHKStockDateService;
 import com.wy.stock.hszh.HSHStockReportService;
+import com.wy.stock.kline.KLineDataEntity;
+import com.wy.stock.kline.KLineEntity;
+import com.wy.stock.kline.KLineYBDatasDTO;
 import com.wy.utils.FilesUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -34,6 +38,14 @@ public class StockServiceImpl implements StockService {
 
     @Autowired
     StockCodeYmlBean stockCodeYmlBean;
+
+    @Autowired
+    KLineService kLineService;
+
+    public static String YB_PATH = "d:\\stock\\ybFin\\pe";
+    public static String YB_PATH_TEMPLETE = "d:\\stock\\ybFin\\templete";
+    public static String YB_TEMPLETE_FILENAME = YB_PATH_TEMPLETE + File.separator + "pe.xlsx";
+    public static String YB_DATA_FILENAME = YB_PATH + File.separator + "pe%s.xlsx";
 
     @Override
     public ResultVO hsshDataByDay(int dayCount) {
@@ -186,6 +198,39 @@ public class StockServiceImpl implements StockService {
         //输出文件
         log.info("end finance report {}. {}s", allCodes.size(), (System.currentTimeMillis() - start) / 1000);
         return ResultVO.ok();
+    }
+
+    @Override
+    public ResultVO FinYBDateReport(String code) {
+        KLineDataEntity kLineByCode = kLineService.findKLineByCode(code);
+        KLineEntity kLineEntity = kLineByCode.getKlines().stream().findFirst().orElse(null);
+        if (kLineEntity == null) {
+            return new ResultVO();
+        }
+        String date = kLineEntity.getDate();
+        //1.计算股价
+        KLineYBDatasDTO kLineYBDatasDTO = kLineService.findYBDateKlines(code, date);
+        //2.计算每股收益
+        countEPS(code,kLineYBDatasDTO);
+        //3.计算本益比和价格
+        countPE(code,kLineYBDatasDTO);
+        //4.输出模板
+        outputExcle(kLineYBDatasDTO, code);
+        return ResultVO.ok();
+    }
+
+    private void countPE(String code, KLineYBDatasDTO kLineYBDatasDTO) {
+
+    }
+
+    private void countEPS(String code, KLineYBDatasDTO kLineYBDatasDTO) {
+
+    }
+
+    public void outputExcle(KLineYBDatasDTO kLineYBDatasDTO, String code) {
+        String fileName = String.format(YB_DATA_FILENAME, code + stockCodeYmlBean.getAcode().get(code));
+        EasyExcel.write(fileName).withTemplate(YB_TEMPLETE_FILENAME).sheet().doFill(kLineYBDatasDTO);
+
     }
 
 }

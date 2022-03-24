@@ -99,7 +99,7 @@ public class KLineServiceImpl implements KLineService {
     }
 
     @Override
-    public KLineYBDatasDTO findSelectedQuarterKlines(String code, String selectedDate) {
+    public KLineYBDatasDTO findYBDateKlines(String code, String selectedDate) {
         KLineDataEntity kLineByCode = findKLineByCode(code);
         List<KLineEntity> klines = kLineByCode.getKlines();
         //1.本季度的K线

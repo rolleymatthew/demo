@@ -6,13 +6,11 @@ import com.wy.bean.StockCodeYmlBean;
 import com.wy.service.KLineService;
 import com.wy.service.StockService;
 import com.wy.stock.kline.KLineYBDatasDTO;
-import com.wy.utils.easyexcle.FillData;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.File;
-import java.math.BigDecimal;
 
 /**
  * @author yunwang
@@ -65,9 +63,13 @@ public class StockServiceTest {
         String templateFileName =
                 "d:\\stock\\demo" + File.separator + "pe.xlsx";
         String fileName = "d:\\stock\\demo" + File.separator + "pe601318.xlsx";
-        KLineYBDatasDTO lastOneQuarterKlines = kLineService.findSelectedQuarterKlines("601318", "2021-09-30");
+        KLineYBDatasDTO lastOneQuarterKlines = kLineService.findYBDateKlines("601318", "2021-09-30");
         EasyExcel.write(fileName).withTemplate(templateFileName).sheet().doFill(lastOneQuarterKlines);
 
 
+    }
+    @Test
+    void YBServiceTest() {
+        stockService.FinYBDateReport("601318");
     }
 }

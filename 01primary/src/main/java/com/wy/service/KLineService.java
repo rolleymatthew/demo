@@ -28,5 +28,6 @@ public interface KLineService {
      * @param selectedDate 最新的财报日期
      * @return
      */
-    KLineYBDatasDTO findSelectedQuarterKlines(String code,String selectedDate);
+    KLineYBDatasDTO findYBDateKlines(String code, String selectedDate);
+
 }
