@@ -76,4 +76,15 @@ public class KLineYBDatasDTO {
     private BigDecimal fourepstotal;
     private BigDecimal fourepscurrent;
 
+    /**
+     * 年度eps累计
+     */
+    private String oneyeardate;
+    private BigDecimal oneyearepstotal;
+    private String twoyeardate;
+    private BigDecimal twoyearepstotal;
+    private String threeyeardate;
+    private BigDecimal threeyearepstotal;
+    private String fouryeardate;
+    private BigDecimal fouryearepstotal;
 }
