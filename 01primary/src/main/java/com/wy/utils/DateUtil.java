@@ -211,6 +211,12 @@ public class DateUtil {
         cal.add(Calendar.MONTH, -9);
         return cal.getTime();
     }
+    public static Date getFiveQuarterEndTime(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(getOneQuarterEndTime(date));
+        cal.add(Calendar.MONTH, -12);
+        return cal.getTime();
+    }
 
     /**
      * 指定日期的前四个季度的第一天

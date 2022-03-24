@@ -14,6 +14,6 @@ public interface StockService {
     ResultVO hsshAndETFReport();
     ResultVO FinanceDateByAllOne(String code);
     ResultVO FinAllDateReport(String code);
-    ResultVO FinYBDateReport(String code);
+    ResultVO FinYBDateReport(String code,String date);
 
 }

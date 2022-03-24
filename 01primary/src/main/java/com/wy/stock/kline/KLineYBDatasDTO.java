@@ -87,4 +87,5 @@ public class KLineYBDatasDTO {
     private BigDecimal threeyearepstotal;
     private String fouryeardate;
     private BigDecimal fouryearepstotal;
+    private BigDecimal fouryearavarageepstotal;
 }

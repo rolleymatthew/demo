@@ -205,26 +205,30 @@ public class StockServiceImpl implements StockService {
     }
 
     @Override
-    public ResultVO FinYBDateReport(String code) {
+    public ResultVO FinYBDateReport(String code, String date) {
         Map<String, StockFinDateBean> stockFinDateMap = FinanceCommonService.getStockFinDateMap(Arrays.asList(code));
         //检查是否上市满4年,具有完整的四年财务数据，不满四年无法计算
         if (!stockFinDateMap.containsKey(code)
                 || hasAllDate(stockFinDateMap.get(code))
                 || isFullTime(stockFinDateMap.get(code))) {
-            return ResultVO.ERROR;
+            return ResultVO.build(-1, "没有财务数据");
         }
         KLineDataEntity kLineByCode = kLineService.findKLineByCode(code);
         KLineEntity kLineEntity = kLineByCode.getKlines().stream().findFirst().orElse(null);
         if (kLineEntity == null) {
-            return new ResultVO();
+            return ResultVO.build(-1, "没有K线数据");
         }
-        String date = kLineEntity.getDate();
+        StockFinDateBean stockFinDateBean = stockFinDateMap.get(code);
+        ProfitDateBean profitDateBean = stockFinDateBean.getProfitDateBean().stream().findFirst().orElse(null);
+        if (StringUtils.isEmpty(date)) {
+            date = profitDateBean.getReportDate();
+        }
         //1.计算股价
         KLineYBDatasDTO kLineYBDatasDTO = kLineService.findYBDateKlines(code, date);
         //2.计算每股收益
-        countEPS(code, kLineYBDatasDTO, stockFinDateMap);
+        countEPS(code, kLineYBDatasDTO, stockFinDateMap, date);
         //3.计算本益比和价格
-        countPE(code, kLineYBDatasDTO, stockFinDateMap);
+        countPE(code, kLineYBDatasDTO, stockFinDateMap, date);
         //4.输出模板
         outputExcle(kLineYBDatasDTO, code);
         return ResultVO.ok();
@@ -232,7 +236,7 @@ public class StockServiceImpl implements StockService {
 
     private boolean isFullTime(StockFinDateBean stockFinDateBean) {
         ProfitDateBean profitDateBean = stockFinDateBean.getProfitDateBean().stream().findFirst().orElse(null);
-        if (profitDateBean == null){
+        if (profitDateBean == null) {
             return true;
         }
         String reportDate = profitDateBean.getReportDate();
@@ -254,55 +258,92 @@ public class StockServiceImpl implements StockService {
     }
 
 
-    private void countPE(String code, KLineYBDatasDTO kLineYBDatasDTO, Map<String, StockFinDateBean> stockFinDateMap) {
+    private void countPE(String code, KLineYBDatasDTO kLineYBDatasDTO, Map<String, StockFinDateBean> stockFinDateMap, String date) {
 
     }
 
-    private void countEPS(String code, KLineYBDatasDTO kLineYBDatasDTO, Map<String, StockFinDateBean> stockFinDateMap) {
+    private void countEPS(String code, KLineYBDatasDTO kLineYBDatasDTO, Map<String, StockFinDateBean> stockFinDateMap, String date) {
         if (!stockFinDateMap.containsKey(code)) {
             return;
         }
         StockFinDateBean stockFinDateBean = stockFinDateMap.get(code);
-        List<EpsBean> epsList = getQuarterEpsBeans(stockFinDateBean);
-        if (epsList == null) return;
-        if (epsList.size() == 5) {
-            kLineYBDatasDTO.setOnequarterdate(epsList.get(0).getDate());
-            kLineYBDatasDTO.setTwoquarterdate(epsList.get(1).getDate());
-            kLineYBDatasDTO.setThreequarterdate(epsList.get(2).getDate());
-            kLineYBDatasDTO.setFourquarterdate(epsList.get(3).getDate());
-            kLineYBDatasDTO.setOneepscurrent(getEps(epsList, 1));
-            kLineYBDatasDTO.setTwoepscurrent(getEps(epsList, 2));
-            kLineYBDatasDTO.setThreeepscurrent(getEps(epsList, 3));
-            kLineYBDatasDTO.setFourepscurrent(getEps(epsList, 4));
-            kLineYBDatasDTO.setFourepstotal(getEps(epsList, 4));
+        List<Date> quarterList = new ArrayList<Date>();
+        //得到季度EPS
+        quarterList.add(DateUtil.getOneQuarterEndTime(DateUtil.parseDate(date)));
+        quarterList.add(DateUtil.getTwoQuarterEndTime(DateUtil.parseDate(date)));
+        quarterList.add(DateUtil.getThreeQuarterEndTime(DateUtil.parseDate(date)));
+        quarterList.add(DateUtil.getFourQuarterEndTime(DateUtil.parseDate(date)));
+        quarterList.add(DateUtil.getFiveQuarterEndTime(DateUtil.parseDate(date)));
+        List<EpsBean> quarterEpsList = getEpsBeans(stockFinDateBean, quarterList);
+        if (quarterEpsList == null) return;
+        if (quarterEpsList.size() == 5) {
+            kLineYBDatasDTO.setOnequarterdate(quarterEpsList.get(0).getDate());
+            kLineYBDatasDTO.setTwoquarterdate(quarterEpsList.get(1).getDate());
+            kLineYBDatasDTO.setThreequarterdate(quarterEpsList.get(2).getDate());
+            kLineYBDatasDTO.setFourquarterdate(quarterEpsList.get(3).getDate());
+            kLineYBDatasDTO.setOneepscurrent(getEps(quarterEpsList, 1));
+            kLineYBDatasDTO.setTwoepscurrent(getEps(quarterEpsList, 2));
+            kLineYBDatasDTO.setThreeepscurrent(getEps(quarterEpsList, 3));
+            kLineYBDatasDTO.setFourepscurrent(getEps(quarterEpsList, 4));
+            kLineYBDatasDTO.setFourepstotal(getEps(quarterEpsList, 4));
             kLineYBDatasDTO.setThreeepstotal(kLineYBDatasDTO.getFourepstotal().add(kLineYBDatasDTO.getFourepscurrent()));
             kLineYBDatasDTO.setTwoepstotal(kLineYBDatasDTO.getThreeepstotal().add(kLineYBDatasDTO.getTwoepscurrent()));
             kLineYBDatasDTO.setOneepstotal(kLineYBDatasDTO.getTwoepstotal().add(kLineYBDatasDTO.getOneepscurrent()));
         }
+        //得到年度EPS
+        List<Date> yearList = new ArrayList<Date>();
+        yearList.add(DateUtil.getOneYearEndTime(DateUtil.parseDate(date)));
+        yearList.add(DateUtil.getTwoYearEndDate(DateUtil.parseDate(date)));
+        yearList.add(DateUtil.getThreeYearEndDate(DateUtil.parseDate(date)));
+        yearList.add(DateUtil.getFourYearEndDate(DateUtil.parseDate(date)));
+        List<EpsBean> yearEpsList = getEpsBeans(stockFinDateBean, yearList);
+        if (yearList == null) return;
+        if (yearList.size() == 4) {
+            kLineYBDatasDTO.setOneyeardate(yearEpsList.get(0).getDate());
+            kLineYBDatasDTO.setTwoyeardate(yearEpsList.get(1).getDate());
+            kLineYBDatasDTO.setThreeyeardate(yearEpsList.get(2).getDate());
+            kLineYBDatasDTO.setFouryeardate(yearEpsList.get(3).getDate());
+            kLineYBDatasDTO.setOneyearepstotal(yearEpsList.get(0).getEps());
+            kLineYBDatasDTO.setTwoyearepstotal(yearEpsList.get(1).getEps());
+            kLineYBDatasDTO.setThreeyearepstotal(yearEpsList.get(2).getEps());
+            kLineYBDatasDTO.setFouryearepstotal(yearEpsList.get(3).getEps());
+            kLineYBDatasDTO.setFouryearavarageepstotal(getYearAvarage(kLineYBDatasDTO));
+        }
+
     }
 
-    private List<EpsBean> getQuarterEpsBeans(StockFinDateBean stockFinDateBean) {
-        List<EpsBean> epsList = new ArrayList<>();
-        if (CollectionUtils.isEmpty(stockFinDateBean.getProfitDateBean())) {
-            //从主要财务数据出
-            if (CollectionUtils.isEmpty(stockFinDateBean.getFinanceDataBean())) {
-                return null;
-            }
-            List<FinanceDataBean> financeDataBean = stockFinDateBean.getFinanceDataBean();
-            epsList = financeDataBean.stream().limit(5).map(x -> {
-                return EpsBean.builder()
-                        .date(x.getReportDate())
-                        .eps(new BigDecimal(NumberUtils.toDouble(x.getBasePerShare())))
-                        .build();
-            }).collect(Collectors.toList());
+    private BigDecimal getYearAvarage(KLineYBDatasDTO kLineYBDatasDTO) {
+        BigDecimal add = add(kLineYBDatasDTO.getOneyearepstotal(),kLineYBDatasDTO.getTwoyearepstotal()
+                ,kLineYBDatasDTO.getThreeyearepstotal(),kLineYBDatasDTO.getFouryearepstotal());
+        return add.divide(new BigDecimal(4));
+    }
+
+    public static BigDecimal add(BigDecimal... param) {
+
+        BigDecimal sumAdd = BigDecimal.valueOf(0);
+        for (int i = 0; i < param.length; i++) {
+
+            BigDecimal bigDecimal = param[i] == null ? new BigDecimal(0) : param[i];
+            sumAdd = sumAdd.add(bigDecimal);
         }
-        List<ProfitDateBean> financeDataBean = stockFinDateBean.getProfitDateBean();
-        epsList = financeDataBean.stream().limit(5).map(x -> {
-            return EpsBean.builder()
-                    .date(x.getReportDate())
-                    .eps(new BigDecimal(NumberUtils.toDouble(x.getBasicEarningsPerShare())))
-                    .build();
-        }).collect(Collectors.toList());
+        return sumAdd;
+    }
+
+    private List<EpsBean> getEpsBeans(StockFinDateBean stockFinDateBean, List<Date> dateList) {
+        List<EpsBean> epsList = dateList.stream().map(
+                s -> {
+                    List<EpsBean> collect = stockFinDateBean.getProfitDateBean().stream().filter(x -> {
+                        //过滤需要的日期数据
+                        return x.getReportDate().equals(DateUtil.fmtShortDate(s));
+                    }).map(x -> {
+                        return EpsBean.builder()
+                                .date(x.getReportDate())
+                                .eps(new BigDecimal(NumberUtils.toDouble(x.getBasicEarningsPerShare())))
+                                .build();
+                    }).collect(Collectors.toList());
+                    return collect.get(0);
+                }
+        ).collect(Collectors.toList());
         return epsList;
     }
 
