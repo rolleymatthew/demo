@@ -14,6 +14,7 @@ import com.wy.stock.hszh.HSHStockReportService;
 import com.wy.stock.kline.KLineDataEntity;
 import com.wy.stock.kline.KLineEntity;
 import com.wy.stock.kline.KLineYBDatasDTO;
+import com.wy.utils.DateUtil;
 import com.wy.utils.FilesUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -208,7 +209,8 @@ public class StockServiceImpl implements StockService {
         Map<String, StockFinDateBean> stockFinDateMap = FinanceCommonService.getStockFinDateMap(Arrays.asList(code));
         //检查是否上市满4年,具有完整的四年财务数据，不满四年无法计算
         if (!stockFinDateMap.containsKey(code)
-                || hasAllDate(stockFinDateMap.get(code))) {
+                || hasAllDate(stockFinDateMap.get(code))
+                || isFullTime(stockFinDateMap.get(code))) {
             return ResultVO.ERROR;
         }
         KLineDataEntity kLineByCode = kLineService.findKLineByCode(code);
@@ -226,6 +228,21 @@ public class StockServiceImpl implements StockService {
         //4.输出模板
         outputExcle(kLineYBDatasDTO, code);
         return ResultVO.ok();
+    }
+
+    private boolean isFullTime(StockFinDateBean stockFinDateBean) {
+        ProfitDateBean profitDateBean = stockFinDateBean.getProfitDateBean().stream().findFirst().orElse(null);
+        if (profitDateBean == null){
+            return true;
+        }
+        String reportDate = profitDateBean.getReportDate();
+        Date fourYearEndDate = DateUtil.getFourYearEndDate(DateUtil.parseDate(reportDate));
+        List<ProfitDateBean> collect = stockFinDateBean.getProfitDateBean().stream()
+                .filter(s -> s.getReportDate().equals(DateUtil.fmtShortDate(fourYearEndDate))).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(collect)) {
+            return true;
+        }
+        return false;
     }
 
     private boolean hasAllDate(StockFinDateBean stockFinDateBean) {
