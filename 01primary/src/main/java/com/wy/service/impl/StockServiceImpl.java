@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -228,7 +229,7 @@ public class StockServiceImpl implements StockService {
         //2.计算每股收益
         countEPS(code, kLineYBDatasDTO, stockFinDateMap, date);
         //3.计算本益比和价格
-        countPE(code, kLineYBDatasDTO, stockFinDateMap, date);
+        countPE(kLineYBDatasDTO);
         //4.输出模板
         outputExcle(kLineYBDatasDTO, code);
         return ResultVO.ok();
@@ -258,8 +259,43 @@ public class StockServiceImpl implements StockService {
     }
 
 
-    private void countPE(String code, KLineYBDatasDTO kLineYBDatasDTO, Map<String, StockFinDateBean> stockFinDateMap, String date) {
+    private void countPE(KLineYBDatasDTO kLineYBDatasDTO) {
+        kLineYBDatasDTO.setOneyearpehigher(kLineYBDatasDTO.getLastoneyearhigher().divide(kLineYBDatasDTO.getOneyearepstotal(),2, RoundingMode.HALF_UP));
+        kLineYBDatasDTO.setOneyearpeaverage(kLineYBDatasDTO.getLastoneyearaverage().divide(kLineYBDatasDTO.getOneyearepstotal(),2, RoundingMode.HALF_UP));
+        kLineYBDatasDTO.setOneyearpelower(kLineYBDatasDTO.getLastoneyearlower().divide(kLineYBDatasDTO.getOneyearepstotal(),2, RoundingMode.HALF_UP));
+        kLineYBDatasDTO.setTwoyearpehigher(kLineYBDatasDTO.getLasttwoyearhigher().divide(kLineYBDatasDTO.getTwoyearepstotal(),2, RoundingMode.HALF_UP));
+        kLineYBDatasDTO.setTwoyearpeaverage(kLineYBDatasDTO.getLasttwoyearaverage().divide(kLineYBDatasDTO.getTwoyearepstotal(),2, RoundingMode.HALF_UP));
+        kLineYBDatasDTO.setTwoyearpelower(kLineYBDatasDTO.getLasttwoyearlower().divide(kLineYBDatasDTO.getTwoyearepstotal(),2, RoundingMode.HALF_UP));
+        kLineYBDatasDTO.setThreeyearpehigher(kLineYBDatasDTO.getLastthreeyearhigher().divide(kLineYBDatasDTO.getThreeyearepstotal(),2, RoundingMode.HALF_UP));
+        kLineYBDatasDTO.setThreeyearpeaverage(kLineYBDatasDTO.getLastthreeyearaverage().divide(kLineYBDatasDTO.getThreeyearepstotal(),2, RoundingMode.HALF_UP));
+        kLineYBDatasDTO.setThreeyearpelower(kLineYBDatasDTO.getLastthreeyearlower().divide(kLineYBDatasDTO.getThreeyearepstotal(),2, RoundingMode.HALF_UP));
+        kLineYBDatasDTO.setFouryearpehigher(kLineYBDatasDTO.getLastfouryearhigher().divide(kLineYBDatasDTO.getFouryearepstotal(),2, RoundingMode.HALF_UP));
+        kLineYBDatasDTO.setFouryearpeaverage(kLineYBDatasDTO.getLastfouryearaverage().divide(kLineYBDatasDTO.getFouryearepstotal(),2, RoundingMode.HALF_UP));
+        kLineYBDatasDTO.setFouryearpelower(kLineYBDatasDTO.getLastfouryearlower().divide(kLineYBDatasDTO.getFouryearepstotal(),2, RoundingMode.HALF_UP));
 
+        kLineYBDatasDTO.setFouryearavagpehigher(add(kLineYBDatasDTO.getOneyearpehigher(),kLineYBDatasDTO.getTwoyearpehigher()
+                ,kLineYBDatasDTO.getThreeyearpehigher(),kLineYBDatasDTO.getFouryearpehigher()).divide(new BigDecimal(4),2, RoundingMode.HALF_UP));
+        kLineYBDatasDTO.setFouryearavagpemiddle(add(kLineYBDatasDTO.getOneyearpeaverage(),kLineYBDatasDTO.getTwoyearpeaverage()
+                ,kLineYBDatasDTO.getThreeyearpeaverage(),kLineYBDatasDTO.getFouryearpeaverage()).divide(new BigDecimal(4),2, RoundingMode.HALF_UP));
+        kLineYBDatasDTO.setFouryearavagpelower(add(kLineYBDatasDTO.getOneyearpelower(),kLineYBDatasDTO.getTwoyearpelower()
+                ,kLineYBDatasDTO.getThreeyearpelower(),kLineYBDatasDTO.getFouryearpelower()).divide(new BigDecimal(4),2, RoundingMode.HALF_UP));
+
+        kLineYBDatasDTO.setPricehigher(getPrice(kLineYBDatasDTO.getOneepstotal(),kLineYBDatasDTO.getFouryearavarageepstotal(),kLineYBDatasDTO.getFouryearavagpehigher()));
+        kLineYBDatasDTO.setPricemiddle(getPrice(kLineYBDatasDTO.getOneepstotal(),kLineYBDatasDTO.getFouryearavarageepstotal(),kLineYBDatasDTO.getFouryearavagpemiddle()));
+        kLineYBDatasDTO.setPricelower(getPrice(kLineYBDatasDTO.getOneepstotal(),kLineYBDatasDTO.getFouryearavarageepstotal(),kLineYBDatasDTO.getFouryearavagpelower()));
+
+//        kLineYBDatasDTO.setFourquarteravagpehigher(add(kLineYBDatasDTO.getOne(),kLineYBDatasDTO.getTwoquarterpehigher()
+//                ,kLineYBDatasDTO.getThreeyearpehigher(),kLineYBDatasDTO.getFouryearpehigher()).divide(new BigDecimal(4)));
+//        kLineYBDatasDTO.setFouryearavagpemiddle(add(kLineYBDatasDTO.getOneyearpeaverage(),kLineYBDatasDTO.getTwoyearpeaverage()
+//                ,kLineYBDatasDTO.getThreeyearpeaverage(),kLineYBDatasDTO.getFouryearpeaverage()).divide(new BigDecimal(4)));
+//        kLineYBDatasDTO.setFouryearavagpelower(add(kLineYBDatasDTO.getOneyearpelower(),kLineYBDatasDTO.getTwoyearpelower()
+//                ,kLineYBDatasDTO.getThreeyearpelower(),kLineYBDatasDTO.getFouryearpelower()).divide(new BigDecimal(4)));
+
+    }
+
+    private BigDecimal getPrice(BigDecimal epstotal, BigDecimal yearavarageepstotal, BigDecimal fouryearavagpelower) {
+        BigDecimal bigDecimal = epstotal.add(yearavarageepstotal).divide(new BigDecimal(2)).multiply(fouryearavagpelower).setScale(2, RoundingMode.HALF_UP);
+        return bigDecimal;
     }
 
     private void countEPS(String code, KLineYBDatasDTO kLineYBDatasDTO, Map<String, StockFinDateBean> stockFinDateMap, String date) {

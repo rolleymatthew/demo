@@ -88,4 +88,45 @@ public class KLineYBDatasDTO {
     private String fouryeardate;
     private BigDecimal fouryearepstotal;
     private BigDecimal fouryearavarageepstotal;
+
+    /**
+     * PE
+     */
+    private String oneyearpedate;
+    private BigDecimal oneyearpehigher;
+    private BigDecimal oneyearpeaverage;
+    private BigDecimal oneyearpelower;
+
+    private String twoyearpedate;
+    private BigDecimal twoyearpehigher;
+    private BigDecimal twoyearpeaverage;
+    private BigDecimal twoyearpelower;
+
+    private String threeyearpedate;
+    private BigDecimal threeyearpehigher;
+    private BigDecimal threeyearpeaverage;
+    private BigDecimal threeyearpelower;
+
+    private String fouryearpedate;
+    private BigDecimal fouryearpehigher;
+    private BigDecimal fouryearpeaverage;
+    private BigDecimal fouryearpelower;
+
+    private BigDecimal fouryearavagpehigher;
+    private BigDecimal fouryearavagpemiddle;
+    private BigDecimal fouryearavagpelower;
+
+    private BigDecimal fourquarteravagpehigher;
+    private BigDecimal fourquarteravagpemiddle;
+    private BigDecimal fourquarteravagpelower;
+    /**
+     * 高档价、合理价、低档价
+     */
+    private BigDecimal pricehigher;
+    private BigDecimal pricemiddle;
+    private BigDecimal pricelower;
+
+    private BigDecimal pricequarterhigher;
+    private BigDecimal pricequartermiddle;
+    private BigDecimal pricequarterlower;
 }
