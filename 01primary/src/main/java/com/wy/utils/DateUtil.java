@@ -323,15 +323,71 @@ public class DateUtil {
         return now;
     }
 
+    /**
+     * 计算年度，12月按照当年算，不满12月按照去年算
+     * @param date
+     * @return
+     */
     public static Date getOneYearEndTime(Date date) {
         Calendar c = Calendar.getInstance();
         c.setTime(getOneYearStartTime(date));
-        c.add(Calendar.MONTH, 12);
+        c.add(Calendar.MONTH, 11);
         c.set(Calendar.DAY_OF_MONTH, c.getActualMaximum(Calendar.DAY_OF_MONTH));// 获取当前月第一天
         c.set(Calendar.HOUR_OF_DAY, 23);
         c.set(Calendar.MINUTE, 59);
         c.set(Calendar.SECOND, 59);
         c.set(Calendar.MILLISECOND, 999);
+        return c.getTime();
+    }
+
+    /**
+     * 计算前两年的日期
+     * @param date
+     * @return
+     */
+    public static Date getTwoYearStartDate(Date date){
+        Calendar c = Calendar.getInstance();
+        c.setTime(getOneYearStartTime(date));
+        c.add(Calendar.MONTH, -12);
+        return c.getTime();
+    }
+
+    /**
+     * 计算前两年的日期
+     * @param date
+     * @return
+     */
+    public static Date getTwoYearEndDate(Date date){
+        Calendar c = Calendar.getInstance();
+        c.setTime(getOneYearEndTime(date));
+        c.add(Calendar.MONTH, -12);
+        return c.getTime();
+    }
+
+    public static Date getThreeYearStartDate(Date date){
+        Calendar c = Calendar.getInstance();
+        c.setTime(getOneYearStartTime(date));
+        c.add(Calendar.MONTH, -24);
+        return c.getTime();
+    }
+
+    public static Date getThreeYearEndDate(Date date){
+        Calendar c = Calendar.getInstance();
+        c.setTime(getOneYearEndTime(date));
+        c.add(Calendar.MONTH, -24);
+        return c.getTime();
+    }
+    public static Date getFourYearStartDate(Date date){
+        Calendar c = Calendar.getInstance();
+        c.setTime(getOneYearStartTime(date));
+        c.add(Calendar.MONTH, -36);
+        return c.getTime();
+    }
+
+    public static Date getFourYearEndDate(Date date){
+        Calendar c = Calendar.getInstance();
+        c.setTime(getOneYearEndTime(date));
+        c.add(Calendar.MONTH, -36);
         return c.getTime();
     }
 
@@ -347,5 +403,11 @@ public class DateUtil {
 //        System.out.println(fmtShortDate(getFourQuarterEndTime(parseDate("2021-12-31"))));
         System.out.println(fmtShortDate(getOneYearStartTime(parseDate("2021-11-29"))));
         System.out.println(fmtShortDate(getOneYearEndTime(parseDate("2021-11-29"))));
+        System.out.println(fmtShortDate(getTwoYearStartDate(parseDate("2021-10-29"))));
+        System.out.println(fmtShortDate(getTwoYearEndDate(parseDate("2021-10-29"))));
+        System.out.println(fmtShortDate(getThreeYearStartDate(parseDate("2021-10-29"))));
+        System.out.println(fmtShortDate(getThreeYearEndDate(parseDate("2021-10-29"))));
+        System.out.println(fmtShortDate(getFourYearStartDate(parseDate("2021-10-29"))));
+        System.out.println(fmtShortDate(getFourYearEndDate(parseDate("2021-10-29"))));
     }
 }
