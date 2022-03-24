@@ -16,12 +16,15 @@ import com.wy.stock.kline.KLineEntity;
 import com.wy.stock.kline.KLineYBDatasDTO;
 import com.wy.utils.FilesUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -211,9 +214,9 @@ public class StockServiceImpl implements StockService {
         //1.计算股价
         KLineYBDatasDTO kLineYBDatasDTO = kLineService.findYBDateKlines(code, date);
         //2.计算每股收益
-        countEPS(code,kLineYBDatasDTO);
+        countEPS(code, kLineYBDatasDTO);
         //3.计算本益比和价格
-        countPE(code,kLineYBDatasDTO);
+        countPE(code, kLineYBDatasDTO);
         //4.输出模板
         outputExcle(kLineYBDatasDTO, code);
         return ResultVO.ok();
@@ -224,7 +227,79 @@ public class StockServiceImpl implements StockService {
     }
 
     private void countEPS(String code, KLineYBDatasDTO kLineYBDatasDTO) {
+        Map<String, StockFinDateBean> stockFinDateMap = FinanceCommonService.getStockFinDateMap(Arrays.asList(code));
+        if (!stockFinDateMap.containsKey(code)) {
+            return;
+        }
+        StockFinDateBean stockFinDateBean = stockFinDateMap.get(code);
+        List<EpsBean> epsList = new ArrayList<>();
+        if (CollectionUtils.isEmpty(stockFinDateBean.getProfitDateBean())) {
+            //从主要财务数据出
+            if (CollectionUtils.isEmpty(stockFinDateBean.getFinanceDataBean())) {
+                return;
+            }
+            List<FinanceDataBean> financeDataBean = stockFinDateBean.getFinanceDataBean();
+            epsList = financeDataBean.stream().limit(5).map(x -> {
+                return EpsBean.builder()
+                        .date(x.getReportDate())
+                        .eps(new BigDecimal(NumberUtils.toDouble(x.getBasePerShare())))
+                        .build();
+            }).collect(Collectors.toList());
+        }
+        List<ProfitDateBean> financeDataBean = stockFinDateBean.getProfitDateBean();
+        epsList = financeDataBean.stream().limit(5).map(x -> {
+            return EpsBean.builder()
+                    .date(x.getReportDate())
+                    .eps(new BigDecimal(NumberUtils.toDouble(x.getBasicEarningsPerShare())))
+                    .build();
+        }).collect(Collectors.toList());
+        if (epsList.size() == 5) {
+            kLineYBDatasDTO.setOnequarterdate(epsList.get(0).getDate());
+            kLineYBDatasDTO.setTwoquarterdate(epsList.get(1).getDate());
+            kLineYBDatasDTO.setThreequarterdate(epsList.get(2).getDate());
+            kLineYBDatasDTO.setFourquarterdate(epsList.get(3).getDate());
+            kLineYBDatasDTO.setOneepscurrent(getEps(epsList,1));
+            kLineYBDatasDTO.setTwoepscurrent(getEps(epsList,2));
+            kLineYBDatasDTO.setThreeepscurrent(getEps(epsList,3));
+            kLineYBDatasDTO.setFourepscurrent(getEps(epsList,4));
+            kLineYBDatasDTO.setFourepstotal(getEps(epsList,4));
+            kLineYBDatasDTO.setThreeepstotal(kLineYBDatasDTO.getFourepstotal().add(kLineYBDatasDTO.getFourepscurrent()));
+            kLineYBDatasDTO.setTwoepstotal(kLineYBDatasDTO.getThreeepstotal().add(kLineYBDatasDTO.getTwoepscurrent()));
+            kLineYBDatasDTO.setOneepstotal(kLineYBDatasDTO.getTwoepstotal().add(kLineYBDatasDTO.getOneepscurrent()));
+        }
+    }
 
+    private BigDecimal getEps(List<EpsBean> epsList, int i) {
+        BigDecimal ret=new BigDecimal(0);
+        switch (i){
+            case 1:
+                ret = getCurrentEps(epsList,0,1);
+                break;
+            case 2:
+                ret = getCurrentEps(epsList,1,2);
+                break;
+            case 3:
+                ret = getCurrentEps(epsList,2,3);
+                break;
+            case 4:
+                ret = getCurrentEps(epsList,3,4);
+                break;
+            default:
+        }
+         return ret;
+    }
+
+    private BigDecimal getCurrentEps(List<EpsBean> epsList, int i, int i1) {
+        BigDecimal ret;
+        EpsBean epsBean = epsList.get(i);
+        if (StringUtils.contains(epsBean.getDate(),"03-31")){
+            //第一季度只要当季的eps
+            ret=epsBean.getEps();
+        }else{
+            //不是第一季需要减去上一季的
+            ret=epsBean.getEps().subtract(epsList.get(i1).getEps());
+        }
+        return ret;
     }
 
     public void outputExcle(KLineYBDatasDTO kLineYBDatasDTO, String code) {

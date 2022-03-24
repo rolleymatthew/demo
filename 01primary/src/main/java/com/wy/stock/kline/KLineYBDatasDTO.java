@@ -41,7 +41,6 @@ public class KLineYBDatasDTO {
     private BigDecimal lastfourquarteraverage;
     private BigDecimal lastfourquarterlower;
 
-
     private BigDecimal lastoneyearhigher;
     private BigDecimal lastoneyearaverage;
     private BigDecimal lastoneyearlower;
@@ -57,4 +56,24 @@ public class KLineYBDatasDTO {
     private BigDecimal lastfouryearhigher;
     private BigDecimal lastfouryearaverage;
     private BigDecimal lastfouryearlower;
+
+    /**
+     * 每股基本收益
+     */
+    private String onequarterdate;
+    private BigDecimal oneepstotal;
+    private BigDecimal oneepscurrent;
+
+    private String twoquarterdate;
+    private BigDecimal twoepstotal;
+    private BigDecimal twoepscurrent;
+
+    private String threequarterdate;
+    private BigDecimal threeepstotal;
+    private BigDecimal threeepscurrent;
+
+    private String fourquarterdate;
+    private BigDecimal fourepstotal;
+    private BigDecimal fourepscurrent;
+
 }
