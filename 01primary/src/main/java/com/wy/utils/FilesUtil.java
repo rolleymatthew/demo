@@ -136,7 +136,11 @@ public class FilesUtil {
         return records;
     }
 
+    public static String getPath() {
+        return FilesUtil.class.getResource("/").getPath();
+    }
+
     public static void main(String[] args) {
-        System.out.println(existsAndIsFile("d:\\stock\\financeStock\\profit\\profit000677.xlsx"));
+        System.out.println(getPath());
     }
 }

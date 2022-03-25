@@ -1,7 +1,6 @@
 package com.wy.service;
 
 import com.wy.bean.ResultVO;
-import com.wy.stock.kline.KLineYBDatasDTO;
 
 /**
  * Stock数据抓取产生

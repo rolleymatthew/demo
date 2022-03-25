@@ -1,4 +1,4 @@
-package com.wy.excel;
+package com.wy.utils;
 
 import java.io.File;
 import java.io.InputStream;
@@ -32,5 +32,9 @@ public class TestFileUtil {
 
     public static File readUserHomeFile(String pathName) {
         return new File(System.getProperty("user.home") + File.separator + pathName);
+    }
+
+    public static void main(String[] args) {
+        System.out.println(getPath());
     }
 }

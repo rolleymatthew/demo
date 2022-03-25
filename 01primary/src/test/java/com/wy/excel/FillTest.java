@@ -14,6 +14,7 @@ import com.alibaba.excel.util.MapUtils;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.excel.write.metadata.fill.FillConfig;
 import com.alibaba.excel.write.metadata.fill.FillWrapper;
+import com.wy.utils.TestFileUtil;
 import com.wy.utils.easyexcle.FillData;
 import org.junit.jupiter.api.Test;
 
@@ -27,12 +28,13 @@ public class FillTest {
      */
     @Test
     public void simpleFill() {
+        System.out.println(TestFileUtil.getPath());
         // 模板注意 用{} 来表示你要用的变量 如果本来就有"{","}" 特殊字符 用"\{","\}"代替
         String templateFileName =
-                PATH + "demo" + File.separator + "fill" + File.separator + "simple.xlsx";
-
+                TestFileUtil.getPath() + "demo" + File.separator + "fill" + File.separator + "simple.xlsx";
+        System.out.println(templateFileName);
         // 方案1 根据对象填充
-        String fileName = PATH + "simpleFill" + System.currentTimeMillis() + ".xlsx";
+        String fileName = TestFileUtil.getPath() + "simpleFill" + System.currentTimeMillis() + ".xlsx";
         // 这里 会填充到第一个sheet， 然后文件流会自动关闭
         FillData fillData = new FillData();
         fillData.setName("张三");
@@ -40,7 +42,7 @@ public class FillTest {
         EasyExcel.write(fileName).withTemplate(templateFileName).sheet().doFill(fillData);
 
         // 方案2 根据Map填充
-        fileName = PATH + "simpleFill" + System.currentTimeMillis() + ".xlsx";
+        fileName = TestFileUtil.getPath() + "simpleFill" + System.currentTimeMillis() + ".xlsx";
         // 这里 会填充到第一个sheet， 然后文件流会自动关闭
         Map<String, Object> map = MapUtils.newHashMap();
         map.put("name", "张三");
@@ -58,16 +60,16 @@ public class FillTest {
         // 模板注意 用{} 来表示你要用的变量 如果本来就有"{","}" 特殊字符 用"\{","\}"代替
         // 填充list 的时候还要注意 模板中{.} 多了个点 表示list
         String templateFileName =
-                PATH + "demo" + File.separator + "fill" + File.separator + "list.xlsx";
+                TestFileUtil.getPath() + "demo" + File.separator + "fill" + File.separator + "list.xlsx";
 
         // 方案1 一下子全部放到内存里面 并填充
-        String fileName = PATH + "listFill" + System.currentTimeMillis() + ".xlsx";
+        String fileName = TestFileUtil.getPath() + "listFill" + System.currentTimeMillis() + ".xlsx";
         // 这里 会填充到第一个sheet， 然后文件流会自动关闭
         EasyExcel.write(fileName).withTemplate(templateFileName).sheet().doFill(data());
 
         // 方案2 分多次 填充 会使用文件缓存（省内存） jdk8
         // since: 3.0.0-beta1
-        fileName = PATH + "listFill" + System.currentTimeMillis() + ".xlsx";
+        fileName = TestFileUtil.getPath() + "listFill" + System.currentTimeMillis() + ".xlsx";
         EasyExcel.write(fileName)
                 .withTemplate(templateFileName)
                 .sheet()
@@ -77,7 +79,7 @@ public class FillTest {
                 });
 
         // 方案3 分多次 填充 会使用文件缓存（省内存）
-        fileName = PATH + "listFill" + System.currentTimeMillis() + ".xlsx";
+        fileName = TestFileUtil.getPath() + "listFill" + System.currentTimeMillis() + ".xlsx";
         ExcelWriter excelWriter = EasyExcel.write(fileName).withTemplate(templateFileName).build();
         WriteSheet writeSheet = EasyExcel.writerSheet().build();
         excelWriter.fill(data(), writeSheet);

@@ -1,7 +1,7 @@
 package com.wy.service;
 
 import com.wy.stock.kline.KLineDataEntity;
-import com.wy.stock.kline.KLineYBDatasDTO;
+import com.wy.bean.YBEpsDataDTO;
 
 /**
  * @Author: yunwang
@@ -28,6 +28,6 @@ public interface KLineService {
      * @param selectedDate 最新的财报日期
      * @return
      */
-    KLineYBDatasDTO findYBDateKlines(String code, String selectedDate);
+    YBEpsDataDTO findYBDateKlines(String code, String selectedDate);
 
 }

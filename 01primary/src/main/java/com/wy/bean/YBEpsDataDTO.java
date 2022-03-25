@@ -1,4 +1,4 @@
-package com.wy.stock.kline;
+package com.wy.bean;
 
 
 import lombok.AllArgsConstructor;
@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class KLineYBDatasDTO {
+public class YBEpsDataDTO {
     /**
      * 往前一个季度的最高价、最低价、每周末平均价
      */
