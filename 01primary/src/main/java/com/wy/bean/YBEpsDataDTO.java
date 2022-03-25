@@ -41,6 +41,9 @@ public class YBEpsDataDTO {
     private BigDecimal lastfourquarteraverage;
     private BigDecimal lastfourquarterlower;
 
+    /**
+     * 往前四年的最高价最低价每月月末的平均价
+     */
     private BigDecimal lastoneyearhigher;
     private BigDecimal lastoneyearaverage;
     private BigDecimal lastoneyearlower;
@@ -58,7 +61,7 @@ public class YBEpsDataDTO {
     private BigDecimal lastfouryearlower;
 
     /**
-     * 每股基本收益
+     * 季度每股基本收益
      */
     private String onequarterdate;
     private BigDecimal oneepstotal;
@@ -88,6 +91,7 @@ public class YBEpsDataDTO {
     private String fouryeardate;
     private BigDecimal fouryearepstotal;
     private BigDecimal fouryearavarageepstotal;
+    private BigDecimal fourquarteravarageepstotal;
 
     /**
      * PE
@@ -115,6 +119,26 @@ public class YBEpsDataDTO {
     private BigDecimal fouryearavagpehigher;
     private BigDecimal fouryearavagpemiddle;
     private BigDecimal fouryearavagpelower;
+
+    private String onequarterpedate;
+    private BigDecimal onequarterpehigher;
+    private BigDecimal onequarterpeaverage;
+    private BigDecimal onequarterpelower;
+
+    private String twoquarterpedate;
+    private BigDecimal twoquarterpehigher;
+    private BigDecimal twoquarterpeaverage;
+    private BigDecimal twoquarterpelower;
+
+    private String threequarterpedate;
+    private BigDecimal threequarterpehigher;
+    private BigDecimal threequarterpeaverage;
+    private BigDecimal threequarterpelower;
+
+    private String fourquarterpedate;
+    private BigDecimal fourquarterpehigher;
+    private BigDecimal fourquarterpeaverage;
+    private BigDecimal fourquarterpelower;
 
     private BigDecimal fourquarteravagpehigher;
     private BigDecimal fourquarteravagpemiddle;

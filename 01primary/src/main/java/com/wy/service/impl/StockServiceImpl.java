@@ -229,7 +229,7 @@ public class StockServiceImpl implements StockService {
         //2.计算每股收益
         countEPS(code, yBEpsDataDTO, stockFinDateMap, date);
         //3.计算本益比和价格
-        countPE(yBEpsDataDTO);
+        countPE(yBEpsDataDTO, date);
         //4.输出模板
         outputExcle(yBEpsDataDTO, code);
         return ResultVO.ok();
@@ -259,16 +259,21 @@ public class StockServiceImpl implements StockService {
     }
 
 
-    private void countPE(YBEpsDataDTO yBEpsDataDTO) {
+    private void countPE(YBEpsDataDTO yBEpsDataDTO, String date) {
+        //年度计算
+        yBEpsDataDTO.setOneyearpedate(DateUtil.fmtShortDate(DateUtil.getOneYearEndTime(DateUtil.parseDate(date))));
         yBEpsDataDTO.setOneyearpehigher(yBEpsDataDTO.getLastoneyearhigher().divide(yBEpsDataDTO.getOneyearepstotal(),2, RoundingMode.HALF_UP));
         yBEpsDataDTO.setOneyearpeaverage(yBEpsDataDTO.getLastoneyearaverage().divide(yBEpsDataDTO.getOneyearepstotal(),2, RoundingMode.HALF_UP));
         yBEpsDataDTO.setOneyearpelower(yBEpsDataDTO.getLastoneyearlower().divide(yBEpsDataDTO.getOneyearepstotal(),2, RoundingMode.HALF_UP));
+        yBEpsDataDTO.setTwoyearpedate(DateUtil.fmtShortDate(DateUtil.getTwoYearEndDate(DateUtil.parseDate(date))));
         yBEpsDataDTO.setTwoyearpehigher(yBEpsDataDTO.getLasttwoyearhigher().divide(yBEpsDataDTO.getTwoyearepstotal(),2, RoundingMode.HALF_UP));
         yBEpsDataDTO.setTwoyearpeaverage(yBEpsDataDTO.getLasttwoyearaverage().divide(yBEpsDataDTO.getTwoyearepstotal(),2, RoundingMode.HALF_UP));
         yBEpsDataDTO.setTwoyearpelower(yBEpsDataDTO.getLasttwoyearlower().divide(yBEpsDataDTO.getTwoyearepstotal(),2, RoundingMode.HALF_UP));
+        yBEpsDataDTO.setThreeyearpedate(DateUtil.fmtShortDate(DateUtil.getThreeYearEndDate(DateUtil.parseDate(date))));
         yBEpsDataDTO.setThreeyearpehigher(yBEpsDataDTO.getLastthreeyearhigher().divide(yBEpsDataDTO.getThreeyearepstotal(),2, RoundingMode.HALF_UP));
         yBEpsDataDTO.setThreeyearpeaverage(yBEpsDataDTO.getLastthreeyearaverage().divide(yBEpsDataDTO.getThreeyearepstotal(),2, RoundingMode.HALF_UP));
         yBEpsDataDTO.setThreeyearpelower(yBEpsDataDTO.getLastthreeyearlower().divide(yBEpsDataDTO.getThreeyearepstotal(),2, RoundingMode.HALF_UP));
+        yBEpsDataDTO.setFouryearpedate(DateUtil.fmtShortDate(DateUtil.getFourYearEndDate(DateUtil.parseDate(date))));
         yBEpsDataDTO.setFouryearpehigher(yBEpsDataDTO.getLastfouryearhigher().divide(yBEpsDataDTO.getFouryearepstotal(),2, RoundingMode.HALF_UP));
         yBEpsDataDTO.setFouryearpeaverage(yBEpsDataDTO.getLastfouryearaverage().divide(yBEpsDataDTO.getFouryearepstotal(),2, RoundingMode.HALF_UP));
         yBEpsDataDTO.setFouryearpelower(yBEpsDataDTO.getLastfouryearlower().divide(yBEpsDataDTO.getFouryearepstotal(),2, RoundingMode.HALF_UP));
@@ -284,17 +289,38 @@ public class StockServiceImpl implements StockService {
         yBEpsDataDTO.setPricemiddle(getPrice(yBEpsDataDTO.getOneepstotal(),yBEpsDataDTO.getFouryearavarageepstotal(),yBEpsDataDTO.getFouryearavagpemiddle()));
         yBEpsDataDTO.setPricelower(getPrice(yBEpsDataDTO.getOneepstotal(),yBEpsDataDTO.getFouryearavarageepstotal(),yBEpsDataDTO.getFouryearavagpelower()));
 
-//        yBEpsDataDTO.setFourquarteravagpehigher(add(yBEpsDataDTO.getOne(),yBEpsDataDTO.getTwoquarterpehigher()
-//                ,yBEpsDataDTO.getThreeyearpehigher(),yBEpsDataDTO.getFouryearpehigher()).divide(new BigDecimal(4)));
-//        yBEpsDataDTO.setFouryearavagpemiddle(add(yBEpsDataDTO.getOneyearpeaverage(),yBEpsDataDTO.getTwoyearpeaverage()
-//                ,yBEpsDataDTO.getThreeyearpeaverage(),yBEpsDataDTO.getFouryearpeaverage()).divide(new BigDecimal(4)));
-//        yBEpsDataDTO.setFouryearavagpelower(add(yBEpsDataDTO.getOneyearpelower(),yBEpsDataDTO.getTwoyearpelower()
-//                ,yBEpsDataDTO.getThreeyearpelower(),yBEpsDataDTO.getFouryearpelower()).divide(new BigDecimal(4)));
+        //季度计算
+        yBEpsDataDTO.setOnequarterpedate(DateUtil.fmtShortDate(DateUtil.getOneQuarterEndTime(DateUtil.parseDate(date))));
+        yBEpsDataDTO.setOnequarterpehigher(yBEpsDataDTO.getLastonequarterhigher().divide(yBEpsDataDTO.getOneepstotal(),2, RoundingMode.HALF_UP));
+        yBEpsDataDTO.setOnequarterpeaverage(yBEpsDataDTO.getLastonequarteraverage().divide(yBEpsDataDTO.getOneepstotal(),2, RoundingMode.HALF_UP));
+        yBEpsDataDTO.setOnequarterpelower(yBEpsDataDTO.getLastonequarterlower().divide(yBEpsDataDTO.getOneepstotal(),2, RoundingMode.HALF_UP));
+        yBEpsDataDTO.setTwoquarterpedate(DateUtil.fmtShortDate(DateUtil.getTwoQuarterEndTime(DateUtil.parseDate(date))));
+        yBEpsDataDTO.setTwoquarterpehigher(yBEpsDataDTO.getLasttwoquarterhigher().divide(yBEpsDataDTO.getTwoepstotal(),2, RoundingMode.HALF_UP));
+        yBEpsDataDTO.setTwoquarterpeaverage(yBEpsDataDTO.getLasttwoquarteraverage().divide(yBEpsDataDTO.getTwoepstotal(),2, RoundingMode.HALF_UP));
+        yBEpsDataDTO.setTwoquarterpelower(yBEpsDataDTO.getLasttwoquarterlower().divide(yBEpsDataDTO.getTwoepstotal(),2, RoundingMode.HALF_UP));
+        yBEpsDataDTO.setThreequarterpedate(DateUtil.fmtShortDate(DateUtil.getThreeQuarterEndTime(DateUtil.parseDate(date))));
+        yBEpsDataDTO.setThreequarterpehigher(yBEpsDataDTO.getLastthreequarterhigher().divide(yBEpsDataDTO.getThreeepstotal(),2, RoundingMode.HALF_UP));
+        yBEpsDataDTO.setThreequarterpeaverage(yBEpsDataDTO.getLastthreequarteraverage().divide(yBEpsDataDTO.getThreeepstotal(),2, RoundingMode.HALF_UP));
+        yBEpsDataDTO.setThreequarterpelower(yBEpsDataDTO.getLastthreequarterlower().divide(yBEpsDataDTO.getThreeepstotal(),2, RoundingMode.HALF_UP));
+        yBEpsDataDTO.setFourquarterpedate(DateUtil.fmtShortDate(DateUtil.getFourQuarterEndTime(DateUtil.parseDate(date))));
+        yBEpsDataDTO.setFourquarterpehigher(yBEpsDataDTO.getLastfourquarterhigher().divide(yBEpsDataDTO.getFourepstotal(),2, RoundingMode.HALF_UP));
+        yBEpsDataDTO.setFourquarterpeaverage(yBEpsDataDTO.getLastfourquarteraverage().divide(yBEpsDataDTO.getFourepstotal(),2, RoundingMode.HALF_UP));
+        yBEpsDataDTO.setFourquarterpelower(yBEpsDataDTO.getLastfourquarterlower().divide(yBEpsDataDTO.getFourepstotal(),2, RoundingMode.HALF_UP));
 
+        yBEpsDataDTO.setFourquarteravagpehigher(add(yBEpsDataDTO.getOnequarterpehigher(),yBEpsDataDTO.getTwoquarterpehigher()
+                ,yBEpsDataDTO.getTwoquarterpehigher(),yBEpsDataDTO.getTwoquarterpehigher()).divide(new BigDecimal(4),2, RoundingMode.HALF_UP));
+        yBEpsDataDTO.setFourquarteravagpemiddle(add(yBEpsDataDTO.getOnequarterpeaverage(),yBEpsDataDTO.getTwoquarterpeaverage()
+                ,yBEpsDataDTO.getTwoquarterpeaverage(),yBEpsDataDTO.getTwoquarterpeaverage()).divide(new BigDecimal(4),2, RoundingMode.HALF_UP));
+        yBEpsDataDTO.setFourquarteravagpelower(add(yBEpsDataDTO.getOnequarterpelower(),yBEpsDataDTO.getTwoquarterpelower()
+                ,yBEpsDataDTO.getTwoquarterpelower(),yBEpsDataDTO.getTwoquarterpelower()).divide(new BigDecimal(4),2, RoundingMode.HALF_UP));
+
+        yBEpsDataDTO.setPricequarterhigher(getPrice(yBEpsDataDTO.getOneepstotal(),yBEpsDataDTO.getFourquarteravarageepstotal(),yBEpsDataDTO.getFourquarteravagpehigher()));
+        yBEpsDataDTO.setPricequartermiddle(getPrice(yBEpsDataDTO.getOneepstotal(),yBEpsDataDTO.getFourquarteravarageepstotal(),yBEpsDataDTO.getFourquarteravagpemiddle()));
+        yBEpsDataDTO.setPricequarterlower(getPrice(yBEpsDataDTO.getOneepstotal(),yBEpsDataDTO.getFourquarteravarageepstotal(),yBEpsDataDTO.getFourquarteravagpelower()));
     }
 
-    private BigDecimal getPrice(BigDecimal epstotal, BigDecimal yearavarageepstotal, BigDecimal fouryearavagpelower) {
-        BigDecimal bigDecimal = epstotal.add(yearavarageepstotal).divide(new BigDecimal(2)).multiply(fouryearavagpelower).setScale(2, RoundingMode.HALF_UP);
+    private BigDecimal getPrice(BigDecimal epstotal, BigDecimal avarageepstotal, BigDecimal avagpelower) {
+        BigDecimal bigDecimal = epstotal.add(avarageepstotal).divide(new BigDecimal(2)).multiply(avagpelower).setScale(2, RoundingMode.HALF_UP);
         return bigDecimal;
     }
 
@@ -325,6 +351,8 @@ public class StockServiceImpl implements StockService {
             yBEpsDataDTO.setThreeepstotal(yBEpsDataDTO.getFourepstotal().add(yBEpsDataDTO.getFourepscurrent()));
             yBEpsDataDTO.setTwoepstotal(yBEpsDataDTO.getThreeepstotal().add(yBEpsDataDTO.getTwoepscurrent()));
             yBEpsDataDTO.setOneepstotal(yBEpsDataDTO.getTwoepstotal().add(yBEpsDataDTO.getOneepscurrent()));
+            yBEpsDataDTO.setFourquarteravarageepstotal(getQuarterAvarage(yBEpsDataDTO));
+
         }
         //得到年度EPS
         List<Date> yearList = new ArrayList<Date>();
@@ -351,6 +379,12 @@ public class StockServiceImpl implements StockService {
     private BigDecimal getYearAvarage(YBEpsDataDTO yBEpsDataDTO) {
         BigDecimal add = add(yBEpsDataDTO.getOneyearepstotal(),yBEpsDataDTO.getTwoyearepstotal()
                 ,yBEpsDataDTO.getThreeyearepstotal(),yBEpsDataDTO.getFouryearepstotal());
+        return add.divide(new BigDecimal(4));
+    }
+
+    private BigDecimal getQuarterAvarage(YBEpsDataDTO yBEpsDataDTO) {
+        BigDecimal add = add(yBEpsDataDTO.getOneepstotal(),yBEpsDataDTO.getTwoepstotal()
+                ,yBEpsDataDTO.getThreeepstotal(),yBEpsDataDTO.getFourepstotal());
         return add.divide(new BigDecimal(4));
     }
 

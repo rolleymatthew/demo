@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ch.qos.logback.core.util.FileUtil;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.enums.WriteDirectionEnum;
@@ -14,6 +15,7 @@ import com.alibaba.excel.util.MapUtils;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.excel.write.metadata.fill.FillConfig;
 import com.alibaba.excel.write.metadata.fill.FillWrapper;
+import com.wy.Application;
 import com.wy.utils.TestFileUtil;
 import com.wy.utils.easyexcle.FillData;
 import org.junit.jupiter.api.Test;
@@ -28,13 +30,13 @@ public class FillTest {
      */
     @Test
     public void simpleFill() {
-        System.out.println(TestFileUtil.getPath());
+        System.out.println(Application.class.getClassLoader().getResource("").getPath());
         // 模板注意 用{} 来表示你要用的变量 如果本来就有"{","}" 特殊字符 用"\{","\}"代替
         String templateFileName =
-                TestFileUtil.getPath() + "demo" + File.separator + "fill" + File.separator + "simple.xlsx";
+                PATH + "demo" + File.separator + "fill" + File.separator + "simple.xlsx";
         System.out.println(templateFileName);
         // 方案1 根据对象填充
-        String fileName = TestFileUtil.getPath() + "simpleFill" + System.currentTimeMillis() + ".xlsx";
+        String fileName = PATH + "simpleFill" + System.currentTimeMillis() + ".xlsx";
         // 这里 会填充到第一个sheet， 然后文件流会自动关闭
         FillData fillData = new FillData();
         fillData.setName("张三");

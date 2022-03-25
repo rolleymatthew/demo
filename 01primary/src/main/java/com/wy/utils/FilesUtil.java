@@ -1,8 +1,10 @@
 package com.wy.utils;
 
+import com.wy.Application;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -137,10 +139,13 @@ public class FilesUtil {
     }
 
     public static String getPath() {
-        return FilesUtil.class.getResource("/").getPath();
+        String s= FilesUtil.class.getClassLoader().getResource("").getPath();
+        System.out.println(s);
+        System.out.println(FilesUtil.class.getClassLoader().getResource("logback-spring.xml").getPath());
+        return s;
     }
 
     public static void main(String[] args) {
-        System.out.println(getPath());
+        getPath();
     }
 }
