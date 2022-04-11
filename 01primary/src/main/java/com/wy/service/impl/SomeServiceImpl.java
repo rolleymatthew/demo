@@ -13,7 +13,7 @@ public class SomeServiceImpl implements SomeService {
     @Override
     public String hello() {
 //        int i=3/0;
-        return "hello service";
+        return "[{\"ip\":\"127.0.0.1\",\"master\":1,\"persistence\":0,\"port\":6379}]";
     }
 
     @Autowired
