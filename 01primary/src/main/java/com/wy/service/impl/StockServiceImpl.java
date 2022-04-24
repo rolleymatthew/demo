@@ -199,40 +199,58 @@ public class StockServiceImpl implements StockService {
         //输出文件
         ProfitReportService.outPutZQHFile(zqhBeanMap, stockCodeYmlBean.getAcode());
 
-        Map<String, List<YBFinBean>> ybBeanMap = ProfitReportService.getYBBeanMap(profitListMap, balanceListMap, cashListMap, finListMap);
-        //输出文件
         log.info("end finance report {}. {}s", allCodes.size(), (System.currentTimeMillis() - start) / 1000);
         return ResultVO.ok();
     }
 
     @Override
-    public ResultVO FinYBDateReport(String code, String date) {
-        Map<String, StockFinDateBean> stockFinDateMap = FinanceCommonService.getStockFinDateMap(Arrays.asList(code));
+    public ResultVO FinYBDateReport(String sigleCode, String selectDate) {
+        List<String> allCodes = new ArrayList<>();
+        if (StringUtils.isEmpty(sigleCode)) {
+            allCodes = stockCodeYmlBean.getAcode().entrySet().stream().map(x -> x.getKey()).collect(Collectors.toList());
+        } else if (StringUtils.isNotEmpty(sigleCode) && StringUtils.contains(sigleCode, ",")) {
+            allCodes = Stream.of(sigleCode).map(l -> l.split(",")).flatMap(Arrays::stream).collect(Collectors.toList());
+        } else {
+            allCodes.add(sigleCode);
+        }
+        log.info("start report {} finance .", allCodes.size());
+
+        allCodes.stream().forEach(
+                x->{
+                    getResultVO(x,selectDate);
+                }
+        );
+
+        return ResultVO.ok();
+    }
+
+    private ResultVO getResultVO(String sigleCode, String selectDate) {
+        Map<String, StockFinDateBean> stockFinDateMap = FinanceCommonService.getStockFinDateMap(Arrays.asList(sigleCode));
         //检查是否上市满4年,具有完整的四年财务数据，不满四年无法计算
-        if (!stockFinDateMap.containsKey(code)
-                || hasAllDate(stockFinDateMap.get(code))
-                || isFullTime(stockFinDateMap.get(code))) {
+        if (!stockFinDateMap.containsKey(sigleCode)
+                || hasAllDate(stockFinDateMap.get(sigleCode))
+                || isFullTime(stockFinDateMap.get(sigleCode))) {
             return ResultVO.build(-1, "没有财务数据");
         }
-        KLineDataEntity kLineByCode = kLineService.findKLineByCode(code);
+        KLineDataEntity kLineByCode = kLineService.findKLineByCode(sigleCode);
         KLineEntity kLineEntity = kLineByCode.getKlines().stream().findFirst().orElse(null);
         if (kLineEntity == null) {
             return ResultVO.build(-1, "没有K线数据");
         }
-        StockFinDateBean stockFinDateBean = stockFinDateMap.get(code);
+        StockFinDateBean stockFinDateBean = stockFinDateMap.get(sigleCode);
         ProfitDateBean profitDateBean = stockFinDateBean.getProfitDateBean().stream().findFirst().orElse(null);
-        if (StringUtils.isEmpty(date)) {
-            date = profitDateBean.getReportDate();
+        if (StringUtils.isEmpty(selectDate)) {
+            selectDate = profitDateBean.getReportDate();
         }
         //1.计算股价
-        YBEpsDataDTO yBEpsDataDTO = kLineService.findYBDateKlines(code, date);
+        YBEpsDataDTO yBEpsDataDTO = kLineService.findYBDateKlines(sigleCode, selectDate);
         //2.计算每股收益
-        countEPS(code, yBEpsDataDTO, stockFinDateMap, date);
+        countEPS(sigleCode, yBEpsDataDTO, stockFinDateMap, selectDate);
         //3.计算本益比和价格
-        countPE(yBEpsDataDTO, date);
+        countPE(yBEpsDataDTO, selectDate);
         //4.输出模板
-        outputExcle(yBEpsDataDTO, code);
-        return ResultVO.ok();
+        outputExcle(yBEpsDataDTO, sigleCode);
+        return null;
     }
 
     private boolean isFullTime(StockFinDateBean stockFinDateBean) {
