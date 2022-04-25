@@ -217,14 +217,14 @@ public class StockServiceImpl implements StockService {
 
         allCodes.stream().forEach(
                 x->{
-                    getResultVO(x,selectDate);
+                    getYBExcleFile(x,selectDate);
                 }
         );
 
         return ResultVO.ok();
     }
 
-    private ResultVO getResultVO(String sigleCode, String selectDate) {
+    private ResultVO getYBExcleFile(String sigleCode, String selectDate) {
         Map<String, StockFinDateBean> stockFinDateMap = FinanceCommonService.getStockFinDateMap(Arrays.asList(sigleCode));
         //检查是否上市满4年,具有完整的四年财务数据，不满四年无法计算
         if (!stockFinDateMap.containsKey(sigleCode)
@@ -232,6 +232,8 @@ public class StockServiceImpl implements StockService {
                 || isFullTime(stockFinDateMap.get(sigleCode))) {
             return ResultVO.build(-1, "没有财务数据");
         }
+        //1.爬虫爬
+        kLineService.storeKLineExcle(sigleCode,getExchange(sigleCode));
         KLineDataEntity kLineByCode = kLineService.findKLineByCode(sigleCode);
         KLineEntity kLineEntity = kLineByCode.getKlines().stream().findFirst().orElse(null);
         if (kLineEntity == null) {
@@ -251,6 +253,13 @@ public class StockServiceImpl implements StockService {
         //4.输出模板
         outputExcle(yBEpsDataDTO, sigleCode);
         return null;
+    }
+
+    private String getExchange(String sigleCode) {
+        if (stockCodeYmlBean.getSz().containsKey(sigleCode)) {
+            return "0";
+        }
+        return "1";
     }
 
     private boolean isFullTime(StockFinDateBean stockFinDateBean) {

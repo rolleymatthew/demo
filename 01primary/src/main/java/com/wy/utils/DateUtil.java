@@ -404,21 +404,21 @@ public class DateUtil {
     public static void main(String[] args) {
 //        System.out.println(fmtShortDate(getSelectedQuarterStartTime(parseDate("2021-12-31"))));
 //        System.out.println(fmtShortDate(getOneQuarterStartTime(parseDate("2021-12-31"))));
-//        System.out.println(fmtShortDate(getOneQuarterEndTime(parseDate("2021-12-31"))));
+        System.out.println(fmtShortDate(getOneQuarterEndTime(parseDate("2021-09-30"))));
 //        System.out.println(fmtShortDate(getTwoQuarterStartTime(parseDate("2021-12-31"))));
-//        System.out.println(fmtShortDate(getTwoQuarterEndTime(parseDate("2021-12-31"))));
+        System.out.println(fmtShortDate(getTwoQuarterEndTime(parseDate("2021-09-30"))));
 //        System.out.println(fmtShortDate(getThreeQuarterStartTime(parseDate("2021-12-31"))));
-//        System.out.println(fmtShortDate(getThreeQuarterEndTime(parseDate("2021-12-31"))));
+        System.out.println(fmtShortDate(getThreeQuarterEndTime(parseDate("2021-09-30"))));
 //        System.out.println(fmtShortDate(getFourQuarterStartTime(parseDate("2021-12-31"))));
-//        System.out.println(fmtShortDate(getFourQuarterEndTime(parseDate("2021-12-31"))));
-        System.out.println(fmtShortDate(getOneYearStartTime(parseDate("2021-11-29"))));
-        System.out.println(fmtShortDate(getOneYearEndTime(parseDate("2021-11-29"))));
-        System.out.println(fmtShortDate(getTwoYearStartDate(parseDate("2021-10-29"))));
-        System.out.println(fmtShortDate(getTwoYearEndDate(parseDate("2021-10-29"))));
-        System.out.println(fmtShortDate(getThreeYearStartDate(parseDate("2021-10-29"))));
-        System.out.println(fmtShortDate(getThreeYearEndDate(parseDate("2021-10-29"))));
-        System.out.println(fmtShortDate(getFourYearStartDate(parseDate("2021-10-29"))));
-        System.out.println(fmtShortDate(getFourYearEndDate(parseDate("2021-10-29"))));
+        System.out.println(fmtShortDate(getFourQuarterEndTime(parseDate("2021-09-30"))));
+//        System.out.println(fmtShortDate(getOneYearStartTime(parseDate("2021-11-29"))));
+//        System.out.println(fmtShortDate(getOneYearEndTime(parseDate("2021-11-29"))));
+//        System.out.println(fmtShortDate(getTwoYearStartDate(parseDate("2021-10-29"))));
+//        System.out.println(fmtShortDate(getTwoYearEndDate(parseDate("2021-10-29"))));
+//        System.out.println(fmtShortDate(getThreeYearStartDate(parseDate("2021-10-29"))));
+//        System.out.println(fmtShortDate(getThreeYearEndDate(parseDate("2021-10-29"))));
+//        System.out.println(fmtShortDate(getFourYearStartDate(parseDate("2021-10-29"))));
+//        System.out.println(fmtShortDate(getFourYearEndDate(parseDate("2021-10-29"))));
     }
 
 }
