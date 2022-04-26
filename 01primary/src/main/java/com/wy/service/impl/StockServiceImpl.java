@@ -3,6 +3,7 @@ package com.wy.service.impl;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.write.metadata.WriteSheet;
+import com.alibaba.fastjson.JSON;
 import com.wy.bean.*;
 import com.wy.service.KLineService;
 import com.wy.service.StockService;
@@ -217,7 +218,7 @@ public class StockServiceImpl implements StockService {
 
         allCodes.stream().forEach(
                 x->{
-                    getYBExcleFile(x,selectDate);
+                    log.info(JSON.toJSONString(getYBExcleFile(x,selectDate)));
                 }
         );
 
@@ -252,7 +253,7 @@ public class StockServiceImpl implements StockService {
         countPE(yBEpsDataDTO, selectDate);
         //4.输出模板
         outputExcle(yBEpsDataDTO, sigleCode);
-        return null;
+        return ResultVO.ok(sigleCode);
     }
 
     private String getExchange(String sigleCode) {
