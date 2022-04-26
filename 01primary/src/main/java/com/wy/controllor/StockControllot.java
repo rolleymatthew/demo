@@ -50,4 +50,11 @@ public class StockControllot {
         ResultVO resultVO = stockService.FinAllDateReport(code);
         return resultVO;
     }
+
+    @GetMapping("/yb")
+    public ResultVO getYBData(@RequestParam(value = "code", required = false) String code
+            ,@RequestParam(value = "selectDate", required = false) String selectDate) {
+        ResultVO resultVO = stockService.FinYBDateReport(code,selectDate);
+        return resultVO;
+    }
 }
