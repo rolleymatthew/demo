@@ -96,6 +96,7 @@ public class DateUtil {
      */
     public static Date getSelectedQuarterStartTime(Date date) {
         Calendar c = Calendar.getInstance();
+        c.clear();
         c.setTime(date);
         int currentMonth = c.get(Calendar.MONTH) + 1;
         SimpleDateFormat longSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -123,6 +124,7 @@ public class DateUtil {
      */
     public static Date getSelectedQuarterEndTime(Date date) {
         Calendar cal = Calendar.getInstance();
+        cal.clear();
         cal.setTime(getSelectedQuarterStartTime(date));
         cal.add(Calendar.MONTH, 2);
         cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));// 获取当前月最后一天
@@ -159,8 +161,10 @@ public class DateUtil {
      */
     public static Date getTwoQuarterEndTime(Date date) {
         Calendar cal = Calendar.getInstance();
+        cal.clear();
         cal.setTime(getOneQuarterEndTime(date));
         cal.add(Calendar.MONTH, -3);
+        cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));// 获取当前月最后一天
         return cal.getTime();
     }
 
@@ -171,6 +175,7 @@ public class DateUtil {
      */
     public static Date getTwoQuarterStartTime(Date date) {
         Calendar cal = Calendar.getInstance();
+        cal.clear();
         cal.setTime(getOneQuarterStartTime(date));
         cal.add(Calendar.MONTH, -3);
         return cal.getTime();
@@ -183,8 +188,10 @@ public class DateUtil {
      */
     public static Date getThreeQuarterEndTime(Date date) {
         Calendar cal = Calendar.getInstance();
+        cal.clear();
         cal.setTime(getOneQuarterEndTime(date));
         cal.add(Calendar.MONTH, -6);
+        cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));// 获取当前月最后一天
         return cal.getTime();
     }
 
@@ -195,6 +202,7 @@ public class DateUtil {
      */
     public static Date getThreeQuarterStartTime(Date date) {
         Calendar cal = Calendar.getInstance();
+        cal.clear();
         cal.setTime(getSelectedQuarterStartTime(date));
         cal.add(Calendar.MONTH, -6);
         return cal.getTime();
@@ -207,14 +215,18 @@ public class DateUtil {
      */
     public static Date getFourQuarterEndTime(Date date) {
         Calendar cal = Calendar.getInstance();
+        cal.clear();
         cal.setTime(getOneQuarterEndTime(date));
         cal.add(Calendar.MONTH, -9);
+        cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));// 获取当前月最后一天
         return cal.getTime();
     }
     public static Date getFiveQuarterEndTime(Date date) {
         Calendar cal = Calendar.getInstance();
+        cal.clear();
         cal.setTime(getOneQuarterEndTime(date));
         cal.add(Calendar.MONTH, -12);
+        cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));// 获取当前月最后一天
         return cal.getTime();
     }
 
@@ -225,6 +237,7 @@ public class DateUtil {
      */
     public static Date getFourQuarterStartTime(Date date) {
         Calendar cal = Calendar.getInstance();
+        cal.clear();
         cal.setTime(getSelectedQuarterStartTime(date));
         cal.add(Calendar.MONTH, -9);
         return cal.getTime();
@@ -239,6 +252,7 @@ public class DateUtil {
         Calendar cal = Calendar.getInstance();
         cal.setTime(getOneQuarterEndTime(new Date()));
         cal.add(Calendar.YEAR, -1);
+        cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));// 获取当前月最后一天
         return cal.getTime();
     }
 
@@ -247,6 +261,7 @@ public class DateUtil {
         Calendar cal = Calendar.getInstance();
         cal.setTime(date1);
         cal.add(Calendar.YEAR, -1);
+        cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));// 获取当前月最后一天
         return fmtShortDate(cal.getTime());
     }
 
@@ -370,6 +385,7 @@ public class DateUtil {
         Calendar c = Calendar.getInstance();
         c.setTime(getOneYearEndTime(date));
         c.add(Calendar.MONTH, -12);
+        c.set(Calendar.DAY_OF_MONTH, c.getActualMaximum(Calendar.DAY_OF_MONTH));// 获取当前月最后一天
         return c.getTime();
     }
 
@@ -384,6 +400,7 @@ public class DateUtil {
         Calendar c = Calendar.getInstance();
         c.setTime(getOneYearEndTime(date));
         c.add(Calendar.MONTH, -24);
+        c.set(Calendar.DAY_OF_MONTH, c.getActualMaximum(Calendar.DAY_OF_MONTH));// 获取当前月最后一天
         return c.getTime();
     }
 
@@ -398,27 +415,28 @@ public class DateUtil {
         Calendar c = Calendar.getInstance();
         c.setTime(getOneYearEndTime(date));
         c.add(Calendar.MONTH, -36);
+        c.set(Calendar.DAY_OF_MONTH, c.getActualMaximum(Calendar.DAY_OF_MONTH));// 获取当前月最后一天
         return c.getTime();
     }
 
     public static void main(String[] args) {
 //        System.out.println(fmtShortDate(getSelectedQuarterStartTime(parseDate("2021-12-31"))));
-//        System.out.println(fmtShortDate(getOneQuarterStartTime(parseDate("2021-12-31"))));
+        System.out.println(fmtShortDate(getOneQuarterStartTime(parseDate("2021-09-30"))));
         System.out.println(fmtShortDate(getOneQuarterEndTime(parseDate("2021-09-30"))));
-//        System.out.println(fmtShortDate(getTwoQuarterStartTime(parseDate("2021-12-31"))));
+        System.out.println(fmtShortDate(getTwoQuarterStartTime(parseDate("2021-09-30"))));
         System.out.println(fmtShortDate(getTwoQuarterEndTime(parseDate("2021-09-30"))));
-//        System.out.println(fmtShortDate(getThreeQuarterStartTime(parseDate("2021-12-31"))));
+        System.out.println(fmtShortDate(getThreeQuarterStartTime(parseDate("2021-09-30"))));
         System.out.println(fmtShortDate(getThreeQuarterEndTime(parseDate("2021-09-30"))));
-//        System.out.println(fmtShortDate(getFourQuarterStartTime(parseDate("2021-12-31"))));
+        System.out.println(fmtShortDate(getFourQuarterStartTime(parseDate("2021-09-30"))));
         System.out.println(fmtShortDate(getFourQuarterEndTime(parseDate("2021-09-30"))));
-//        System.out.println(fmtShortDate(getOneYearStartTime(parseDate("2021-11-29"))));
-//        System.out.println(fmtShortDate(getOneYearEndTime(parseDate("2021-11-29"))));
-//        System.out.println(fmtShortDate(getTwoYearStartDate(parseDate("2021-10-29"))));
-//        System.out.println(fmtShortDate(getTwoYearEndDate(parseDate("2021-10-29"))));
-//        System.out.println(fmtShortDate(getThreeYearStartDate(parseDate("2021-10-29"))));
-//        System.out.println(fmtShortDate(getThreeYearEndDate(parseDate("2021-10-29"))));
-//        System.out.println(fmtShortDate(getFourYearStartDate(parseDate("2021-10-29"))));
-//        System.out.println(fmtShortDate(getFourYearEndDate(parseDate("2021-10-29"))));
+        System.out.println(fmtShortDate(getOneYearStartTime(parseDate("2021-11-29"))));
+        System.out.println(fmtShortDate(getOneYearEndTime(parseDate("2021-11-29"))));
+        System.out.println(fmtShortDate(getTwoYearStartDate(parseDate("2021-10-29"))));
+        System.out.println(fmtShortDate(getTwoYearEndDate(parseDate("2021-10-29"))));
+        System.out.println(fmtShortDate(getThreeYearStartDate(parseDate("2021-10-29"))));
+        System.out.println(fmtShortDate(getThreeYearEndDate(parseDate("2021-10-29"))));
+        System.out.println(fmtShortDate(getFourYearStartDate(parseDate("2021-10-29"))));
+        System.out.println(fmtShortDate(getFourYearEndDate(parseDate("2021-10-29"))));
     }
 
 }
