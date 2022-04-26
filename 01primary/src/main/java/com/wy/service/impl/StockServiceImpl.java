@@ -271,7 +271,8 @@ public class StockServiceImpl implements StockService {
         Date fourYearEndDate = DateUtil.getFourYearEndDate(DateUtil.parseDate(reportDate));
 
         List<KLineEntity> collect = kLineEntity.stream().filter(x ->
-                x.getDate().equals(DateUtil.fmtShortDate(fourYearEndDate))).collect(Collectors.toList());
+                DateUtil.parseDate(x.getDate()).before(fourYearEndDate)
+        ).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(collect)){
             return true;
         }
