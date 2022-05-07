@@ -78,6 +78,12 @@ public class StockServiceTest {
     @Test
     void YBServiceTest() {
 //        stockService.FinYBDateReport(null,null);
-        stockService.FinYBDateReport("600052",null);
+        stockService.FinYBDateReport("000538",null);
+    }
+
+    @Test
+    void FinIncomingAndPerfitReportServiceTest() {
+//        stockService.FinIncomingAndPerfitReport(null);
+        stockService.FinIncomingAndPerfitReport("600519");
     }
 }

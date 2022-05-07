@@ -15,4 +15,12 @@ public interface StockService {
     ResultVO FinAllDateReport(String code);
     ResultVO FinYBDateReport(String code,String date);
 
+    /**
+     * 1.一个季度毛利率在80以上，净利率在60以上的
+     * 2.一个季度毛利率在60以上，净利率在40以上的
+     * @param code
+     * @return
+     */
+    ResultVO FinIncomingAndPerfitReport(String code);
+
 }

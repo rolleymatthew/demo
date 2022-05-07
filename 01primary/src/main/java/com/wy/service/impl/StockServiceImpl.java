@@ -164,15 +164,7 @@ public class StockServiceImpl implements StockService {
     @Override
     public ResultVO FinAllDateReport(String code) {
         int[] counts = {1, 2, 3};
-        List<String> allCodes = new ArrayList<>();
-        if (StringUtils.isEmpty(code)) {
-            allCodes = stockCodeYmlBean.getAcode().entrySet().stream().map(x -> x.getKey()).collect(Collectors.toList());
-        } else if (StringUtils.isNotEmpty(code) && StringUtils.contains(code, ",")) {
-            allCodes = Stream.of(code).map(l -> l.split(",")).flatMap(Arrays::stream).collect(Collectors.toList());
-        } else {
-            allCodes.add(code);
-        }
-        log.info("start report {} finance .", allCodes.size());
+        List<String> allCodes = getStockCode(code);
         long start = System.currentTimeMillis();
         //读取文件三大报表
         Map<String, StockFinDateBean> stockFinDateMap = FinanceCommonService.getStockFinDateMap(allCodes);
@@ -206,6 +198,18 @@ public class StockServiceImpl implements StockService {
 
     @Override
     public ResultVO FinYBDateReport(String sigleCode, String selectDate) {
+        List<String> allCodes = getStockCode(sigleCode);
+
+        allCodes.stream().forEach(
+                x -> {
+                    log.info(JSON.toJSONString(getYBExcleFile(x, selectDate)));
+                }
+        );
+
+        return ResultVO.ok();
+    }
+
+    private List<String> getStockCode(String sigleCode) {
         List<String> allCodes = new ArrayList<>();
         if (StringUtils.isEmpty(sigleCode)) {
             allCodes = stockCodeYmlBean.getAcode().entrySet().stream().map(x -> x.getKey()).collect(Collectors.toList());
@@ -215,13 +219,32 @@ public class StockServiceImpl implements StockService {
             allCodes.add(sigleCode);
         }
         log.info("start report {} finance .", allCodes.size());
+        return allCodes;
+    }
 
-        allCodes.stream().forEach(
-                x -> {
-                    log.info(JSON.toJSONString(getYBExcleFile(x, selectDate)));
+    @Override
+    public ResultVO FinIncomingAndPerfitReport(String code) {
+        List<String> stockCode = getStockCode(code);
+        Map<String, StockFinDateBean> stockFinDateMap = FinanceCommonService.getStockFinDateMap(stockCode);
+        Map<String, List<ProfitDateBean>> profitListMap = stockFinDateMap.entrySet().stream().collect(Collectors.toMap(s -> s.getKey(), s -> s.getValue().getProfitDateBean()));
+        //计算毛利率、营业利润率、净利率
+        Map<String, List<FinThreePerBean>> finPerMap = ProfitReportService.getFinPerMap(profitListMap);
+        List<Map<String, String>> codeList = new ArrayList<>();
+        stockCode.stream().forEach(x -> {
+            //1.提取财务数据
+            if (finPerMap.containsKey(x)) {
+                List<FinThreePerBean> finThreePerBeans = finPerMap.get(x);
+                //2.计算最近一个季度毛利率在80以上，净利率在60以上的数据
+                if (CollectionUtils.isNotEmpty(finThreePerBeans)) {
+                    FinThreePerBean finThreePerBean = finThreePerBeans.get(0);
+                    if (finThreePerBean.getGrossProfit() >= 80.0 && finThreePerBean.getNetProfit() >= 60.0) {
+                        Map<String, String> map = new HashMap<>();
+                        map.put(x, stockCodeYmlBean.getAcode().get(x));
+                        codeList.add(map);
+                    }
                 }
-        );
-
+            }
+        });
         return ResultVO.ok();
     }
 
@@ -260,7 +283,7 @@ public class StockServiceImpl implements StockService {
     }
 
     private boolean isNotFourYearKLine(List<KLineEntity> kLineEntity, StockFinDateBean stockFinDateBean) {
-        if (CollectionUtils.isEmpty(kLineEntity)){
+        if (CollectionUtils.isEmpty(kLineEntity)) {
             return true;
         }
         ProfitDateBean profitDateBean = stockFinDateBean.getProfitDateBean().stream().findFirst().orElse(null);
@@ -273,7 +296,7 @@ public class StockServiceImpl implements StockService {
         List<KLineEntity> collect = kLineEntity.stream().filter(x ->
                 DateUtil.parseDate(x.getDate()).before(fourYearEndDate)
         ).collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(collect)){
+        if (CollectionUtils.isEmpty(collect)) {
             return true;
         }
         return false;
