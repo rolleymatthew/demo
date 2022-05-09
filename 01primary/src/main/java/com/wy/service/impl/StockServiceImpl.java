@@ -232,6 +232,7 @@ public class StockServiceImpl implements StockService {
         List<Map<String, String>> code8060List = new ArrayList<>();
         List<Map<String, String>> code8050List = new ArrayList<>();
         List<Map<String, String>> code6040List = new ArrayList<>();
+        List<Map<String, String>> code6030List = new ArrayList<>();
         stockCode.stream().forEach(x -> {
             //1.提取财务数据
             if (finPerMap.containsKey(x)) {
@@ -252,6 +253,10 @@ public class StockServiceImpl implements StockService {
                         Map<String, String> map = new HashMap<>();
                         map.put(x, stockCodeYmlBean.getAcode().get(x));
                         code6040List.add(map);
+                    }else if(finThreePerBean.getGrossProfit() >= 60.0 && finThreePerBean.getNetProfit() >= 30.0){
+                        Map<String, String> map = new HashMap<>();
+                        map.put(x, stockCodeYmlBean.getAcode().get(x));
+                        code6030List.add(map);
 
                     }
                 }
@@ -263,6 +268,8 @@ public class StockServiceImpl implements StockService {
         code8050List.stream().forEach(x->log.info(x.toString()));
         log.info("收入毛利60，净利率40");
         code6040List.stream().forEach(x->log.info(x.toString()));
+        log.info("收入毛利60，净利率30");
+        code6030List.stream().forEach(x->log.info(x.toString()));
         return ResultVO.ok();
     }
 
