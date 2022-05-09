@@ -229,7 +229,9 @@ public class StockServiceImpl implements StockService {
         Map<String, List<ProfitDateBean>> profitListMap = stockFinDateMap.entrySet().stream().collect(Collectors.toMap(s -> s.getKey(), s -> s.getValue().getProfitDateBean()));
         //计算毛利率、营业利润率、净利率
         Map<String, List<FinThreePerBean>> finPerMap = ProfitReportService.getFinPerMap(profitListMap);
-        List<Map<String, String>> codeList = new ArrayList<>();
+        List<Map<String, String>> code8060List = new ArrayList<>();
+        List<Map<String, String>> code8050List = new ArrayList<>();
+        List<Map<String, String>> code6040List = new ArrayList<>();
         stockCode.stream().forEach(x -> {
             //1.提取财务数据
             if (finPerMap.containsKey(x)) {
@@ -240,11 +242,27 @@ public class StockServiceImpl implements StockService {
                     if (finThreePerBean.getGrossProfit() >= 80.0 && finThreePerBean.getNetProfit() >= 60.0) {
                         Map<String, String> map = new HashMap<>();
                         map.put(x, stockCodeYmlBean.getAcode().get(x));
-                        codeList.add(map);
+                        code8060List.add(map);
+                    }else if(finThreePerBean.getGrossProfit() >= 80.0 && finThreePerBean.getNetProfit() >= 50.0){
+                        Map<String, String> map = new HashMap<>();
+                        map.put(x, stockCodeYmlBean.getAcode().get(x));
+                        code8050List.add(map);
+
+                    }else if(finThreePerBean.getGrossProfit() >= 60.0 && finThreePerBean.getNetProfit() >= 40.0){
+                        Map<String, String> map = new HashMap<>();
+                        map.put(x, stockCodeYmlBean.getAcode().get(x));
+                        code6040List.add(map);
+
                     }
                 }
             }
         });
+        log.info("收入毛利80，净利率60");
+        code8060List.stream().forEach(x->log.info(x.toString()));
+        log.info("收入毛利80，净利率50");
+        code8050List.stream().forEach(x->log.info(x.toString()));
+        log.info("收入毛利60，净利率40");
+        code6040List.stream().forEach(x->log.info(x.toString()));
         return ResultVO.ok();
     }
 

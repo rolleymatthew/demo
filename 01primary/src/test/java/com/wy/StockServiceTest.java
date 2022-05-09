@@ -83,7 +83,7 @@ public class StockServiceTest {
 
     @Test
     void FinIncomingAndPerfitReportServiceTest() {
-//        stockService.FinIncomingAndPerfitReport(null);
-        stockService.FinIncomingAndPerfitReport("600519");
+        stockService.FinIncomingAndPerfitReport(null);
+//        stockService.FinIncomingAndPerfitReport("600519");
     }
 }
