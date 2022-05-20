@@ -246,29 +246,41 @@ public class FinanceCommonService {
                     ReadSheet readSheet1 =
                             EasyExcel.readSheet(0).head(ProfitDateBean.class)
                                     .registerReadListener(new PageReadListener<ProfitDateBean>(s -> {
-                                        if (CollectionUtils.isNotEmpty(s)) {
+                                        if (CollectionUtils.isNotEmpty(s)
+                                                && CollectionUtils.isEmpty(stockFinDateBean.getProfitDateBean())) {
                                             stockFinDateBean.setProfitDateBean(s);
+                                        } else if (CollectionUtils.isNotEmpty(stockFinDateBean.getProfitDateBean())) {
+                                            stockFinDateBean.getProfitDateBean().addAll(s);
                                         }
                                     })).build();
                     ReadSheet readSheet2 =
                             EasyExcel.readSheet(1).head(BalanceDateBean.class)
                                     .registerReadListener(new PageReadListener<BalanceDateBean>(s -> {
-                                        if (CollectionUtils.isNotEmpty(s)) {
+                                        if (CollectionUtils.isNotEmpty(s)
+                                                && CollectionUtils.isEmpty(stockFinDateBean.getBalanceDateBean())) {
                                             stockFinDateBean.setBalanceDateBean(s);
+                                        } else if (CollectionUtils.isNotEmpty(stockFinDateBean.getBalanceDateBean())) {
+                                            stockFinDateBean.getBalanceDateBean().addAll(s);
                                         }
                                     })).build();
                     ReadSheet readSheet3 =
                             EasyExcel.readSheet(2).head(CashFlowBean.class)
                                     .registerReadListener(new PageReadListener<CashFlowBean>(s -> {
-                                        if (CollectionUtils.isNotEmpty(s)) {
+                                        if (CollectionUtils.isNotEmpty(s)
+                                                && CollectionUtils.isEmpty(stockFinDateBean.getCashFlowBean())) {
                                             stockFinDateBean.setCashFlowBean(s);
+                                        } else if (CollectionUtils.isNotEmpty(stockFinDateBean.getCashFlowBean())) {
+                                            stockFinDateBean.getCashFlowBean().addAll(s);
                                         }
                                     })).build();
                     ReadSheet readSheet4 =
                             EasyExcel.readSheet(3).head(FinanceDataBean.class)
                                     .registerReadListener(new PageReadListener<FinanceDataBean>(s -> {
-                                        if (CollectionUtils.isNotEmpty(s)) {
+                                        if (CollectionUtils.isNotEmpty(s)
+                                                && CollectionUtils.isEmpty(stockFinDateBean.getFinanceDataBean())) {
                                             stockFinDateBean.setFinanceDataBean(s);
+                                        } else if (CollectionUtils.isNotEmpty(stockFinDateBean.getFinanceDataBean())) {
+                                            stockFinDateBean.getFinanceDataBean().addAll(s);
                                         }
                                     })).build();
                     // 这里注意 一定要把sheet1 sheet2 一起传进去，不然有个问题就是03版的excel 会读取多次，浪费性能

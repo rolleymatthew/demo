@@ -19,49 +19,61 @@ import java.util.stream.Collectors;
  */
 public class ReadTest {
     public static void main(String[] args) {
-        String fileName = "d:\\" + File.separator + "demo.xlsx";
+        String fileName = "D:\\stock\\financeStock\\all\\all000538.xlsx";
         // 读取全部sheet
         // 这里需要注意 DemoDataListener的doAfterAllAnalysed 会在每个sheet读取完毕后调用一次。然后所有sheet都会往同一个DemoDataListener里面写
-        EasyExcel.read(fileName, WriteTest.DemoData.class, new DemoDataListener()).doReadAll();
+//        EasyExcel.read(fileName, WriteTest.DemoData.class, new DemoDataListener()).doReadAll();
 
         // 读取部分sheet
-        fileName = "d:\\" + File.separator + "all600519.xlsx";
+//        fileName = "d:\\" + File.separator + "all600519.xlsx";
         ExcelReader excelReader = null;
-        StockFinDateBean stockFinDateBean=new StockFinDateBean();
+        StockFinDateBean stockFinDateBean = new StockFinDateBean();
         try {
             excelReader = EasyExcel.read(fileName).build();
 
             // 这里为了简单 所以注册了 同样的head 和Listener 自己使用功能必须不同的Listener
             ReadSheet readSheet1 =
                     EasyExcel.readSheet(0).head(ProfitDateBean.class)
-                            .registerReadListener(new PageReadListener<ProfitDateBean>(s->{
-                                if (CollectionUtils.isNotEmpty(s)){
+                            .registerReadListener(new PageReadListener<ProfitDateBean>(s -> {
+                                if (CollectionUtils.isNotEmpty(s)
+                                        && CollectionUtils.isEmpty(stockFinDateBean.getProfitDateBean())) {
                                     stockFinDateBean.setProfitDateBean(s);
+                                } else if (CollectionUtils.isNotEmpty(stockFinDateBean.getProfitDateBean())) {
+                                    stockFinDateBean.getProfitDateBean().addAll(s);
                                 }
                             })).build();
             ReadSheet readSheet2 =
                     EasyExcel.readSheet(1).head(BalanceDateBean.class)
-                            .registerReadListener(new PageReadListener<BalanceDateBean>(s->{
-                                if (CollectionUtils.isNotEmpty(s)){
+                            .registerReadListener(new PageReadListener<BalanceDateBean>(s -> {
+                                if (CollectionUtils.isNotEmpty(s)
+                                        && CollectionUtils.isEmpty(stockFinDateBean.getBalanceDateBean())) {
                                     stockFinDateBean.setBalanceDateBean(s);
+                                } else if (CollectionUtils.isNotEmpty(stockFinDateBean.getBalanceDateBean())) {
+                                    stockFinDateBean.getBalanceDateBean().addAll(s);
                                 }
                             })).build();
             ReadSheet readSheet3 =
                     EasyExcel.readSheet(2).head(CashFlowBean.class)
-                            .registerReadListener(new PageReadListener<CashFlowBean>(s->{
-                                if (CollectionUtils.isNotEmpty(s)){
+                            .registerReadListener(new PageReadListener<CashFlowBean>(s -> {
+                                if (CollectionUtils.isNotEmpty(s)
+                                        && CollectionUtils.isEmpty(stockFinDateBean.getCashFlowBean())) {
                                     stockFinDateBean.setCashFlowBean(s);
+                                } else if (CollectionUtils.isNotEmpty(stockFinDateBean.getCashFlowBean())) {
+                                    stockFinDateBean.getCashFlowBean().addAll(s);
                                 }
                             })).build();
             ReadSheet readSheet4 =
                     EasyExcel.readSheet(3).head(FinanceDataBean.class)
-                            .registerReadListener(new PageReadListener<FinanceDataBean>(s->{
-                                if (CollectionUtils.isNotEmpty(s)){
+                            .registerReadListener(new PageReadListener<FinanceDataBean>(s -> {
+                                if (CollectionUtils.isNotEmpty(s)
+                                        && CollectionUtils.isEmpty(stockFinDateBean.getFinanceDataBean())) {
                                     stockFinDateBean.setFinanceDataBean(s);
+                                } else if (CollectionUtils.isNotEmpty(stockFinDateBean.getFinanceDataBean())) {
+                                    stockFinDateBean.getFinanceDataBean().addAll(s);
                                 }
                             })).build();
             // 这里注意 一定要把sheet1 sheet2 一起传进去，不然有个问题就是03版的excel 会读取多次，浪费性能
-            excelReader.read(readSheet1, readSheet2,readSheet3,readSheet4);
+            excelReader.read(readSheet1, readSheet2, readSheet3, readSheet4);
         } finally {
             if (excelReader != null) {
                 // 这里千万别忘记关闭，读的时候会创建临时文件，到时磁盘会崩的
@@ -71,6 +83,6 @@ public class ReadTest {
         stockFinDateBean.getBalanceDateBean().stream().forEach(s-> System.out.println(s.getReportDate()));
         stockFinDateBean.getProfitDateBean().stream().forEach(s-> System.out.println(s.getOperatingIncome()));
         stockFinDateBean.getCashFlowBean().stream().forEach(s-> System.out.println(s.getUnrecognizedInvestmentLoss()));
-        stockFinDateBean.getFinanceDataBean().stream().forEach(s-> System.out.println(s.getNetAssetsWeight()));
-     }
+        stockFinDateBean.getFinanceDataBean().stream().forEach(s -> System.out.println(s.getNetAssetsWeight()));
+    }
 }
