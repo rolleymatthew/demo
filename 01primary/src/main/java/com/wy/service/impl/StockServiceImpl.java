@@ -466,15 +466,21 @@ public class StockServiceImpl implements StockService {
             yBEpsDataDTO.setTwoyeardate(yearEpsList.get(1).getDate());
             yBEpsDataDTO.setThreeyeardate(yearEpsList.get(2).getDate());
             yBEpsDataDTO.setFouryeardate(yearEpsList.get(3).getDate());
-            yBEpsDataDTO.setOneyearepstotal(yearEpsList.get(0).getEps());
-            yBEpsDataDTO.setTwoyearepstotal(yearEpsList.get(1).getEps());
-            yBEpsDataDTO.setThreeyearepstotal(yearEpsList.get(2).getEps());
-            yBEpsDataDTO.setFouryearepstotal(yearEpsList.get(3).getEps());
+            yBEpsDataDTO.setOneyearepstotal(convertEPS(yearEpsList.get(0).getEps()));
+            yBEpsDataDTO.setTwoyearepstotal(convertEPS(yearEpsList.get(1).getEps()));
+            yBEpsDataDTO.setThreeyearepstotal(convertEPS(yearEpsList.get(2).getEps()));
+            yBEpsDataDTO.setFouryearepstotal(convertEPS(yearEpsList.get(3).getEps()));
             yBEpsDataDTO.setFouryearavarageepstotal(getYearAvarage(yBEpsDataDTO));
         }
 
     }
 
+    private BigDecimal convertEPS(BigDecimal eps){
+        if (eps.equals(new BigDecimal(0))){
+            return new BigDecimal(0.0001);
+        }
+        return eps;
+    }
     private BigDecimal getYearAvarage(YBEpsDataDTO yBEpsDataDTO) {
         BigDecimal add = add(yBEpsDataDTO.getOneyearepstotal(), yBEpsDataDTO.getTwoyearepstotal()
                 , yBEpsDataDTO.getThreeyearepstotal(), yBEpsDataDTO.getFouryearepstotal());

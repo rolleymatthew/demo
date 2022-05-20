@@ -78,7 +78,7 @@ public class StockServiceTest {
     @Test
     void YBServiceTest() {
 //        stockService.FinYBDateReport(null,null);
-        stockService.FinYBDateReport("600105",null);
+        stockService.FinYBDateReport("600110",null);
     }
 
     @Test
