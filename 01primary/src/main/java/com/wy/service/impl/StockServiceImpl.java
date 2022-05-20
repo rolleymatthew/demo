@@ -244,16 +244,16 @@ public class StockServiceImpl implements StockService {
                         Map<String, String> map = new HashMap<>();
                         map.put(x, stockCodeYmlBean.getAcode().get(x));
                         code8060List.add(map);
-                    }else if(finThreePerBean.getGrossProfit() >= 80.0 && finThreePerBean.getNetProfit() >= 50.0){
+                    } else if (finThreePerBean.getGrossProfit() >= 80.0 && finThreePerBean.getNetProfit() >= 50.0) {
                         Map<String, String> map = new HashMap<>();
                         map.put(x, stockCodeYmlBean.getAcode().get(x));
                         code8050List.add(map);
 
-                    }else if(finThreePerBean.getGrossProfit() >= 60.0 && finThreePerBean.getNetProfit() >= 40.0){
+                    } else if (finThreePerBean.getGrossProfit() >= 60.0 && finThreePerBean.getNetProfit() >= 40.0) {
                         Map<String, String> map = new HashMap<>();
                         map.put(x, stockCodeYmlBean.getAcode().get(x));
                         code6040List.add(map);
-                    }else if(finThreePerBean.getGrossProfit() >= 60.0 && finThreePerBean.getNetProfit() >= 30.0){
+                    } else if (finThreePerBean.getGrossProfit() >= 60.0 && finThreePerBean.getNetProfit() >= 30.0) {
                         Map<String, String> map = new HashMap<>();
                         map.put(x, stockCodeYmlBean.getAcode().get(x));
                         code6030List.add(map);
@@ -263,13 +263,13 @@ public class StockServiceImpl implements StockService {
             }
         });
         log.info("收入毛利80，净利率60");
-        code8060List.stream().forEach(x->log.info(x.toString()));
+        code8060List.stream().forEach(x -> log.info(x.toString()));
         log.info("收入毛利80，净利率50");
-        code8050List.stream().forEach(x->log.info(x.toString()));
+        code8050List.stream().forEach(x -> log.info(x.toString()));
         log.info("收入毛利60，净利率40");
-        code6040List.stream().forEach(x->log.info(x.toString()));
+        code6040List.stream().forEach(x -> log.info(x.toString()));
         log.info("收入毛利60，净利率30");
-        code6030List.stream().forEach(x->log.info(x.toString()));
+        code6030List.stream().forEach(x -> log.info(x.toString()));
         return ResultVO.ok();
     }
 
@@ -545,6 +545,9 @@ public class StockServiceImpl implements StockService {
         } else {
             //不是第一季需要减去上一季的
             ret = epsBean.getEps().subtract(epsList.get(i1).getEps());
+        }
+        if (ret.compareTo(new BigDecimal(0.0)) == 0) {
+            ret=new BigDecimal(0.001);
         }
         return ret;
     }
