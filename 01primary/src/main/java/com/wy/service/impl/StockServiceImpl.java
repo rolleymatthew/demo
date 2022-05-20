@@ -200,7 +200,7 @@ public class StockServiceImpl implements StockService {
     public ResultVO FinYBDateReport(String sigleCode, String selectDate) {
         List<String> allCodes = getStockCode(sigleCode);
 
-        allCodes.stream().forEach(
+        allCodes.parallelStream().forEach(
                 x -> {
                     log.info(JSON.toJSONString(getYBExcleFile(x, selectDate)));
                 }
